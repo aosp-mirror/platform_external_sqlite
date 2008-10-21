@@ -12,8 +12,13 @@
 ** This file contains code to implement the "sqlite" command line
 ** utility for accessing SQLite databases.
 **
-** $Id: shell.c,v 1.185 2008/08/11 19:12:35 drh Exp $
+** $Id: shell.c,v 1.178 2008/05/05 16:27:24 drh Exp $
 */
+
+#ifndef NO_ANDROID_FUNCS
+#include <sqlite3_android.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -79,10 +84,10 @@ static void beginTimer(void){
   }
 }
 
-/* Return the difference of two time_structs in seconds */
-static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
-  return (pEnd->tv_usec - pStart->tv_usec)*0.000001 + 
-         (double)(pEnd->tv_sec - pStart->tv_sec);
+/* Return the difference of two time_structs in microseconds */
+static int timeDiff(struct timeval *pStart, struct timeval *pEnd){
+  return (pEnd->tv_usec - pStart->tv_usec) + 
+         1000000*(pEnd->tv_sec - pStart->tv_sec);
 }
 
 /*
@@ -93,8 +98,8 @@ static void endTimer(void){
     struct rusage sEnd;
     getrusage(RUSAGE_SELF, &sEnd);
     printf("CPU Time: user %f sys %f\n",
-       timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
-       timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
+       0.000001*timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
+       0.000001*timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
   }
 }
 #define BEGIN_TIMER beginTimer()
@@ -959,6 +964,10 @@ static void open_db(struct callback_data *p){
       sqlite3_create_function(db, "shellstatic", 0, SQLITE_UTF8, 0,
           shellstaticFunc, 0, 0);
     }
+#ifndef NO_ANDROID_FUNCS
+    register_android_functions(db, 0);
+    register_localized_collators(db, "", 0);
+#endif    
     if( db==0 || SQLITE_OK!=sqlite3_errcode(db) ){
       fprintf(stderr,"Unable to open database \"%s\": %s\n", 
           p->zDbFilename, sqlite3_errmsg(db));
@@ -1090,7 +1099,6 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     open_db(p);
     fprintf(p->out, "BEGIN TRANSACTION;\n");
     p->writableSchema = 0;
-    sqlite3_exec(p->db, "PRAGMA writable_schema=ON", 0, 0, 0);
     if( nArg==1 ){
       run_schema_dump_query(p, 
         "SELECT name, type, sql FROM sqlite_master "
@@ -1121,7 +1129,6 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       fprintf(p->out, "PRAGMA writable_schema=OFF;\n");
       p->writableSchema = 0;
     }
-    sqlite3_exec(p->db, "PRAGMA writable_schema=OFF", 0, 0, 0);
     if( zErrMsg ){
       fprintf(stderr,"Error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
@@ -1948,7 +1955,7 @@ int main(int argc, char **argv){
     }
   }
   if( i<argc ){
-#if defined(SQLITE_OS_OS2) && SQLITE_OS_OS2
+#ifdef OS_OS2
     data.zDbFilename = (const char *)convertCpPathToUtf8( argv[i++] );
 #else
     data.zDbFilename = argv[i++];
@@ -2064,8 +2071,7 @@ int main(int argc, char **argv){
       int nHistory;
       printf(
         "SQLite version %s\n"
-        "Enter \".help\" for instructions\n"
-        "Enter SQL statements terminated with a \";\"\n",
+        "Enter \".help\" for instructions\n",
         sqlite3_libversion()
       );
       zHome = find_home_dir();
