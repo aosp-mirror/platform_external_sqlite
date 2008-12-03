@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "z888863e32896034dc110c6d92e7ce1e3",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1000559
+      },
+      "writtenOn": "2008-12-03T16:11:11Z",
+      "side": 1,
+      "message": "Why does SQLite suddenly need to link with ncurses?",
+      "revId": "ea9b6b02f577cea65972fbb593e41e3760d07caf",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
