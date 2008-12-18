@@ -237,13 +237,11 @@ bool phone_number_compare(const char* a, const char* b)
     int ia, ib;
     int matched;
 
-    if (a == NULL || b == NULL)
-    {
+    if (a == NULL || b == NULL) {
         return false; 
     }
 
-    if (strlen(a) == 0 || strlen(b) == 0)
-    {
+    if (strlen(a) == 0 || strlen(b) == 0) {
         return false;
     }
 
@@ -302,21 +300,29 @@ bool phone_number_compare(const char* a, const char* b)
      *     (for this, a '0' and a '00' prefix would have succeeded above)
      */
 
-    if (matchIntlPrefix(a, ia + 1) 
-        && matchIntlPrefix (b, ib +1)
-    ) {
+    if (matchIntlPrefix(a, ia + 1) && matchIntlPrefix(b, ib +1)) {
         return true;
     }
 
-    if (matchTrunkPrefix(a, ia + 1) 
-        && matchIntlPrefixAndCC(b, ib +1)
-    ) {
+    if (matchTrunkPrefix(a, ia + 1) && matchIntlPrefixAndCC(b, ib +1)) {
         return true;
     }
 
-    if (matchTrunkPrefix(b, ib + 1) 
-        && matchIntlPrefixAndCC(a, ia +1)
-    ) {
+    if (matchTrunkPrefix(b, ib + 1) && matchIntlPrefixAndCC(a, ia +1)) {
+        return true;
+    }
+
+    /*
+     * Last resort: if the number of unmatched characters on both sides is less than or equal
+     * to the length of the longest country code and only one number starts with a + accept
+     * the match. This is because some countries like France and Russia have an extra prefix
+     * digit that is used when dialing locally in country that does not show up when you dial
+     * the number using the country code. In France this prefix digit is used to determine
+     * which land line carrier to route the call over.
+     */
+    bool aPlusFirst = (*a == '+');
+    bool bPlusFirst = (*b == '+');
+    if (ia < 4 && ib < 4 && (aPlusFirst || bPlusFirst) && !(aPlusFirst && bPlusFirst)) {
         return true;
     }
 
