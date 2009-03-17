@@ -27,6 +27,7 @@
 
 #include "sqlite3_android.h"
 #include "PhoneNumberUtils.h"
+#include "PhoneticStringUtils.h"
 
 #define ENABLE_ANDROID_LOG 0
 
@@ -66,6 +67,24 @@ static int collate8(void *p, int n1, const void *v1, int n2, const void *v2)
         return 1;
     } else {
         return 0;
+    }
+}
+
+static void get_phonetically_sortable_string(
+    sqlite3_context * context, int argc, sqlite3_value ** argv)
+{
+    if (argc != 1) {
+      sqlite3_result_null(context);
+      return;
+    }
+    char const * src = (char const *)sqlite3_value_text(argv[0]);
+    char * ret;
+    size_t len;
+
+    if (!android::GetPhoneticallySortableString(src, &ret, &len)) {
+        sqlite3_result_null(context);
+    } else {
+        sqlite3_result_text(context, ret, len, free);
     }
 }
 
@@ -391,6 +410,15 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
     }
 #endif
 
+    // Register the GET_PHONETICALLY_SORTABLE_STRING function
+    err = sqlite3_create_function(handle,
+                                  "GET_PHONETICALLY_SORTABLE_STRING",
+                                  1, SQLITE_UTF8, NULL,
+                                  get_phonetically_sortable_string,
+                                  NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+
     return SQLITE_OK;
 }
-
