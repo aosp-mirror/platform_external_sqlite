@@ -19,19 +19,6 @@
 
 namespace android {
 
-
-/*
- * Special characters
- *
- * (See "What is a phone number?" doc)
- * 'p' --- GSM pause character, same as comma
- * 'n' --- GSM wild character
- * 'w' --- GSM wait character
- */
-static char PAUSE = 'p';
-static char WAIT = 'w';
-static char WILD = 'n';
-
 static int MIN_MATCH = 5;
 
 /** True if c is ISO-LATIN characters 0-9 */
@@ -40,17 +27,10 @@ static bool isISODigit (char c)
     return c >= '0' && c <= '9';
 }
 
-/** True if c is ISO-LATIN characters 0-9, *, # , +, WILD  */
-static bool isDialable(char c)
-{
-    return (c >= '0' && c <= '9') || c == '*' || c == '#' || c == '+' || c == WILD;         
-}
-
-/** True if c is ISO-LATIN characters 0-9, *, # , +, WILD, WAIT, PAUSE   */
+/** True if c is ISO-LATIN characters 0-9, *, # , +  */
 static bool isNonSeparator(char c)
 {
-    return (c >= '0' && c <= '9') || c == '*' || c == '#' || c == '+'
-            || c == WILD || c == WAIT || c == PAUSE;         
+    return (c >= '0' && c <= '9') || c == '*' || c == '#' || c == '+';
 }
 
 /**
@@ -66,8 +46,8 @@ static bool isNonSeparator(char c)
  */
 static bool matchIntlPrefix(const char* a, int len) 
 {
-    /* '([^0-9*#+pwn]\+[^0-9*#+pwn] | [^0-9*#+pwn]0(0|11)[^0-9*#+pwn] )$' */
-    /*        0       1                           2 3 45               */ 
+    /* '([^0-9*#+]\+[^0-9*#+] | [^0-9*#+]0(0|11)[^0-9*#+] )$' */
+    /*        0    1                     2 3 45               */ 
 
     int state = 0;
     for (int i = 0 ; i < len ; i++) {
@@ -125,8 +105,8 @@ static bool matchTrunkPrefix(const char* a, int len)
  *  We're fast and loose with the country code. Any \d{1,3} matches */
 static bool matchIntlPrefixAndCC(const char* a, int len)
 {
-    /*  [^0-9*#+pwn]*(\+|0(0|11)\d\d?\d? [^0-9*#+pwn] $ */
-    /*      0          1 2 3 45  6 7  8                 */
+    /*  [^0-9*#+]*(\+|0(0|11)\d\d?\d? [^0-9*#+] $ */
+    /*      0       1 2 3 45  6 7  8              */
 
     int state = 0;
     for (int i = 0 ; i < len ; i++ ) {
@@ -198,29 +178,6 @@ static int indexOf(const char *a, char b) {
         return ix - a;
 }
 
-/** index of the last character of the network portion 
- *  (eg anything after is a post-dial string)
- */
-static int indexOfLastNetworkChar(const char* a)
-{
-    int pIndex, wIndex;
-    int origLength;
-    int trimIndex;
-
-    origLength = strlen(a);
-     
-    pIndex = indexOf(a, PAUSE);
-    wIndex = indexOf(a, WAIT);
-
-    trimIndex = minPositive(pIndex, wIndex);
-
-    if (trimIndex < 0) {
-        return origLength - 1;
-    } else {
-        return trimIndex - 1; 
-    }
-}
-
 /**
  * Compare phone numbers a and b, return true if they're identical
  * enough for caller ID purposes.
@@ -241,12 +198,16 @@ bool phone_number_compare(const char* a, const char* b)
         return false; 
     }
 
-    if (strlen(a) == 0 || strlen(b) == 0) {
+    ia = strlen(a);
+    ib = strlen(b);
+    if (ia == 0 || ib == 0) {
         return false;
     }
 
-    ia = indexOfLastNetworkChar(a);
-    ib = indexOfLastNetworkChar(b);
+    // Compare from right to left
+    ia--;
+    ib--;
+
     matched = 0;
 
     while (ia >= 0 && ib >=0) {
@@ -255,20 +216,20 @@ bool phone_number_compare(const char* a, const char* b)
 
         ca = a[ia];
 
-        if (!isDialable(ca)) {
+        if (!isNonSeparator(ca)) {
             ia--;
             skipCmp = true;
         }
 
         cb = b[ib];
 
-        if (!isDialable(cb)) {
+        if (!isNonSeparator(cb)) {
             ib--;
             skipCmp = true;
         }
 
         if (!skipCmp) {
-            if (cb != ca && ca != WILD && cb != WILD) {
+            if (cb != ca) {
                 break;
             }
             ia--; ib--; matched++;
@@ -280,7 +241,7 @@ bool phone_number_compare(const char* a, const char* b)
         
         // if the input strings match, but their lengths < MIN_MATCH, 
         // treat them as equal.
-        if (aLen == strlen(b) && aLen == matched) {
+        if (aLen == (int)strlen(b) && aLen == matched) {
             return true;
         }
         return false;
