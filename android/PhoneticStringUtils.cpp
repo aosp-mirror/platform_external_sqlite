@@ -89,11 +89,10 @@ int GetPhoneticallySortableCodePoint(int codepoint,
     }
 
     if (codepoint <= 0x0020 || codepoint == 0x3000) {
-        // Whitespace.
-        // Skip without increment of the variable "new_len".
+        // Whitespace should be ignored.
         // Note: Formally, more "whitespace" exist. This block only
         // handles part of them
-        return 0x0020;
+        return -1;
     } else if ((0x0021 <= codepoint && codepoint <= 0x007E) ||
                (0xFF01 <= codepoint && codepoint <= 0xFF5E)) {
         // Ascii and fullwidth ascii
@@ -369,7 +368,7 @@ bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len){
         for (codepoint_index = 0, i = 0, next = 0;
              static_cast<size_t>(i) < src_len &&
                      codepoint_index < MAX_CODEPOINTS;
-             i = next, codepoint_index++) {
+             i = next) {
             int codepoint = GetCodePointFromUtf8(src, src_len, i, &next);
             if (codepoint <= 0) {
                 return false;
@@ -384,10 +383,14 @@ bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len){
                     GetPhoneticallySortableCodePoint(codepoint,
                                                      next_codepoint,
                                                      &next_is_consumed);
-
             // dakuten (voiced mark) or han-dakuten (half-voiced mark) existed.
             if (next_is_consumed) {
                 next = tmp_next;
+            }
+
+            if (codepoints[codepoint_index] < 0) {
+              // Do not increment codepoint_index.
+              continue;
             }
 
             if (codepoints[codepoint_index] < 128) {  // 1 << 7
@@ -407,7 +410,17 @@ bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len){
             } else {
                 new_len += 6;
             }
+
+            codepoint_index++;
         }
+    }
+
+    if (codepoint_index == 0) {
+        // If all of codepoints are invalid, we place the string at the end of
+        // the list.
+        codepoints[0] = 0x10000 + CODEPOINT_FOR_NULL_STR;
+        codepoint_index = 1;
+        new_len = 4;
     }
 
     new_len += 1;  // For '\0'.
