@@ -32,6 +32,7 @@ class TestExecutor {
   void testGetCodePointFromUtf8();
   void testGetPhoneticallySortableCodePointAscii();
   void testGetPhoneticallySortableCodePointKana();
+  void testGetPhoneticallySortableCodePointWhitespaceOnly();
   void testGetPhoneticallySortableCodePointSimpleCompare();
   void testGetUtf8FromCodePoint();
   void testGetPhoneticallySortableString();
@@ -66,6 +67,7 @@ bool TestExecutor::DoAllTests() {
   DoOneTest(&TestExecutor::testGetCodePointFromUtf8);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointAscii);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointKana);
+  DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointWhitespaceOnly);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare);
   DoOneTest(&TestExecutor::testGetUtf8FromCodePoint);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableString);
@@ -121,6 +123,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointAscii() {
                                                     &next_is_consumed);
     if (halfwidth[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
+      m_success = false;
+      return;
     }
     if (next_is_consumed) {
       printf("next_is_consumed become true at 0x%04X", codepoint);
@@ -133,6 +137,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointAscii() {
                                                     &next_is_consumed);
     if (fullwidth[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
+      m_success = false;
+      return;
     }
     if (next_is_consumed) {
       printf("next_is_consumed become true at 0x%04X", codepoint);
@@ -158,6 +164,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
                                                    &next_is_consumed);
     if (hiragana[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
+      m_success = false;
+      return;
     }
     if (next_is_consumed) {
       printf("next_is_consumed become true at 0x%04X", codepoint);
@@ -171,6 +179,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
                                                    &next_is_consumed);
     if (fullwidth_katakana[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
+      m_success = false;
+      return;
     }
     if (next_is_consumed) {
       printf("next_is_consumed become true at 0x%04X", codepoint);
@@ -219,6 +229,19 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
     EXPECT_EQ_VALUE(fullwidth_katakana[i], hiragana[i]);
     EXPECT_EQ_VALUE(halfwidth_katakana_result[i], hiragana[i]);
   }
+}
+
+void TestExecutor::testGetPhoneticallySortableCodePointWhitespaceOnly() {
+  printf("testGetPhoneticallySortableCodePointWhitespaceOnly");
+  // Halfwidth space
+  int result = GetPhoneticallySortableCodePoint(0x0020, 0x0061, NULL);
+  ASSERT_EQ_VALUE(result, -1);
+  // Fullwidth space
+  result = GetPhoneticallySortableCodePoint(0x3000, 0x0062, NULL);
+  ASSERT_EQ_VALUE(result, -1);
+  // tab
+  result = GetPhoneticallySortableCodePoint(0x0009, 0x0062, NULL);
+  ASSERT_EQ_VALUE(result, -1);
 }
 
 void TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare() {
@@ -345,6 +368,9 @@ void TestExecutor::testGetPhoneticallySortableString() {
   EXPECT_EQ_UTF8_UTF8(
       "\xE3\x81\x82\xE3\x82\xA4\xE3\x81\x86\xEF\xBD\xB4\xE3\x82\xAA",
       "\xE3\x81\x82\xE3\x81\x84\xE3\x81\x86\xE3\x81\x88\xE3\x81\x8A");
+
+  // whitespace -> string which should be placed at last
+  EXPECT_EQ_UTF8_UTF8("    \t", "\xF0\x9F\xBF\xBD");
 }
 
 int main() {
