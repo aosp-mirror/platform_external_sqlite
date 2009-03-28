@@ -82,7 +82,9 @@ static void get_phonetically_sortable_string(
     size_t len;
 
     if (!android::GetPhoneticallySortableString(src, &ret, &len)) {
-        sqlite3_result_null(context);
+        // Put this text at the end of a list.
+        sqlite3_result_text(context, "\xF0\x9F\xBF\xBD", -1, SQLITE_STATIC);
+        // sqlite3_result_null(context);
     } else {
         sqlite3_result_text(context, ret, len, free);
     }
