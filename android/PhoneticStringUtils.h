@@ -29,7 +29,8 @@ int GetCodePointFromUtf8(const char *src, size_t len, size_t index, int *next);
 // depends on each Locale. Note that currently this function considers only
 // Japanese. The variable "next_is_consumed" is set to true if "next_codepoint"
 // is "consumed" (e.g. Japanese halfwidth katakana's voiced mark is consumed
-// when previous "codepoint" is appropriate)
+// when previous "codepoint" is appropriate). If the codepoint should not be
+// considered when sorting (e.g. whitespaces), -1 is returned.
 int GetPhoneticallySortableCodePoint(int codepoint,
                                      int next_codepoint,
                                      bool *next_is_consumed);
