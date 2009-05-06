@@ -161,7 +161,11 @@ static void delete_file(sqlite3_context * context, int argc, sqlite3_value ** ar
         sqlite3_result_null(context);
         return;        
     }
-    
+    if (strstr(path, "/../") != NULL) {
+        sqlite3_result_null(context);
+        return;
+    }
+
     int err = unlink(path);
     if (err != -1) {
         // No error occured, return true
