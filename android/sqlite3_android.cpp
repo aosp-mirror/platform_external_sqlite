@@ -219,14 +219,17 @@ struct SqliteUserData {
 /**
  * This function is invoked as:
  *
- *  _TOKENIZE('<token_table>', <data_row_id>, <data>, <delimiter>, <use token index>)
+ *  _TOKENIZE('<token_table>', <data_row_id>, <data>, <delimiter>,
+ *             <use_token_index>, <data_tag>)
  *
- * If <use token index> is omitted, is is treated as 0.
+ * If <use_token_index> is omitted, it is treated as 0.
+ * If <data_tag> is omitted, it is treated as NULL.
  *
  * It will split <data> on each instance of <delimiter> and insert each token
- * into <token_table>. <token_table> must have 3 columns:
- * token TEXT, source INTEGER, token_index INTEGER
- * The token_index column is not needed if <use token index> is 0.
+ * into <token_table>. The following columns in <token_table> are used:
+ * token TEXT, source INTEGER, token_index INTEGER, tag (any type)
+ * The token_index column is not required if <use_token_index> is 0.
+ * The tag column is not required if <data_tag> is NULL.
  *
  * One row is inserted for each token in <data>.
  * In each inserted row, 'source' is <data_row_id>.
@@ -234,7 +237,8 @@ struct SqliteUserData {
  * the entire <data> string, and 'token_index' is 0.
  * In each row I (where 1 <= I < N, and N is the number of tokens in <data>)
  * 'token' will be set to the hex collation key of the I:th token (0-based).
- * If <use token index> != 0, 'token_index' will be set to I.
+ * If <use_token_index> != 0, 'token_index' is set to I.
+ * If <data_tag> is not NULL, 'tag' is set to <data_tag>.
  *
  * In other words, there will be one row for the entire string,
  * and one row for each token except the first one.
@@ -246,15 +250,20 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
     //LOGD("enter tokenize");
     int err;
     int useTokenIndex = 0;
+    int useDataTag = 0;
 
-    if (!(argc == 4 || argc == 5)) {
-        LOGE("Tokenize requires 4 or 5 arguments");
+    if (!(argc >= 4 || argc <= 6)) {
+        LOGE("Tokenize requires 4 to 6 arguments");
         sqlite3_result_null(context);
         return;
     }
 
     if (argc > 4) {
         useTokenIndex = sqlite3_value_int(argv[4]);
+    }
+
+    if (argc > 5) {
+        useDataTag = (sqlite3_value_type(argv[5]) != SQLITE_NULL);
     }
 
     sqlite3 * handle = sqlite3_context_db_handle(context);
@@ -269,12 +278,12 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
     // Get or create the prepared statement for the insertions
     sqlite3_stmt * statement = (sqlite3_stmt *)sqlite3_get_auxdata(context, 0);
     if (!statement) {
-        char * sql;
-        if (useTokenIndex) {
-            sql = sqlite3_mprintf("INSERT INTO %s (token, source, token_index) VALUES (?, ?, ?);", tokenTable);
-        } else {
-            sql = sqlite3_mprintf("INSERT INTO %s (token, source) VALUES (?, ?);", tokenTable);
-        }
+        char const * tokenIndexCol = useTokenIndex ? ", token_index" : "";
+        char const * tokenIndexParam = useTokenIndex ? ", ?" : "";
+        char const * dataTagCol = useDataTag ? ", tag" : "";
+        char const * dataTagParam = useDataTag ? ", ?" : "";
+        char * sql = sqlite3_mprintf("INSERT INTO %s (token, source%s%s) VALUES (?, ?%s%s);",
+                tokenTable, tokenIndexCol, dataTagCol, tokenIndexParam, dataTagParam);
         err = sqlite3_prepare_v2(handle, sql, -1, &statement, NULL);
         sqlite3_free(sql);
         if (err) {
@@ -298,6 +307,17 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
         LOGE("bind failed");
         sqlite3_result_null(context);
         return;
+    }
+
+    // Bind <data_tag> to the tag column
+    if (useDataTag) {
+        int dataTagParamIndex = useTokenIndex ? 4 : 3;
+        err = sqlite3_bind_value(statement, dataTagParamIndex, argv[5]);
+        if (err != SQLITE_OK) {
+            LOGE("bind failed");
+            sqlite3_result_null(context);
+            return;
+        }
     }
 
     // Get the raw bytes for the string to tokenize
@@ -417,6 +437,10 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
         return err;
     }
     err = sqlite3_create_function(handle, "_TOKENIZE", 5, SQLITE_UTF16, collator, tokenize, NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+    err = sqlite3_create_function(handle, "_TOKENIZE", 6, SQLITE_UTF16, collator, tokenize, NULL, NULL);
     if (err != SQLITE_OK) {
         return err;
     }
