@@ -90,6 +90,25 @@ static void get_phonetically_sortable_string(
     }
 }
 
+static void get_normalized_string(
+    sqlite3_context * context, int argc, sqlite3_value ** argv)
+{
+    if (argc != 1) {
+      sqlite3_result_null(context);
+      return;
+    }
+    char const * src = (char const *)sqlite3_value_text(argv[0]);
+    char * ret;
+    size_t len;
+
+    if (!android::GetNormalizedString(src, &ret, &len)) {
+        // Probably broken string. Return 0 length string.
+        sqlite3_result_text(context, "", -1, SQLITE_STATIC);
+    } else {
+        sqlite3_result_text(context, ret, len, free);
+    }
+}
+
 static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
     if (argc != 2) {
@@ -460,6 +479,16 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
                                   "GET_PHONETICALLY_SORTABLE_STRING",
                                   1, SQLITE_UTF8, NULL,
                                   get_phonetically_sortable_string,
+                                  NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+
+    // Register the GET_NORMALIZED_STRING function
+    err = sqlite3_create_function(handle,
+                                  "GET_NORMALIZED_STRING",
+                                  1, SQLITE_UTF8, NULL,
+                                  get_normalized_string,
                                   NULL, NULL);
     if (err != SQLITE_OK) {
         return err;
