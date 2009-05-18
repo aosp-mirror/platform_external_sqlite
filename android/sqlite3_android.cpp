@@ -200,21 +200,42 @@ struct SqliteUserData {
 /**
  * This function is invoked as:
  *
- *  _TOKENIZE('<token_table>', <data_row_id>, <data>, <delimiter>)
+ *  _TOKENIZE('<token_table>', <data_row_id>, <data>, <delimiter>, <use token index>)
  *
- * It will then split data on each instance of delimiter and insert each token
- * into token_table's 'token' column with data_row_id in the 'source' column.
+ * If <use token index> is omitted, is is treated as 0.
+ *
+ * It will split <data> on each instance of <delimiter> and insert each token
+ * into <token_table>. <token_table> must have 3 columns:
+ * token TEXT, source INTEGER, token_index INTEGER
+ * The token_index column is not needed if <use token index> is 0.
+ *
+ * One row is inserted for each token in <data>.
+ * In each inserted row, 'source' is <data_row_id>.
+ * In the first inserted row, 'token' is the hex collation key of
+ * the entire <data> string, and 'token_index' is 0.
+ * In each row I (where 1 <= I < N, and N is the number of tokens in <data>)
+ * 'token' will be set to the hex collation key of the I:th token (0-based).
+ * If <use token index> != 0, 'token_index' will be set to I.
+ *
+ * In other words, there will be one row for the entire string,
+ * and one row for each token except the first one.
+ *
  * The function returns the number of tokens generated.
  */
 static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
     //LOGD("enter tokenize");
     int err;
+    int useTokenIndex = 0;
 
-    if (argc != 4) {
-        LOGE("Tokenize requires 4 arguments");
+    if (!(argc == 4 || argc == 5)) {
+        LOGE("Tokenize requires 4 or 5 arguments");
         sqlite3_result_null(context);
         return;
+    }
+
+    if (argc > 4) {
+        useTokenIndex = sqlite3_value_int(argv[4]);
     }
 
     sqlite3 * handle = sqlite3_context_db_handle(context);
@@ -229,7 +250,12 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
     // Get or create the prepared statement for the insertions
     sqlite3_stmt * statement = (sqlite3_stmt *)sqlite3_get_auxdata(context, 0);
     if (!statement) {
-        char * sql = sqlite3_mprintf("INSERT INTO %s (token, source) VALUES (?, ?);", tokenTable);
+        char * sql;
+        if (useTokenIndex) {
+            sql = sqlite3_mprintf("INSERT INTO %s (token, source, token_index) VALUES (?, ?, ?);", tokenTable);
+        } else {
+            sql = sqlite3_mprintf("INSERT INTO %s (token, source) VALUES (?, ?);", tokenTable);
+        }
         err = sqlite3_prepare_v2(handle, sql, -1, &statement, NULL);
         sqlite3_free(sql);
         if (err) {
@@ -303,6 +329,15 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
             break;
         }
 
+        if (useTokenIndex) {
+            err = sqlite3_bind_int(statement, 3, numTokens);
+            if (err != SQLITE_OK) {
+                LOGE(" sqlite3_bind_int error %d", err);
+                free(base16buf);
+                break;
+            }
+        }
+
         err = sqlite3_step(statement);
         free(base16buf);
 
@@ -361,7 +396,11 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
     err = sqlite3_create_function(handle, "_TOKENIZE", 4, SQLITE_UTF16, collator, tokenize, NULL, NULL);
     if (err != SQLITE_OK) {
         return err;
-    }    
+    }
+    err = sqlite3_create_function(handle, "_TOKENIZE", 5, SQLITE_UTF16, collator, tokenize, NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
 
     return SQLITE_OK;
 }
