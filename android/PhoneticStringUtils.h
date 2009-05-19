@@ -35,6 +35,19 @@ int GetPhoneticallySortableCodePoint(int codepoint,
                                      int next_codepoint,
                                      bool *next_is_consumed);
 
+// Returns codepoint which is "normalized", whose definition depends on each
+// Locale. Note that currently this function normalizes only Japanese; the
+// other characters are remained as is.
+// The variable "next_is_consumed" is set to true if "next_codepoint"
+// is "consumed" (e.g. Japanese halfwidth katakana's voiced mark is consumed
+// when previous "codepoint" is appropriate, like half-width "ka").
+//
+// In Japanese, "normalized" means that half-width and full-width katakana is
+// appropriately converted to hiragana.
+int GetNormalizedCodePoint(int codepoint,
+                           int next_codepoint,
+                           bool *next_is_consumed);
+
 // Pushes Utf8 expression of "codepoint" to "dst". Returns true when successful.
 // If input is invalid or the length of the destination is not enough,
 // returns false.
@@ -46,6 +59,13 @@ bool GetUtf8FromCodePoint(int codepoint, char *dst, size_t len, size_t *index);
 //
 // Note that currently this function considers only Japanese.
 bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len);
+
+// Creates a "normalized" Utf8 string and push it into "dst". *dst must be
+// freed after being used outside.
+// If "src" is NULL or its length is 0, "dst" is set to \uFFFF.
+//
+// Note that currently this function considers only Japanese.
+bool GetNormalizedString(const char *src, char **dst, size_t *len);
 
 }  // namespace android
 
