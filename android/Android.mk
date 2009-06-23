@@ -27,6 +27,6 @@ LOCAL_SRC_FILES := \
 	PhoneticStringUtils.cpp \
 	PhoneticStringUtilsTest.cpp
 
-LOCAL_MODULE_TAGS := tests optional
+LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_EXECUTABLE)
