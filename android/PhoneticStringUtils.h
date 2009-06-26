@@ -18,6 +18,7 @@
 #define _ANDROID_PHONETIC_STRING_UTILS_H
 
 #include <string.h>  // For size_t.
+#include <utils/String8.h>
 
 namespace android {
 
@@ -31,8 +32,8 @@ int GetCodePointFromUtf8(const char *src, size_t len, size_t index, int *next);
 // is "consumed" (e.g. Japanese halfwidth katakana's voiced mark is consumed
 // when previous "codepoint" is appropriate). If the codepoint should not be
 // considered when sorting (e.g. whitespaces), -1 is returned.
-int GetPhoneticallySortableCodePoint(int codepoint,
-                                     int next_codepoint,
+int GetPhoneticallySortableCodePoint(char32_t codepoint,
+                                     char32_t next_codepoint,
                                      bool *next_is_consumed);
 
 // Returns codepoint which is "normalized", whose definition depends on each
@@ -44,8 +45,8 @@ int GetPhoneticallySortableCodePoint(int codepoint,
 //
 // In Japanese, "normalized" means that half-width and full-width katakana is
 // appropriately converted to hiragana.
-int GetNormalizedCodePoint(int codepoint,
-                           int next_codepoint,
+int GetNormalizedCodePoint(char32_t codepoint,
+                           char32_t next_codepoint,
                            bool *next_is_consumed);
 
 // Pushes Utf8 expression of "codepoint" to "dst". Returns true when successful.

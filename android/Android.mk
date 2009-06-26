@@ -11,7 +11,6 @@ LOCAL_C_INCLUDES := \
         external/icu4c/i18n \
         external/icu4c/common
 
-
 LOCAL_MODULE:= libsqlite3_android
 
 include $(BUILD_STATIC_LIBRARY)
@@ -28,6 +27,9 @@ LOCAL_SRC_FILES := \
 	PhoneticStringUtilsTest.cpp
 
 LOCAL_MODULE_TAGS := optional
+
+LOCAL_SHARED_LIBRARIES := \
+	libutils
 
 include $(BUILD_EXECUTABLE)
 

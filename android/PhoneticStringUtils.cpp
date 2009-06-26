@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include "PhoneticStringUtils.h"
+#include <utils/String8.h>
 
 // We'd like 0 length string last of sorted list. So when input string is NULL
 // or 0 length string, we use these instead.
@@ -30,60 +31,9 @@
 
 namespace android {
 
-int GetCodePointFromUtf8(const char *src, size_t len, size_t index, int *next) {
-    if (src == NULL || len <= index) {
-        return -1;
-    }
-
-    if ((src[index] >> 7) == 0) {
-        if (next != NULL) {
-            *next = index + 1;
-        }
-        return src[index];
-    }
-    if ((src[index] & 64) == 0) {
-        return -1;
-    }
-    int mask;
-    size_t num_to_read;
-    for (num_to_read = 1, mask = 64;  // 01000000
-         num_to_read < 7 && (src[index] & mask) == mask;
-         num_to_read++, mask >>= 1) {
-    }
-    if (num_to_read == 7) {
-        return -1;
-    }
-
-    if (num_to_read + index > len) {
-        return -1;
-    }
-
-    {
-        size_t i;
-        for (i = 0, mask = 0; i < (7 - num_to_read); i++) {
-            mask = (mask << 1) + 1;
-        }
-    }
-
-    int codepoint = mask & src[index];
-
-    for (size_t i = 1; i < num_to_read; i++) {
-        if ((src[i + index] & 192) != 128) {  // must be 10xxxxxx
-            return -1;
-        }
-        codepoint = (codepoint << 6) + (src[i + index] & 63);
-    }
-
-    if (next != NULL) {
-        *next = index + num_to_read;
-    }
-
-    return codepoint;
-}
-
 // Get hiragana from halfwidth katakana.
-static int GetHiraganaFromHalfwidthKatakana(int codepoint,
-                                            int next_codepoint,
+static int GetHiraganaFromHalfwidthKatakana(char32_t codepoint,
+                                            char32_t next_codepoint,
                                             bool *next_is_consumed) {
     if (codepoint < 0xFF66 || 0xFF9F < codepoint) {
         return codepoint;
@@ -214,8 +164,8 @@ static int GetNormalizedHiragana(int codepoint) {
     }
 }
 
-static int GetNormalizedKana(int codepoint,
-                             int next_codepoint,
+static int GetNormalizedKana(char32_t codepoint,
+                             char32_t next_codepoint,
                              bool *next_is_consumed) {
     // First, convert fullwidth katakana and halfwidth katakana to hiragana.
     if (0x30A1 <= codepoint && codepoint <= 0x30F6) {
@@ -231,8 +181,8 @@ static int GetNormalizedKana(int codepoint,
     return GetNormalizedHiragana(codepoint);
 }
 
-int GetPhoneticallySortableCodePoint(int codepoint,
-                                     int next_codepoint,
+int GetPhoneticallySortableCodePoint(char32_t codepoint,
+                                     char32_t next_codepoint,
                                      bool *next_is_consumed) {
     if (next_is_consumed != NULL) {
         *next_is_consumed = false;
@@ -302,8 +252,8 @@ int GetPhoneticallySortableCodePoint(int codepoint,
     return GetNormalizedKana(codepoint, next_codepoint, next_is_consumed);
 }
 
-int GetNormalizedCodePoint(int codepoint,
-                           int next_codepoint,
+int GetNormalizedCodePoint(char32_t codepoint,
+                           char32_t next_codepoint,
                            bool *next_is_consumed) {
     if (next_is_consumed != NULL) {
         *next_is_consumed = false;
@@ -331,73 +281,10 @@ int GetNormalizedCodePoint(int codepoint,
     return GetNormalizedKana(codepoint, next_codepoint, next_is_consumed);
 }
 
-
-bool GetUtf8FromCodePoint(int codepoint, char *dst, size_t len, size_t *index) {
-    if (codepoint < 128) {  // 1 << 7
-        if (*index >= len) {
-            return false;
-        }
-        // 0xxxxxxx
-        dst[*index] = static_cast<char>(codepoint);
-        (*index)++;
-    } else if (codepoint < 2048) {  // 1 << (6 + 5)
-        if (*index + 1 >= len) {
-            return false;
-        }
-        // 110xxxxx
-        dst[(*index)++] = static_cast<char>(192 | (codepoint >> 6));
-        // 10xxxxxx
-        dst[(*index)++] = static_cast<char>(128 | (codepoint & 63));
-    } else if (codepoint < 65536) {  // 1 << (6 * 2 + 4)
-        if (*index + 2 >= len) {
-            return false;
-        }
-        // 1110xxxx
-        dst[(*index)++] = static_cast<char>(224 | (codepoint >> 12));
-        // 10xxxxxx
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 6) & 63));
-        dst[(*index)++] = static_cast<char>(128 | (codepoint & 63));
-    } else if (codepoint < 2097152) {  // 1 << (6 * 3 + 3)
-        if (*index + 3 >= len) {
-            return false;
-        }
-        // 11110xxx
-        dst[(*index)++] = static_cast<char>(240 | (codepoint >> 18));
-        // 10xxxxxx
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 12) & 63));
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 6) & 63));
-        dst[(*index)++] = static_cast<char>(128 | (codepoint & 63));
-    } else if (codepoint < 67108864) {  // 1 << (6 * 2 + 2)
-        if (*index + 4 >= len) {
-            return false;
-        }
-        // 111110xx
-        dst[(*index)++] = static_cast<char>(248 | (codepoint >> 24));
-        // 10xxxxxx
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 18) & 63));
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 12) & 63));
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 6) & 63));
-        dst[(*index)++] = static_cast<char>(128 | (codepoint & 63));
-    } else {
-        if (*index + 5 >= len) {
-            return false;
-        }
-        // 1111110x
-        dst[(*index)++] = static_cast<char>(252 | (codepoint >> 30));
-        // 10xxxxxx
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 24) & 63));
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 18) & 63));
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 12) & 63));
-        dst[(*index)++] = static_cast<char>(128 | ((codepoint >> 6) & 63));
-        dst[(*index)++] = static_cast<char>(128 | (codepoint & 63));
-    }
-    return true;
-}
-
 static bool GetExpectedString(
-    const char *src, char **dst, size_t *len,
-    int (*get_codepoint_function)(int, int, bool*)) {
-    if (dst == NULL || len == NULL) {
+    const char *src, char **dst, size_t *dst_len,
+    int (*get_codepoint_function)(char32_t, char32_t, bool*)) {
+    if (dst == NULL || dst_len == NULL) {
         return false;
     }
 
@@ -405,99 +292,55 @@ static bool GetExpectedString(
         src = STR_FOR_NULL_STR;
     }
 
-    size_t src_len = strlen(src);
-    int codepoints[MAX_CODEPOINTS];
-    size_t new_len = 0;
+    char32_t codepoints[MAX_CODEPOINTS];
 
-    size_t codepoint_index;
-    {
-        int i, next;
-        for (codepoint_index = 0, i = 0, next = 0;
-             static_cast<size_t>(i) < src_len &&
-                     codepoint_index < MAX_CODEPOINTS;
-             i = next) {
-            int codepoint = GetCodePointFromUtf8(src, src_len, i, &next);
-            if (codepoint <= 0) {
-                return false;
-            }
-            int tmp_next;
-            int next_codepoint = GetCodePointFromUtf8(src, src_len,
-                                                      next, &tmp_next);
-            bool next_is_consumed = false;
-
-            // It is ok even if next_codepoint is negative.
-            codepoints[codepoint_index] =
-                    get_codepoint_function(codepoint,
-                                           next_codepoint,
-                                           &next_is_consumed);
-            // dakuten (voiced mark) or han-dakuten (half-voiced mark) existed.
-            if (next_is_consumed) {
-                next = tmp_next;
-            }
-
-            if (codepoints[codepoint_index] < 0) {
-              // Do not increment codepoint_index.
-              continue;
-            }
-
-            if (codepoints[codepoint_index] < 128) {  // 1 << 7
-                new_len++;
-            } else if (codepoints[codepoint_index] < 2048) {
-                // 1 << (6 + 5)
-                new_len += 2;
-            } else if (codepoints[codepoint_index] < 65536) {
-                // 1 << (6 * 2 + 4)
-                new_len += 3;
-            } else if (codepoints[codepoint_index] < 2097152) {
-                // 1 << (6 * 3 + 3)
-                new_len += 4;
-            } else if (codepoints[codepoint_index] < 67108864) {
-                // 1 << (6 * 2 + 2)
-                new_len += 5;
-            } else {
-                new_len += 6;
-            }
-
-            codepoint_index++;
+    size_t src_len = GetUtf8LengthOrZero(src);
+    if (src_len == 0) {
+        return false;
+    }
+    bool next_is_consumed;
+    size_t j = 0;
+    for (size_t i = 0; i < src_len;) {
+        int32_t ret = GetUtf32AtFromUtf8(src, src_len, i, &i);
+        if (ret < 0) {
+            // failed to parse UTF-8
+            return false;
+        }
+        ret = get_codepoint_function(
+                static_cast<char32_t>(ret),
+                i + 1 < src_len ? codepoints[i + 1] : 0,
+                &next_is_consumed);
+        if (ret > 0) {
+            codepoints[j] = static_cast<char32_t>(ret);
+            j++;
+        }
+        if (next_is_consumed) {
+            i++;
         }
     }
+    size_t length = j;
 
-    if (codepoint_index == 0) {
+    if (length == 0) {
         // If all of codepoints are invalid, we place the string at the end of
         // the list.
         codepoints[0] = 0x10000 + CODEPOINT_FOR_NULL_STR;
-        codepoint_index = 1;
-        new_len = 4;
+        length = 1;
     }
 
-    new_len += 1;  // For '\0'.
-
-    *dst = static_cast<char *>(malloc(sizeof(char) * new_len));
+    size_t new_len = GetUtf8LengthFromUtf32(codepoints, length);
+    *dst = static_cast<char *>(malloc(new_len + 1));
     if (*dst == NULL) {
         return false;
     }
 
-    size_t ch_index;
-    {
-        size_t i;
-        for (i = 0, ch_index = 0; i < codepoint_index; i++) {
-            if (!GetUtf8FromCodePoint(codepoints[i], *dst,
-                                      new_len, &ch_index)) {
-                free(*dst);
-                *dst = NULL;
-                return false;
-            }
-        }
-    }
-
-    if (ch_index != new_len - 1) {
+    printf("new_len: %u\n", new_len);
+    if (GetUtf8FromUtf32(codepoints, length, *dst, new_len + 1) != new_len) {
         free(*dst);
         *dst = NULL;
         return false;
     }
 
-    (*dst)[new_len - 1] = '\0';
-    *len = new_len;
+    *dst_len = new_len;
     return true;
 }
 

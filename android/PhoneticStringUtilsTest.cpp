@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <utils/String8.h>
+
 using namespace android;
 
 class TestExecutor {
@@ -29,12 +31,12 @@ class TestExecutor {
  private:
   void DoOneTest(void (TestExecutor::*test)());
 
-  void testGetCodePointFromUtf8();
+  void testGetUtf32At();
   void testGetPhoneticallySortableCodePointAscii();
   void testGetPhoneticallySortableCodePointKana();
   void testGetPhoneticallySortableCodePointWhitespaceOnly();
   void testGetPhoneticallySortableCodePointSimpleCompare();
-  void testGetUtf8FromCodePoint();
+  void testGetUtf8FromUtf32();
   void testGetPhoneticallySortableString();
   void testGetNormalizedString();
 
@@ -65,12 +67,12 @@ class TestExecutor {
 
 
 bool TestExecutor::DoAllTests() {
-  DoOneTest(&TestExecutor::testGetCodePointFromUtf8);
+  DoOneTest(&TestExecutor::testGetUtf32At);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointAscii);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointKana);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointWhitespaceOnly);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare);
-  DoOneTest(&TestExecutor::testGetUtf8FromCodePoint);
+  DoOneTest(&TestExecutor::testGetUtf8FromUtf32);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableString);
   DoOneTest(&TestExecutor::testGetNormalizedString);
 
@@ -92,26 +94,35 @@ void TestExecutor::DoOneTest(void (TestExecutor::*test)()) {
   m_success_count += m_success ? 1 : 0;
 }
 
-void TestExecutor::testGetCodePointFromUtf8() {
-  printf("testGetCodePointFromUtf8()\n");
-  int next;
+#define TEST_GET_UTF32AT(src, index, expected_next, expected_value)     \
+  ({                                                                    \
+    size_t next;                                                        \
+    String8 string8(src);                                               \
+    int32_t ret = string8.getUtf32At((index), &next);                   \
+    if (ret < 0) {                                                      \
+      printf("getUtf32At() returned negative value (src: %s, index: %d)\n", \
+             (src), (index));                                           \
+      m_success = false;                                                \
+    } else if (next != (expected_next)) {                               \
+      printf("next is unexpected value (src: %s, actual: %u, expected: %u)\n", \
+             (src), next, (expected_next));                             \
+    } else {                                                            \
+      EXPECT_EQ_VALUE(ret, (expected_value));                           \
+    }                                                                   \
+   })
 
-  EXPECT_EQ_VALUE(GetCodePointFromUtf8("a", 1, 0, &next), 97);
-  EXPECT_EQ_VALUE(next, 1);
+void TestExecutor::testGetUtf32At() {
+  printf("testGetUtf32At()\n");
+
+  TEST_GET_UTF32AT("a", 0, 1, 97);
   // Japanese hiragana "a"
-  EXPECT_EQ_VALUE(GetCodePointFromUtf8("\xE3\x81\x82", 3, 0, &next), 0x3042);
-  EXPECT_EQ_VALUE(next, 3);
+  TEST_GET_UTF32AT("\xE3\x81\x82", 0, 3, 0x3042);
   // Japanese fullwidth katakana "a" with ascii a
-  EXPECT_EQ_VALUE(GetCodePointFromUtf8("a\xE3\x82\xA2", 4, 1, &next), 0x30A2);
-  EXPECT_EQ_VALUE(next, 4);
+  TEST_GET_UTF32AT("a\xE3\x82\xA2", 1, 4, 0x30A2);
 
   // 2 PUA
-  ASSERT_EQ_VALUE(GetCodePointFromUtf8("\xF3\xBE\x80\x80\xF3\xBE\x80\x88",
-                                       8, 0, &next), 0xFE000);
-  ASSERT_EQ_VALUE(next, 4);
-  ASSERT_EQ_VALUE(GetCodePointFromUtf8("\xF3\xBE\x80\x80\xF3\xBE\x80\x88",
-                                       8, next, &next), 0xFE008);
-  ASSERT_EQ_VALUE(next, 8);
+  TEST_GET_UTF32AT("\xF3\xBE\x80\x80\xF3\xBE\x80\x88", 0, 4, 0xFE000);
+  TEST_GET_UTF32AT("\xF3\xBE\x80\x80\xF3\xBE\x80\x88", 4, 8, 0xFE008);
 }
 
 void TestExecutor::testGetPhoneticallySortableCodePointAscii() {
@@ -282,20 +293,18 @@ void TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare() {
   }
 }
 
-#define EXPECT_EQ_CODEPOINT_UTF8_WITH_INDEX(codepoint, expected, i)     \
+#define EXPECT_EQ_CODEPOINT_UTF8(codepoint, expected)                   \
   ({                                                                    \
-    index = i;                                                          \
-    if (!GetUtf8FromCodePoint(codepoint, dst, 10, &index)) {            \
+    char32_t codepoints[1] = {codepoint};                                \
+    status_t ret = string8.setTo(codepoints, 1);                        \
+    if (ret != NO_ERROR) {                                              \
       printf("GetUtf8FromCodePoint() returned false at 0x%04X\n", codepoint); \
       m_success = false;                                                \
-    } else if (index >= 10) {                                           \
-      printf("index (%d) >= 10\n", index);                              \
-      m_success = false;                                                \
     } else {                                                            \
-      dst[index] = '\0';                                                \
-      if (strcmp(dst + i, expected) != 0) {                             \
+      const char* string = string8.string();                            \
+      if (strcmp(string, expected) != 0) {                              \
         printf("Failed at codepoint 0x%04X\n", codepoint);              \
-        for (const char *ch = dst; *ch != '\0'; ++ch) {                 \
+        for (const char *ch = string; *ch != '\0'; ++ch) {              \
           printf("0x%X ", *ch);                                         \
         }                                                               \
         printf("!= ");                                                  \
@@ -308,14 +317,9 @@ void TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare() {
     }                                                                   \
   })
 
-#define EXPECT_EQ_CODEPOINT_UTF8(codepoint, expected)          \
-  EXPECT_EQ_CODEPOINT_UTF8_WITH_INDEX(codepoint, expected, 0)
-
-
-void TestExecutor::testGetUtf8FromCodePoint() {
-  printf("testGetUtf8FromCodePoint()\n");
-  size_t index = 0;
-  char dst[10];
+void TestExecutor::testGetUtf8FromUtf32() {
+  printf("testGetUtf8FromUtf32()\n");
+  String8 string8;
 
   EXPECT_EQ_CODEPOINT_UTF8('a', "\x61");
   // Armenian capital letter AYB (2 bytes in UTF8)
@@ -327,15 +331,6 @@ void TestExecutor::testGetUtf8FromCodePoint() {
   // PUA (4 byets in UTF8)
   EXPECT_EQ_CODEPOINT_UTF8(0xFE016, "\xF3\xBE\x80\x96");
   EXPECT_EQ_CODEPOINT_UTF8(0xFE972, "\xF3\xBE\xA5\xB2");
-
-  EXPECT_EQ_CODEPOINT_UTF8_WITH_INDEX(0x058F, "\xD6\x8F", 3);
-
-  index = 0;
-  if (GetUtf8FromCodePoint(0x3043, dst, 2, &index)) {
-    printf("GetUtf8FromCodePont() returned true even when destination length"
-           "is not enough\n");
-    m_success = false;
-  }
 }
 
 #define EXPECT_EQ_UTF8_UTF8(src, expected)                              \
