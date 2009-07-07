@@ -19,7 +19,7 @@
 #define _ANDROID_PHONE_NUMBER_UTILS_H
 
 namespace android {
-
+    
 bool phone_number_compare(const char* a, const char* b);
 
 }
