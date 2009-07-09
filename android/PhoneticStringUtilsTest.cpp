@@ -31,7 +31,7 @@ class TestExecutor {
  private:
   void DoOneTest(void (TestExecutor::*test)());
 
-  void testGetUtf32At();
+  void testUtf32At();
   void testGetPhoneticallySortableCodePointAscii();
   void testGetPhoneticallySortableCodePointKana();
   void testGetPhoneticallySortableCodePointWhitespaceOnly();
@@ -67,7 +67,7 @@ class TestExecutor {
 
 
 bool TestExecutor::DoAllTests() {
-  DoOneTest(&TestExecutor::testGetUtf32At);
+  DoOneTest(&TestExecutor::testUtf32At);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointAscii);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointKana);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointWhitespaceOnly);
@@ -97,8 +97,7 @@ void TestExecutor::DoOneTest(void (TestExecutor::*test)()) {
 #define TEST_GET_UTF32AT(src, index, expected_next, expected_value)     \
   ({                                                                    \
     size_t next;                                                        \
-    String8 string8(src);                                               \
-    int32_t ret = string8.getUtf32At((index), &next);                   \
+    int32_t ret = utf32_at(src, strlen(src), index, &next);   \
     if (ret < 0) {                                                      \
       printf("getUtf32At() returned negative value (src: %s, index: %d)\n", \
              (src), (index));                                           \
@@ -111,8 +110,8 @@ void TestExecutor::DoOneTest(void (TestExecutor::*test)()) {
     }                                                                   \
    })
 
-void TestExecutor::testGetUtf32At() {
-  printf("testGetUtf32At()\n");
+void TestExecutor::testUtf32At() {
+  printf("testUtf32At()\n");
 
   TEST_GET_UTF32AT("a", 0, 1, 97);
   // Japanese hiragana "a"

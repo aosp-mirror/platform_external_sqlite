@@ -294,14 +294,14 @@ static bool GetExpectedString(
 
     char32_t codepoints[MAX_CODEPOINTS];
 
-    size_t src_len = GetUtf8LengthOrZero(src);
+    size_t src_len = utf8_length(src);
     if (src_len == 0) {
         return false;
     }
     bool next_is_consumed;
     size_t j = 0;
     for (size_t i = 0; i < src_len;) {
-        int32_t ret = GetUtf32AtFromUtf8(src, src_len, i, &i);
+        int32_t ret = utf32_at(src, src_len, i, &i);
         if (ret < 0) {
             // failed to parse UTF-8
             return false;
@@ -327,14 +327,13 @@ static bool GetExpectedString(
         length = 1;
     }
 
-    size_t new_len = GetUtf8LengthFromUtf32(codepoints, length);
+    size_t new_len = utf8_length_from_utf32(codepoints, length);
     *dst = static_cast<char *>(malloc(new_len + 1));
     if (*dst == NULL) {
         return false;
     }
 
-    printf("new_len: %u\n", new_len);
-    if (GetUtf8FromUtf32(codepoints, length, *dst, new_len + 1) != new_len) {
+    if (utf32_to_utf8(codepoints, length, *dst, new_len + 1) != new_len) {
         free(*dst);
         *dst = NULL;
         return false;
