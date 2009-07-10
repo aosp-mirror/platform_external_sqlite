@@ -128,7 +128,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointAscii() {
   printf("testGetPhoneticallySortableCodePoint()\n");
   int halfwidth[94];
   int fullwidth[94];
-  int i, codepoint;
+  int i;
+  char32_t codepoint;
   bool next_is_consumed;
   for (i = 0, codepoint = 0x0021; codepoint <= 0x007E; ++i, ++codepoint) {
     halfwidth[i] = GetPhoneticallySortableCodePoint(codepoint, -1,
@@ -168,7 +169,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
   printf("testGetPhoneticallySortableCodePointKana()\n");
   int hiragana[86];
   int fullwidth_katakana[86];
-  int i, codepoint;
+  int i;
+  char32_t codepoint;
   bool next_is_consumed;
 
   for (i = 0, codepoint = 0x3041; codepoint <= 0x3096; ++i, ++codepoint) {
@@ -259,7 +261,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointWhitespaceOnly() {
 void TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare() {
   printf("testGetPhoneticallySortableCodePointSimpleCompare()\n");
 
-  int codepoints[] = {
+  char32_t codepoints[] = {
     0x3042, 0x30AB, 0xFF7B, 0x305F, 0x30CA, 0xFF8A, 0x30D0, 0x3071,
     0x307E, 0x30E4, 0xFF97, 0x308F, 0x3093, 0x3094, 'A', 'Z',
     '0', '9', '!', '/', ':', '?', '[', '`', '{', '~'};
