@@ -132,7 +132,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointAscii() {
   char32_t codepoint;
   bool next_is_consumed;
   for (i = 0, codepoint = 0x0021; codepoint <= 0x007E; ++i, ++codepoint) {
-    halfwidth[i] = GetPhoneticallySortableCodePoint(codepoint, -1,
+    halfwidth[i] = GetPhoneticallySortableCodePoint(codepoint, 0,
                                                     &next_is_consumed);
     if (halfwidth[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
@@ -146,7 +146,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointAscii() {
     }
   }
   for (i = 0, codepoint = 0xFF01; codepoint <= 0xFF5E; ++i, ++codepoint) {
-    fullwidth[i] = GetPhoneticallySortableCodePoint(codepoint, -1,
+    fullwidth[i] = GetPhoneticallySortableCodePoint(codepoint, 0,
                                                     &next_is_consumed);
     if (fullwidth[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
@@ -174,7 +174,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
   bool next_is_consumed;
 
   for (i = 0, codepoint = 0x3041; codepoint <= 0x3096; ++i, ++codepoint) {
-    hiragana[i] = GetPhoneticallySortableCodePoint(codepoint, -1,
+    hiragana[i] = GetPhoneticallySortableCodePoint(codepoint, 0,
                                                    &next_is_consumed);
     if (hiragana[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
@@ -189,7 +189,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
   }
 
   for (i = 0, codepoint = 0x30A1; codepoint <= 0x30F6; ++i, ++codepoint) {
-    fullwidth_katakana[i] = GetPhoneticallySortableCodePoint(codepoint, -1,
+    fullwidth_katakana[i] = GetPhoneticallySortableCodePoint(codepoint, 0,
                                                    &next_is_consumed);
     if (fullwidth_katakana[i] < 0) {
       printf("returned value become negative at 0x%04X", codepoint);
@@ -206,7 +206,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
   // hankaku-katakana space do not have some characters corresponding to
   // zenkaku-hiragana (e.g. xwa, xka, xku). To make test easier, insert
   // zenkaku-katakana version of them into this array (See the value 0x30??).
-  int halfwidth_katakana[] = {
+  char32_t halfwidth_katakana[] = {
     0xFF67, 0xFF71, 0xFF68, 0xFF72, 0xFF69, 0xFF73, 0xFF6A, 0xFF74, 0xFF6B,
     0xFF75, 0xFF76, 0xFF76, 0xFF9E, 0xFF77, 0xFF77, 0xFF9E, 0xFF78, 0xFF78,
     0xFF9E, 0xFF79, 0xFF79, 0xFF9E, 0xFF7A, 0xFF7A, 0xFF9E, 0xFF7B, 0xFF7B,
@@ -226,8 +226,8 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
 
   int j;
   for (i = 0, j = 0; i < len && j < 86; ++i, ++j) {
-    int codepoint = halfwidth_katakana[i];
-    int next_codepoint = i + 1 < len ? halfwidth_katakana[i + 1] : -1;
+    char32_t codepoint = halfwidth_katakana[i];
+    char32_t next_codepoint = i + 1 < len ? halfwidth_katakana[i + 1] : 0;
     halfwidth_katakana_result[j] =
         GetPhoneticallySortableCodePoint(codepoint, next_codepoint,
                                          &next_is_consumed);
@@ -269,7 +269,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare() {
   bool next_is_consumed;
   for (size_t i = 0; i < len - 1; ++i) {
     int codepoint_a =
-        GetPhoneticallySortableCodePoint(codepoints[i], -1,
+        GetPhoneticallySortableCodePoint(codepoints[i], 0,
                                          &next_is_consumed);
     if (next_is_consumed) {
       printf("next_is_consumed become true at 0x%04X", codepoint_a);
@@ -277,7 +277,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare() {
       return;
     }
     int codepoint_b =
-        GetPhoneticallySortableCodePoint(codepoints[i + 1], -1,
+        GetPhoneticallySortableCodePoint(codepoints[i + 1], 0,
                                          &next_is_consumed);
     if (next_is_consumed) {
       printf("next_is_consumed become true at 0x%04X", codepoint_b);
