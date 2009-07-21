@@ -201,6 +201,8 @@ static int tryGetCountryCallingCode(const char *str, size_t len,
                         *new_len = len - (i + 1);
                     }
                     return 66;
+                } else {
+                    return -1;
                 }
                 break;
             default:

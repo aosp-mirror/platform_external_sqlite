@@ -123,6 +123,7 @@ int main() {
 
     // Confirm that the bug found before does not re-appear.
     EXPECT_NE("080-1234-5678", "+819012345678");
+    EXPECT_EQ("650-000-3456", "16500003456");
 
     // Currently we cannot get this test through (Japanese trunk prefix is 0,
     // but there is no sensible way to know it now (as of 2009-6-12)...
