@@ -90,6 +90,25 @@ static void get_phonetically_sortable_string(
     }
 }
 
+static void get_normalized_string(
+    sqlite3_context * context, int argc, sqlite3_value ** argv)
+{
+    if (argc != 1) {
+      sqlite3_result_null(context);
+      return;
+    }
+    char const * src = (char const *)sqlite3_value_text(argv[0]);
+    char * ret;
+    size_t len;
+
+    if (!android::GetNormalizedString(src, &ret, &len)) {
+        // Probably broken string. Return 0 length string.
+        sqlite3_result_text(context, "", -1, SQLITE_STATIC);
+    } else {
+        sqlite3_result_text(context, ret, len, free);
+    }
+}
+
 static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
     if (argc != 2) {
@@ -161,7 +180,11 @@ static void delete_file(sqlite3_context * context, int argc, sqlite3_value ** ar
         sqlite3_result_null(context);
         return;        
     }
-    
+    if (strstr(path, "/../") != NULL) {
+        sqlite3_result_null(context);
+        return;
+    }
+
     int err = unlink(path);
     if (err != -1) {
         // No error occured, return true
@@ -196,21 +219,51 @@ struct SqliteUserData {
 /**
  * This function is invoked as:
  *
- *  _TOKENIZE('<token_table>', <data_row_id>, <data>, <delimiter>)
+ *  _TOKENIZE('<token_table>', <data_row_id>, <data>, <delimiter>,
+ *             <use_token_index>, <data_tag>)
  *
- * It will then split data on each instance of delimiter and insert each token
- * into token_table's 'token' column with data_row_id in the 'source' column.
+ * If <use_token_index> is omitted, it is treated as 0.
+ * If <data_tag> is omitted, it is treated as NULL.
+ *
+ * It will split <data> on each instance of <delimiter> and insert each token
+ * into <token_table>. The following columns in <token_table> are used:
+ * token TEXT, source INTEGER, token_index INTEGER, tag (any type)
+ * The token_index column is not required if <use_token_index> is 0.
+ * The tag column is not required if <data_tag> is NULL.
+ *
+ * One row is inserted for each token in <data>.
+ * In each inserted row, 'source' is <data_row_id>.
+ * In the first inserted row, 'token' is the hex collation key of
+ * the entire <data> string, and 'token_index' is 0.
+ * In each row I (where 1 <= I < N, and N is the number of tokens in <data>)
+ * 'token' will be set to the hex collation key of the I:th token (0-based).
+ * If <use_token_index> != 0, 'token_index' is set to I.
+ * If <data_tag> is not NULL, 'tag' is set to <data_tag>.
+ *
+ * In other words, there will be one row for the entire string,
+ * and one row for each token except the first one.
+ *
  * The function returns the number of tokens generated.
  */
 static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
     //LOGD("enter tokenize");
     int err;
+    int useTokenIndex = 0;
+    int useDataTag = 0;
 
-    if (argc != 4) {
-        LOGE("Tokenize requires 4 arguments");
+    if (!(argc >= 4 || argc <= 6)) {
+        LOGE("Tokenize requires 4 to 6 arguments");
         sqlite3_result_null(context);
         return;
+    }
+
+    if (argc > 4) {
+        useTokenIndex = sqlite3_value_int(argv[4]);
+    }
+
+    if (argc > 5) {
+        useDataTag = (sqlite3_value_type(argv[5]) != SQLITE_NULL);
     }
 
     sqlite3 * handle = sqlite3_context_db_handle(context);
@@ -225,7 +278,12 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
     // Get or create the prepared statement for the insertions
     sqlite3_stmt * statement = (sqlite3_stmt *)sqlite3_get_auxdata(context, 0);
     if (!statement) {
-        char * sql = sqlite3_mprintf("INSERT INTO %s (token, source) VALUES (?, ?);", tokenTable);
+        char const * tokenIndexCol = useTokenIndex ? ", token_index" : "";
+        char const * tokenIndexParam = useTokenIndex ? ", ?" : "";
+        char const * dataTagCol = useDataTag ? ", tag" : "";
+        char const * dataTagParam = useDataTag ? ", ?" : "";
+        char * sql = sqlite3_mprintf("INSERT INTO %s (token, source%s%s) VALUES (?, ?%s%s);",
+                tokenTable, tokenIndexCol, dataTagCol, tokenIndexParam, dataTagParam);
         err = sqlite3_prepare_v2(handle, sql, -1, &statement, NULL);
         sqlite3_free(sql);
         if (err) {
@@ -249,6 +307,17 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
         LOGE("bind failed");
         sqlite3_result_null(context);
         return;
+    }
+
+    // Bind <data_tag> to the tag column
+    if (useDataTag) {
+        int dataTagParamIndex = useTokenIndex ? 4 : 3;
+        err = sqlite3_bind_value(statement, dataTagParamIndex, argv[5]);
+        if (err != SQLITE_OK) {
+            LOGE("bind failed");
+            sqlite3_result_null(context);
+            return;
+        }
     }
 
     // Get the raw bytes for the string to tokenize
@@ -297,6 +366,15 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
             LOGE(" sqlite3_bind_text16 error %d", err);
             free(base16buf);
             break;
+        }
+
+        if (useTokenIndex) {
+            err = sqlite3_bind_int(statement, 3, numTokens);
+            if (err != SQLITE_OK) {
+                LOGE(" sqlite3_bind_int error %d", err);
+                free(base16buf);
+                break;
+            }
         }
 
         err = sqlite3_step(statement);
@@ -357,7 +435,15 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
     err = sqlite3_create_function(handle, "_TOKENIZE", 4, SQLITE_UTF16, collator, tokenize, NULL, NULL);
     if (err != SQLITE_OK) {
         return err;
-    }    
+    }
+    err = sqlite3_create_function(handle, "_TOKENIZE", 5, SQLITE_UTF16, collator, tokenize, NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+    err = sqlite3_create_function(handle, "_TOKENIZE", 6, SQLITE_UTF16, collator, tokenize, NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
 
     return SQLITE_OK;
 }
@@ -417,6 +503,16 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
                                   "GET_PHONETICALLY_SORTABLE_STRING",
                                   1, SQLITE_UTF8, NULL,
                                   get_phonetically_sortable_string,
+                                  NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+
+    // Register the GET_NORMALIZED_STRING function
+    err = sqlite3_create_function(handle,
+                                  "GET_NORMALIZED_STRING",
+                                  1, SQLITE_UTF8, NULL,
+                                  get_normalized_string,
                                   NULL, NULL);
     if (err != SQLITE_OK) {
         return err;

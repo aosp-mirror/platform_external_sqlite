@@ -81,6 +81,156 @@ int GetCodePointFromUtf8(const char *src, size_t len, size_t index, int *next) {
     return codepoint;
 }
 
+// Get hiragana from halfwidth katakana.
+static int GetHiraganaFromHalfwidthKatakana(int codepoint,
+                                            int next_codepoint,
+                                            bool *next_is_consumed) {
+    if (codepoint < 0xFF66 || 0xFF9F < codepoint) {
+        return codepoint;
+    }
+
+    switch (codepoint) {
+        case 0xFF66: // wo
+            return 0x3092;
+        case 0xFF67: // xa
+            return 0x3041;
+        case 0xFF68: // xi
+            return 0x3043;
+        case 0xFF69: // xu
+            return 0x3045;
+        case 0xFF6A: // xe
+            return 0x3047;
+        case 0xFF6B: // xo
+            return 0x3049;
+        case 0xFF6C: // xya
+            return 0x3083;
+        case 0xFF6D: // xyu
+            return 0x3085;
+        case 0xFF6E: // xyo
+            return 0x3087;
+        case 0xFF6F: // xtsu
+            return 0x3063;
+        case 0xFF70: // -
+            return 0x30FC;
+        case 0xFF9C: // wa
+            return 0x308F;
+        case 0xFF9D: // n
+            return 0x3093;
+            break;
+        default:   {
+            if (0xFF71 <= codepoint && codepoint <= 0xFF75) {
+                // a, i, u, e, o
+                if (codepoint == 0xFF73 && next_codepoint == 0xFF9E) {
+                    if (next_is_consumed != NULL) {
+                        *next_is_consumed = true;
+                    }
+                    return 0x3094; // vu
+                } else {
+                    return 0x3042 + (codepoint - 0xFF71) * 2;
+                }
+            } else if (0xFF76 <= codepoint && codepoint <= 0xFF81) {
+                // ka - chi
+                if (next_codepoint == 0xFF9E) {
+                    // "dakuten" (voiced mark)
+                    if (next_is_consumed != NULL) {
+                        *next_is_consumed = true;
+                    }
+                    return 0x304B + (codepoint - 0xFF76) * 2 + 1;
+                } else {
+                    return 0x304B + (codepoint - 0xFF76) * 2;
+                }
+            } else if (0xFF82 <= codepoint && codepoint <= 0xFF84) {
+                // tsu, te, to (skip xtsu)
+                if (next_codepoint == 0xFF9E) {
+                    // "dakuten" (voiced mark)
+                    if (next_is_consumed != NULL) {
+                        *next_is_consumed = true;
+                    }
+                    return 0x3064 + (codepoint - 0xFF82) * 2 + 1;
+                } else {
+                    return 0x3064 + (codepoint - 0xFF82) * 2;
+                }
+            } else if (0xFF85 <= codepoint && codepoint <= 0xFF89) {
+                // na, ni, nu, ne, no
+                return 0x306A + (codepoint - 0xFF85);
+            } else if (0xFF8A <= codepoint && codepoint <= 0xFF8E) {
+                // ha, hi, hu, he, ho
+                if (next_codepoint == 0xFF9E) {
+                    // "dakuten" (voiced mark)
+                    if (next_is_consumed != NULL) {
+                        *next_is_consumed = true;
+                    }
+                    return 0x306F + (codepoint - 0xFF8A) * 3 + 1;
+                } else if (next_codepoint == 0xFF9F) {
+                    // "han-dakuten" (half voiced mark)
+                    if (next_is_consumed != NULL) {
+                        *next_is_consumed = true;
+                    }
+                    return 0x306F + (codepoint - 0xFF8A) * 3 + 2;
+                } else {
+                    return 0x306F + (codepoint - 0xFF8A) * 3;
+                }
+            } else if (0xFF8F <= codepoint && codepoint <= 0xFF93) {
+                // ma, mi, mu, me, mo
+                return 0x307E + (codepoint - 0xFF8F);
+            } else if (0xFF94 <= codepoint && codepoint <= 0xFF96) {
+                // ya, yu, yo
+                return 0x3084 + (codepoint - 0xFF94) * 2;
+            } else if (0xFF97 <= codepoint && codepoint <= 0xFF9B) {
+                // ra, ri, ru, re, ro
+                return 0x3089 + (codepoint - 0xFF97);
+            }
+            // Note: 0xFF9C, 0xFF9D are handled above
+        } // end of default
+    }
+
+    return codepoint;
+}
+
+// Assuming input is hiragana, convert the hiragana to "normalized" hiragana.
+static int GetNormalizedHiragana(int codepoint) {
+    if (codepoint < 0x3040 || 0x309F < codepoint) {
+        return codepoint;
+    }
+
+    // TODO: should care (semi-)voiced mark (0x3099, 0x309A).
+
+    // Trivial kana conversions.
+    // e.g. xa => a
+    switch (codepoint) {
+        case 0x3041:
+        case 0x3043:
+        case 0x3045:
+        case 0x3047:
+        case 0x3049:
+        case 0x308E: // xwa
+            return codepoint + 1;
+        case 0x3095: // xka
+            return 0x304B;
+        case 0x3096: // xku
+            return 0x304F;
+        default:
+            return codepoint;
+    }
+}
+
+static int GetNormalizedKana(int codepoint,
+                             int next_codepoint,
+                             bool *next_is_consumed) {
+    // First, convert fullwidth katakana and halfwidth katakana to hiragana.
+    if (0x30A1 <= codepoint && codepoint <= 0x30F6) {
+        // Make fullwidth katakana same as hiragana.
+        // 96 == 0x30A1 - 0x3041c
+        codepoint = codepoint - 96;
+    } else {
+        codepoint = GetHiraganaFromHalfwidthKatakana(
+                codepoint, next_codepoint, next_is_consumed);
+    }
+
+    // Normalize Hiragana.
+    return GetNormalizedHiragana(codepoint);
+}
+
 int GetPhoneticallySortableCodePoint(int codepoint,
                                      int next_codepoint,
                                      bool *next_is_consumed) {
@@ -149,143 +299,38 @@ int GetPhoneticallySortableCodePoint(int codepoint,
 
     // Below is Kana-related handling.
 
-    // First, convert fullwidth katakana and halfwidth katakana to hiragana
-    if (0x30A1 <= codepoint && codepoint <= 0x30F6) {
-        // Make fullwidth katakana same as hiragana.
-        // 96 == 0x30A1 - 0x3041c
-        codepoint = codepoint - 96;
-    } else if (0xFF66 <= codepoint && codepoint <= 0xFF9F) {
-        // Make halfwidth katakana same as hiragana
-        switch (codepoint) {
-            case 0xFF66: // wo
-                codepoint = 0x3092;
-                break;
-            case 0xFF67: // xa
-                codepoint = 0x3041;
-                break;
-            case 0xFF68: // xi
-                codepoint = 0x3043;
-                break;
-            case 0xFF69: // xu
-                codepoint = 0x3045;
-                break;
-            case 0xFF6A: // xe
-                codepoint = 0x3047;
-                break;
-            case 0xFF6B: // xo
-                codepoint = 0x3049;
-                break;
-            case 0xFF6C: // xya
-                codepoint = 0x3083;
-                break;
-            case 0xFF6D: // xyu
-                codepoint = 0x3085;
-                break;
-            case 0xFF6E: // xyo
-                codepoint = 0x3087;
-                break;
-            case 0xFF6F: // xtsu
-                codepoint = 0x3063;
-                break;
-            case 0xFF70: // -
-                codepoint = 0x30FC;
-                break;
-            case 0xFF9C: // wa
-                codepoint = 0x308F;
-                break;
-            case 0xFF9D: // n
-                codepoint = 0x3093;
-                break;
-            default:
-                {
-                    if (0xFF71 <= codepoint && codepoint <= 0xFF75) {
-                        // a, i, u, e, o
-                        if (codepoint == 0xFF73 && next_codepoint == 0xFF9E) {
-                            if (next_is_consumed != NULL) {
-                                *next_is_consumed = true;
-                            }
-                            codepoint = 0x3094; // vu
-                        } else {
-                            codepoint = 0x3042 + (codepoint - 0xFF71) * 2;
-                        }
-                    } else if (0xFF76 <= codepoint && codepoint <= 0xFF81) {
-                        // ka - chi
-                        if (next_codepoint == 0xFF9E) {
-                            // "dakuten" (voiced mark)
-                            if (next_is_consumed != NULL) {
-                                *next_is_consumed = true;
-                            }
-                            codepoint = 0x304B + (codepoint - 0xFF76) * 2 + 1;
-                        } else {
-                            codepoint = 0x304B + (codepoint - 0xFF76) * 2;
-                        }
-                    } else if (0xFF82 <= codepoint && codepoint <= 0xFF84) {
-                        // tsu, te, to (skip xtsu)
-                        if (next_codepoint == 0xFF9E) {
-                            // "dakuten" (voiced mark)
-                            if (next_is_consumed != NULL) {
-                                *next_is_consumed = true;
-                            }
-                            codepoint = 0x3064 + (codepoint - 0xFF82) * 2 + 1;
-                        } else {
-                            codepoint = 0x3064 + (codepoint - 0xFF82) * 2;
-                        }
-                    } else if (0xFF85 <= codepoint && codepoint <= 0xFF89) {
-                        // na, ni, nu, ne, no
-                        codepoint = 0x306A + (codepoint - 0xFF85);
-                    } else if (0xFF8A <= codepoint && codepoint <= 0xFF8E) {
-                        // ha, hi, hu, he, ho
-                        if (next_codepoint == 0xFF9E) {
-                            // "dakuten" (voiced mark)
-                            if (next_is_consumed != NULL) {
-                                *next_is_consumed = true;
-                            }
-                            codepoint = 0x306F + (codepoint - 0xFF8A) * 3 + 1;
-                        } else if (next_codepoint == 0xFF9F) {
-                            // "han-dakuten" (half voiced mark)
-                            if (next_is_consumed != NULL) {
-                                *next_is_consumed = true;
-                            }
-                            codepoint = 0x306F + (codepoint - 0xFF8A) * 3 + 2;
-                        } else {
-                            codepoint = 0x306F + (codepoint - 0xFF8A) * 3;
-                        }
-                    } else if (0xFF8F <= codepoint && codepoint <= 0xFF93) {
-                        // ma, mi, mu, me, mo
-                        codepoint = 0x307E + (codepoint - 0xFF8F);
-                    } else if (0xFF94 <= codepoint && codepoint <= 0xFF96) {
-                        // ya, yu, yo
-                        codepoint = 0x3084 + (codepoint - 0xFF94) * 2;
-                    } else if (0xFF97 <= codepoint && codepoint <= 0xFF9B) {
-                        // ra, ri, ru, re, ro
-                        codepoint = 0x3089 + (codepoint - 0xFF97);
-                    }
-                    // Note: 0xFF9C, 0xFF9D are handled above
-                } // end of default
-        } // end of case
-    }
-
-    // Trivial kana conversions.
-    // e.g. xa => a
-    switch (codepoint) {
-        case 0x3041:
-        case 0x3043:
-        case 0x3045:
-        case 0x3047:
-        case 0x3049:
-        case 0x308E: // xwa
-            codepoint++;
-            break;
-        case 0x3095: // xka
-            codepoint = 0x304B;
-            break;
-        case 0x3096: // xku
-            codepoint = 0x304F;
-            break;
-    }
-
-    return codepoint;
+    return GetNormalizedKana(codepoint, next_codepoint, next_is_consumed);
 }
+
+int GetNormalizedCodePoint(int codepoint,
+                           int next_codepoint,
+                           bool *next_is_consumed) {
+    if (next_is_consumed != NULL) {
+        *next_is_consumed = false;
+    }
+
+    if (codepoint <= 0x0020 || codepoint == 0x3000) {
+        // Whitespaces. Keep it as is.
+        return codepoint;
+    } else if ((0x0021 <= codepoint && codepoint <= 0x007E) ||
+               (0xFF01 <= codepoint && codepoint <= 0xFF5E)) {
+        // Ascii and fullwidth ascii. Keep it as is
+        return codepoint;
+    } else if (codepoint == 0x02DC || codepoint == 0x223C) {
+        // tilde
+        return 0xFF5E;
+    } else if (codepoint <= 0x3040 ||
+               (0x3100 <= codepoint && codepoint < 0xFF00) ||
+               codepoint == CODEPOINT_FOR_NULL_STR) {
+        // Keep it as is.
+        return codepoint;
+    }
+
+    // Below is Kana-related handling.
+
+    return GetNormalizedKana(codepoint, next_codepoint, next_is_consumed);
+}
+
 
 bool GetUtf8FromCodePoint(int codepoint, char *dst, size_t len, size_t *index) {
     if (codepoint < 128) {  // 1 << 7
@@ -349,7 +394,9 @@ bool GetUtf8FromCodePoint(int codepoint, char *dst, size_t len, size_t *index) {
     return true;
 }
 
-bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len){
+static bool GetExpectedString(
+    const char *src, char **dst, size_t *len,
+    int (*get_codepoint_function)(int, int, bool*)) {
     if (dst == NULL || len == NULL) {
         return false;
     }
@@ -380,9 +427,9 @@ bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len){
 
             // It is ok even if next_codepoint is negative.
             codepoints[codepoint_index] =
-                    GetPhoneticallySortableCodePoint(codepoint,
-                                                     next_codepoint,
-                                                     &next_is_consumed);
+                    get_codepoint_function(codepoint,
+                                           next_codepoint,
+                                           &next_is_consumed);
             // dakuten (voiced mark) or han-dakuten (half-voiced mark) existed.
             if (next_is_consumed) {
                 next = tmp_next;
@@ -452,6 +499,14 @@ bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len){
     (*dst)[new_len - 1] = '\0';
     *len = new_len;
     return true;
+}
+
+bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len) {
+    return GetExpectedString(src, dst, len, GetPhoneticallySortableCodePoint);
+}
+
+bool GetNormalizedString(const char *src, char **dst, size_t *len) {
+    return GetExpectedString(src, dst, len, GetNormalizedCodePoint);
 }
 
 }  // namespace android

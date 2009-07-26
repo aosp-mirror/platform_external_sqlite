@@ -36,6 +36,7 @@ class TestExecutor {
   void testGetPhoneticallySortableCodePointSimpleCompare();
   void testGetUtf8FromCodePoint();
   void testGetPhoneticallySortableString();
+  void testGetNormalizedString();
 
   // Note: When adding a test, do not forget to add it to DoOneTest().
 
@@ -71,6 +72,7 @@ bool TestExecutor::DoAllTests() {
   DoOneTest(&TestExecutor::testGetPhoneticallySortableCodePointSimpleCompare);
   DoOneTest(&TestExecutor::testGetUtf8FromCodePoint);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableString);
+  DoOneTest(&TestExecutor::testGetNormalizedString);
 
   printf("Test total: %d\nSuccess: %d\nFailure: %d\n",
          m_total_count, m_success_count, m_total_count - m_success_count);
@@ -232,7 +234,7 @@ void TestExecutor::testGetPhoneticallySortableCodePointKana() {
 }
 
 void TestExecutor::testGetPhoneticallySortableCodePointWhitespaceOnly() {
-  printf("testGetPhoneticallySortableCodePointWhitespaceOnly");
+  printf("testGetPhoneticallySortableCodePointWhitespaceOnly()\n");
   // Halfwidth space
   int result = GetPhoneticallySortableCodePoint(0x0020, 0x0061, NULL);
   ASSERT_EQ_VALUE(result, -1);
@@ -358,6 +360,7 @@ void TestExecutor::testGetUtf8FromCodePoint() {
    })
 
 void TestExecutor::testGetPhoneticallySortableString() {
+  printf("testGetPhoneticallySortableString()\n");
   char *dst;
   size_t len;
 
@@ -371,6 +374,49 @@ void TestExecutor::testGetPhoneticallySortableString() {
 
   // whitespace -> string which should be placed at last
   EXPECT_EQ_UTF8_UTF8("    \t", "\xF0\x9F\xBF\xBD");
+}
+
+#undef EXPECT_EQ_UTF8_UTF8
+
+#define EXPECT_EQ_UTF8_UTF8(src, expected)                              \
+  ({                                                                    \
+    if (!GetNormalizedString(src, &dst, &len)) {                        \
+      printf("GetPhoneticallySortableString() returned false.\n");      \
+      m_success = false;                                                \
+    } else {                                                            \
+      if (strcmp(dst, expected) != 0) {                                 \
+        for (const char *ch = dst; *ch != '\0'; ++ch) {                 \
+          printf("0x%X ", *ch);                                         \
+        }                                                               \
+        printf("!= ");                                                  \
+        for (const char *ch = expected; *ch != '\0'; ++ch) {            \
+          printf("0x%X ", *ch);                                         \
+        }                                                               \
+        printf("\n");                                                   \
+        m_success = false;                                              \
+      }                                                                 \
+      free(dst);                                                        \
+    }                                                                   \
+   })
+
+void TestExecutor::testGetNormalizedString() {
+  printf("testGetNormalizedString()\n");
+  char *dst;
+  size_t len;
+
+  // halfwidth alphabets/symbols -> keep it as is.
+  EXPECT_EQ_UTF8_UTF8("ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%^&'()",
+                      "ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%^&'()");
+  EXPECT_EQ_UTF8_UTF8("abcdefghijklmnopqrstuvwxyz[]{}\\@/",
+                      "abcdefghijklmnopqrstuvwxyz[]{}\\@/");
+
+  // halfwidth/fullwidth-katakana -> hiragana
+  EXPECT_EQ_UTF8_UTF8(
+      "\xE3\x81\x82\xE3\x82\xA4\xE3\x81\x86\xEF\xBD\xB4\xE3\x82\xAA",
+      "\xE3\x81\x82\xE3\x81\x84\xE3\x81\x86\xE3\x81\x88\xE3\x81\x8A");
+
+  // whitespace -> keep it as is.
+  EXPECT_EQ_UTF8_UTF8("    \t", "    \t");
 }
 
 int main() {
