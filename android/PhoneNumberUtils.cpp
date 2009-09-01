@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <ctype.h>
 #include <string.h>
 
 namespace android {
@@ -84,10 +85,19 @@ static int tryGetISODigit (char ch)
     }
 }
 
-/** True if c is ISO-LATIN characters 0-9, *, # , +  */
-static bool isNonSeparator(char ch)
+/**
+ * True if ch is ISO-LATIN characters 0-9, *, # , +
+ * Note this method current does not account for the WILD char 'N'
+ */
+static bool isDialable(char ch)
 {
     return ('0' <= ch && ch <= '9') || ch == '*' || ch == '#' || ch == '+';
+}
+
+/** Returns true if ch is not dialable or alpha char */
+static bool isSeparator(char ch)
+{
+    return !isDialable(ch) && (isalpha(ch) == 0);
 }
 
 /**
@@ -114,7 +124,7 @@ static bool tryGetTrunkPrefixOmittedStr(const char *str, size_t len,
                 *new_len = len - (i + 1);
             }
             return true;
-        } else if (isNonSeparator(ch)) {
+        } else if (isDialable(ch)) {
             return false;
         }
     }
@@ -146,18 +156,18 @@ static int tryGetCountryCallingCode(const char *str, size_t len,
                 if      (ch == '+') state = 1;
                 else if (ch == '0') state = 2;
                 else if (ch == '1') state = 8;
-                else if (isNonSeparator(ch)) return -1;
+                else if (isDialable(ch)) return -1;
             break;
 
             case 2:
                 if      (ch == '0') state = 3;
                 else if (ch == '1') state = 4;
-                else if (isNonSeparator(ch)) return -1;
+                else if (isDialable(ch)) return -1;
             break;
 
             case 4:
                 if      (ch == '1') state = 5;
-                else if (isNonSeparator(ch)) return -1;
+                else if (isDialable(ch)) return -1;
             break;
 
             case 1:
@@ -183,14 +193,14 @@ static int tryGetCountryCallingCode(const char *str, size_t len,
                         } else {
                             state++;
                         }
-                    } else if (isNonSeparator(ch)) {
+                    } else if (isDialable(ch)) {
                         return -1;
                     }
                 }
                 break;
             case 8:
                 if (ch == '6') state = 9;
-                else if (isNonSeparator(ch)) return -1;
+                else if (isDialable(ch)) return -1;
                 break;
             case 9:
                 if (ch == '6') {
@@ -230,7 +240,7 @@ static bool checkPrefixIsIgnorable(const char* ch, int i) {
                 // Ignore just one digit, assuming it is trunk prefix.
                 trunk_prefix_was_read = true;
             }
-        } else if (isNonSeparator(ch[i])) {
+        } else if (isDialable(ch[i])) {
             // Trunk prefix is a digit, not "*", "#"...
             return false;
         }
@@ -321,11 +331,11 @@ bool phone_number_compare(const char* a, const char* b)
         bool skip_compare = false;
         char ch_a = a[i_a];
         char ch_b = b[i_b];
-        if (!isNonSeparator(ch_a)) {
+        if (isSeparator(ch_a)) {
             i_a--;
             skip_compare = true;
         }
-        if (!isNonSeparator(ch_b)) {
+        if (isSeparator(ch_b)) {
             i_b--;
             skip_compare = true;
         }
@@ -357,7 +367,7 @@ bool phone_number_compare(const char* a, const char* b)
         bool may_be_namp = true;
         while (i_a >= 0) {
             const char ch_a = a[i_a];
-            if (isNonSeparator(ch_a)) {
+            if (isDialable(ch_a)) {
                 if (may_be_namp && tryGetISODigit(ch_a) == 1) {
                     may_be_namp = false;
                 } else {
@@ -368,7 +378,7 @@ bool phone_number_compare(const char* a, const char* b)
         }
         while (i_b >= 0) {
             const char ch_b = b[i_b];
-            if (isNonSeparator(ch_b)) {
+            if (isDialable(ch_b)) {
                 if (may_be_namp && tryGetISODigit(ch_b) == 1) {
                     may_be_namp = false;
                 } else {
