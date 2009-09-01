@@ -126,6 +126,23 @@ int main() {
     EXPECT_EQ("650-000-3456", "16500003456");
     EXPECT_EQ("16610001234", "6610001234");
 
+    // We also need to compare two alpha addresses to make sure two different strings
+    // aren't treated as the same addresses. This is relevant to SMS as SMS sender may
+    // contain all alpha chars.
+    EXPECT_NE("abcd", "bcde");
+
+    // in the U.S. people often use alpha in the phone number to easily remember it
+    // (e.g. 800-flowers would be dialed as 800-356-9377). Since we accept this form of
+    // phone number in Contacts and others, we should make sure the comparison method
+    // handle them.
+    EXPECT_EQ("1-800-flowers", "800-flowers");
+
+    // TODO: we currently do not support this comparison. It maybe nice to support this
+    // TODO: in the future.
+    // EXPECT_EQ("1-800-flowers", "1-800-356-9377")
+
+    EXPECT_NE("1-800-flowers", "1-800-abcdefg");
+
     // Currently we cannot get this test through (Japanese trunk prefix is 0,
     // but there is no sensible way to know it now (as of 2009-6-12)...
     // EXPECT_NE("290-1234-5678", "+819012345678");
