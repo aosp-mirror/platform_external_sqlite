@@ -100,7 +100,10 @@ ifneq ($(strip $(have_readline)),)
 LOCAL_CFLAGS += -DHAVE_READLINE=1
 endif
 
-LOCAL_LDLIBS += -lpthread -ldl
+LOCAL_LDLIBS += -lpthread
+ifneq ($(HOST_OS),freebsd)
+LOCAL_LDLIBS += -ldl
+endif
 
 ifneq ($(strip $(have_readline)),)
 LOCAL_LDLIBS += -lreadline -lncurses
