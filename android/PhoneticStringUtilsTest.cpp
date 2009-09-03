@@ -39,6 +39,7 @@ class TestExecutor {
   void testGetUtf8FromUtf32();
   void testGetPhoneticallySortableString();
   void testGetNormalizedString();
+  void testLongString();
 
   // Note: When adding a test, do not forget to add it to DoOneTest().
 
@@ -75,6 +76,7 @@ bool TestExecutor::DoAllTests() {
   DoOneTest(&TestExecutor::testGetUtf8FromUtf32);
   DoOneTest(&TestExecutor::testGetPhoneticallySortableString);
   DoOneTest(&TestExecutor::testGetNormalizedString);
+  DoOneTest(&TestExecutor::testLongString);
 
   printf("Test total: %d\nSuccess: %d\nFailure: %d\n",
          m_total_count, m_success_count, m_total_count - m_success_count);
@@ -414,6 +416,15 @@ void TestExecutor::testGetNormalizedString() {
   // whitespace -> keep it as is.
   EXPECT_EQ_UTF8_UTF8("    \t", "    \t");
 }
+
+void TestExecutor::testLongString() {
+  printf("testLongString()\n");
+  char * dst;
+  size_t len;
+  EXPECT_EQ_UTF8_UTF8("Qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqtttttttttttttttttttttttttttttttttttttttttttttttttgggggggggggggggggggggggggggggggggggggggbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "Qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqtttttttttttttttttttttttttttttttttttttttttttttttttggggggggggggggggggggggggggggggggggg");
+}
+
 
 int main() {
   TestExecutor executor;
