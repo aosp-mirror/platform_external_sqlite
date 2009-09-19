@@ -82,6 +82,7 @@ int main() {
     EXPECT_EQ("650-253-0000", "   1-650-253-0000");
     EXPECT_NE("650-253-0000", "11-650-253-0000");
     EXPECT_NE("650-253-0000", "0-650-253-0000");
+    EXPECT_EQ("555-4141", "+1-700-555-4141");
 
     EXPECT_EQ("+1 650-253-0000", "6502530000");
     EXPECT_EQ("001 650-253-0000", "6502530000");
@@ -124,6 +125,10 @@ int main() {
     // Confirm that the bug found before does not re-appear.
     EXPECT_NE("080-1234-5678", "+819012345678");
     EXPECT_EQ("650-000-3456", "16500003456");
+    EXPECT_EQ("011 1 7005554141", "+17005554141");
+    EXPECT_NE("011 11 7005554141", "+17005554141");
+    EXPECT_NE("+44 207 792 3490", "00 207 792 3490");
+    // This is not related to Thailand case. NAMP "1" + region code "661".
     EXPECT_EQ("16610001234", "6610001234");
 
     // We also need to compare two alpha addresses to make sure two different strings

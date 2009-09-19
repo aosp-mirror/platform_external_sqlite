@@ -40,9 +40,13 @@ include $(BUILD_EXECUTABLE)
 #   external/sqlite/android/PhoneNumberUtilsTest.cpp
 # > ./a.out
 #
-# Note: tests related to PHONE_NUMBERS_EQUAL also exists in AndroidTests in
-# java space. Add tests if you modify this.
-
+# Note: This "test" is not recognized as a formal test. This is just for enabling developers
+#       to easily check what they modified works well or not.
+#       The formal test for phone_number_compare() is in DataBaseGeneralTest.java
+#       (as of 2009-08-02), in which phone_number_compare() is tested via sqlite's custom
+#       function "PHONE_NUMBER_COMPARE".
+#       Please add tests if you modify the implementation of PhoneNumberUtils.cpp and add
+#       test cases in PhoneNumberUtilsTest.cpp.
 include $(CLEAR_VARS)
 
 LOCAL_MODULE:= libsqlite3_phone_number_utils_test
