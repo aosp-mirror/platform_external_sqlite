@@ -428,9 +428,9 @@ static bool phone_number_compare_inter(const char* const org_a, const char* cons
     return true;
 }
 
-bool phone_number_compare(const char* a, const char* b)
+bool phone_number_compare_strict(const char* a, const char* b)
 {
     return phone_number_compare_inter(a, b, true);
 }
 
-} // namespace android
+}  // namespace android
