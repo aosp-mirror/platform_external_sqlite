@@ -111,7 +111,7 @@ static void get_normalized_string(
 
 static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
-    if (argc != 2) {
+    if (argc != 2 && argc != 3) {
         sqlite3_result_int(context, 0);
         return;
     }
@@ -119,12 +119,20 @@ static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_val
     char const * num1 = (char const *)sqlite3_value_text(argv[0]);
     char const * num2 = (char const *)sqlite3_value_text(argv[1]);
 
+    bool use_strict = false;
+    if (argc == 3) {
+        use_strict = (sqlite3_value_int(argv[2]) != 0);
+    }
+
     if (num1 == NULL || num2 == NULL) {
         sqlite3_result_null(context);
         return;
     }
 
-    bool equal = android::phone_number_compare(num1, num2);
+    bool equal =
+        (use_strict ?
+         android::phone_number_compare_strict(num1, num2) :
+         android::phone_number_compare_loose(num1, num2));
 
     if (equal) {
         sqlite3_result_int(context, 1);
@@ -479,11 +487,21 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
     }
 
     // Register the PHONE_NUM_EQUALS function
-    err = sqlite3_create_function(handle, "PHONE_NUMBERS_EQUAL", 2, SQLITE_UTF8, NULL, phone_numbers_equal, NULL, NULL);
+    err = sqlite3_create_function(
+        handle, "PHONE_NUMBERS_EQUAL", 2,
+        SQLITE_UTF8, NULL, phone_numbers_equal, NULL, NULL);
     if (err != SQLITE_OK) {
         return err;
     }
-    
+
+    // Register the PHONE_NUM_EQUALS function with an additional argument "use_strict"
+    err = sqlite3_create_function(
+        handle, "PHONE_NUMBERS_EQUAL", 3,
+        SQLITE_UTF8, NULL, phone_numbers_equal, NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+
     // Register the _DELETE_FILE function
     err = sqlite3_create_function(handle, "_DELETE_FILE", 1, SQLITE_UTF8, NULL, delete_file, NULL, NULL);
     if (err != SQLITE_OK) {

@@ -47,12 +47,12 @@ using namespace android;
     })
 
 #define EXPECT_EQ(input1, input2)                                       \
-    EXPECT(phone_number_compare, (input1), (input2), true,              \
+    EXPECT(phone_number_compare_strict, (input1), (input2), true,              \
            (total), (error))
 
 
 #define EXPECT_NE(input1, input2)                                       \
-    EXPECT(phone_number_compare, (input1), (input2), false,             \
+    EXPECT(phone_number_compare_strict, (input1), (input2), false,             \
            (total), (error))
 
 int main() {

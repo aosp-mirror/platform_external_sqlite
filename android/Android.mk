@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= \
 	PhoneNumberUtils.cpp \
 	PhoneticStringUtils.cpp \
+	OldPhoneNumberUtils.cpp \
 	sqlite3_android.cpp
 
 LOCAL_C_INCLUDES := \
@@ -59,4 +60,4 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE_TAGS := optional
 
-include $(BUILD_EXECUTABLE)
+# include $(BUILD_EXECUTABLE)
