@@ -60,4 +60,4 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE_TAGS := optional
 
-# include $(BUILD_EXECUTABLE)
+include $(BUILD_EXECUTABLE)
