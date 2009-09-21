@@ -22,7 +22,7 @@
 
 namespace android {
 
-static int MIN_MATCH = 5;
+static int MIN_MATCH = 7;
 
 /** True if c is ISO-LATIN characters 0-9 */
 static bool isISODigit (char c)
@@ -186,7 +186,7 @@ static int indexOf(const char *a, char b) {
  * enough for caller ID purposes.
  *
  * - Compares from right to left
- * - requires MIN_MATCH (5) characters to match
+ * - requires MIN_MATCH (7) characters to match
  * - handles common trunk prefixes and international prefixes
  *   (basically, everything except the Russian trunk prefix)
  *
