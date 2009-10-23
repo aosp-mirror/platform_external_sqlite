@@ -196,6 +196,8 @@ bool phone_number_compare_loose(const char* a, const char* b)
 {
     int ia, ib;
     int matched;
+    int numSeparatorCharsInA = 0;
+    int numSeparatorCharsInB = 0;
 
     if (a == NULL || b == NULL) {
         return false;
@@ -222,6 +224,7 @@ bool phone_number_compare_loose(const char* a, const char* b)
         if (!isNonSeparator(ca)) {
             ia--;
             skipCmp = true;
+            numSeparatorCharsInA++;
         }
 
         cb = b[ib];
@@ -229,6 +232,7 @@ bool phone_number_compare_loose(const char* a, const char* b)
         if (!isNonSeparator(cb)) {
             ib--;
             skipCmp = true;
+            numSeparatorCharsInB++;
         }
 
         if (!skipCmp) {
@@ -240,13 +244,15 @@ bool phone_number_compare_loose(const char* a, const char* b)
     }
 
     if (matched < MIN_MATCH) {
-        int aLen = strlen(a);
+        const int effectiveALen = strlen(a) - numSeparatorCharsInA;
+        const int effectiveBLen = strlen(b) - numSeparatorCharsInB;
 
-        // if the input strings match, but their lengths < MIN_MATCH,
-        // treat them as equal.
-        if (aLen == (int)strlen(b) && aLen == matched) {
+        // if the number of dialable chars in a and b match, but the matched chars < MIN_MATCH,
+        // treat them as equal (i.e. 404-04 and 40404)
+        if (effectiveALen == effectiveBLen && effectiveALen == matched) {
             return true;
         }
+
         return false;
     }
 
