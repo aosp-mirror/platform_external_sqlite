@@ -103,7 +103,7 @@ endif
 LOCAL_LDLIBS += -lpthread -ldl
 
 ifneq ($(strip $(have_readline)),)
-LOCAL_LDLIBS += -lreadline
+LOCAL_LDLIBS += -lreadline -lncurses
 endif
 ifneq ($(strip $(have_history)),)
 LOCAL_LDLIBS += -lhistory

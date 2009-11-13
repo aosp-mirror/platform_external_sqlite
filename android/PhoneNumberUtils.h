@@ -20,8 +20,9 @@
 
 namespace android {
 
-bool phone_number_compare(const char* a, const char* b);
+bool phone_number_compare_loose(const char* a, const char* b);
+bool phone_number_compare_strict(const char* a, const char* b);
 
-}
+}  // namespace android
 
 #endif

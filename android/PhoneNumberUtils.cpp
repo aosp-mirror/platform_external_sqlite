@@ -138,7 +138,8 @@ static bool tryGetTrunkPrefixOmittedStr(const char *str, size_t len,
  * digit to compare two phone numbers.
  */
 static int tryGetCountryCallingCode(const char *str, size_t len,
-                                    const char **new_ptr, size_t *new_len)
+                                    const char **new_ptr, size_t *new_len,
+                                    bool accept_thailand_case)
 {
     // Rough regexp:
     //  ^[^0-9*#+]*((\+|0(0|11)\d\d?|166) [^0-9*#+] $
@@ -155,8 +156,13 @@ static int tryGetCountryCallingCode(const char *str, size_t len,
             case 0:
                 if      (ch == '+') state = 1;
                 else if (ch == '0') state = 2;
-                else if (ch == '1') state = 8;
-                else if (isDialable(ch)) return -1;
+                else if (ch == '1') {
+                    if (accept_thailand_case) {
+                        state = 8;
+                    } else {
+                        return -1;
+                    }
+                } else if (isDialable(ch)) return -1;
             break;
 
             case 2:
@@ -272,8 +278,11 @@ static bool checkPrefixIsIgnorable(const char* ch, int i) {
  * In the future, we should handle trunk prefix more correctly, but as of now,
  * we just ignore it...
  */
-bool phone_number_compare(const char* a, const char* b)
+static bool phone_number_compare_inter(const char* const org_a, const char* const org_b,
+                                       bool accept_thailand_case)
 {
+    const char* a = org_a;
+    const char* b = org_b;
     size_t len_a = 0;
     size_t len_b = 0;
     if (a == NULL) {
@@ -292,9 +301,12 @@ bool phone_number_compare(const char* a, const char* b)
     size_t tmp_len_a = len_a;
     size_t tmp_len_b = len_b;
 
-    int ccc_a = tryGetCountryCallingCode(a, len_a, &tmp_a, &tmp_len_a);
-    int ccc_b = tryGetCountryCallingCode(b, len_b, &tmp_b, &tmp_len_b);
+    int ccc_a = tryGetCountryCallingCode(a, len_a, &tmp_a, &tmp_len_a, accept_thailand_case);
+    int ccc_b = tryGetCountryCallingCode(b, len_b, &tmp_b, &tmp_len_b, accept_thailand_case);
+    bool both_have_ccc = false;
     bool ok_to_ignore_prefix = true;
+    bool trunk_prefix_is_omitted_a = false;
+    bool trunk_prefix_is_omitted_b = false;
     if (ccc_a >= 0 && ccc_b >= 0) {
         if (ccc_a != ccc_b) {
             // Different Country Calling Code. Must be different phone number.
@@ -303,6 +315,7 @@ bool phone_number_compare(const char* a, const char* b)
         // When both have ccc, do not ignore trunk prefix. Without this,
         // "+81123123" becomes same as "+810123123" (+81 == Japan)
         ok_to_ignore_prefix = false;
+        both_have_ccc = true;
     } else if (ccc_a < 0 && ccc_b < 0) {
         // When both do not have ccc, do not ignore trunk prefix. Without this,
         // "123123" becomes same as "0123123"
@@ -310,9 +323,11 @@ bool phone_number_compare(const char* a, const char* b)
     } else {
         if (ccc_a < 0) {
             tryGetTrunkPrefixOmittedStr(a, len_a, &tmp_a, &tmp_len_a);
+            trunk_prefix_is_omitted_a = true;
         }
         if (ccc_b < 0) {
             tryGetTrunkPrefixOmittedStr(b, len_b, &tmp_b, &tmp_len_b);
+            trunk_prefix_is_omitted_b = true;
         }
     }
 
@@ -350,21 +365,42 @@ bool phone_number_compare(const char* a, const char* b)
     }
 
     if (ok_to_ignore_prefix) {
-        if (!checkPrefixIsIgnorable(a, i_a)) {
-            return false;
+        if ((trunk_prefix_is_omitted_a && i_a >= 0) ||
+            !checkPrefixIsIgnorable(a, i_a)) {
+            if (accept_thailand_case) {
+                // Maybe the code handling the special case for Thailand makes the
+                // result garbled, so disable the code and try again.
+                // e.g. "16610001234" must equal to "6610001234", but with
+                //      Thailand-case handling code, they become equal to each other.
+                //
+                // Note: we select simplicity rather than adding some complicated
+                //       logic here for performance(like "checking whether remaining
+                //       numbers are just 66 or not"), assuming inputs are small
+                //       enough.
+                return phone_number_compare_inter(org_a, org_b, false);
+            } else {
+                return false;
+            }
         }
-        if (!checkPrefixIsIgnorable(b, i_b)) {
-            return false;
+        if ((trunk_prefix_is_omitted_b && i_b >= 0) ||
+            !checkPrefixIsIgnorable(b, i_b)) {
+            if (accept_thailand_case) {
+                return phone_number_compare_inter(org_a, org_b, false);
+            } else {
+                return false;
+            }
         }
     } else {
         // In the US, 1-650-555-1234 must be equal to 650-555-1234,
         // while 090-1234-1234 must not be equalt to 90-1234-1234 in Japan.
         // This request exists just in US (with 1 trunk (NDD) prefix).
+        // In addition, "011 11 7005554141" must not equal to "+17005554141",
+        // while "011 1 7005554141" must equal to "+17005554141"
         //
-        // At least, in this "rough" comparison, we should ignore the prefix
-        // '1', so if the remaining non-separator number is 0, we ignore it
-        // just once.
-        bool may_be_namp = true;
+        // In this comparison, we ignore the prefix '1' just once, when
+        // - at least either does not have CCC, or
+        // - the remaining non-separator number is 1
+        bool may_be_namp = !both_have_ccc;
         while (i_a >= 0) {
             const char ch_a = a[i_a];
             if (isDialable(ch_a)) {
@@ -392,4 +428,9 @@ bool phone_number_compare(const char* a, const char* b)
     return true;
 }
 
-} // namespace android
+bool phone_number_compare_strict(const char* a, const char* b)
+{
+    return phone_number_compare_inter(a, b, true);
+}
+
+}  // namespace android
