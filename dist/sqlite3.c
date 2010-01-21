@@ -8982,15 +8982,45 @@ typedef struct {
 ** it allows the operator to set a breakpoint at the spot where database
 ** corruption is first detected.
 */
+// Begin Android Change
+SQLITE_PRIVATE   int sqlite3Corrupt(int);
+# define SQLITE_CORRUPT_BKPT(N) sqlite3Corrupt(N)
 #ifdef SQLITE_DEBUG
-SQLITE_PRIVATE   int sqlite3Corrupt(void);
-# define SQLITE_CORRUPT_BKPT sqlite3Corrupt()
 # define DEBUGONLY(X)        X
 #else
-# define SQLITE_CORRUPT_BKPT SQLITE_CORRUPT
 # define DEBUGONLY(X)
 #endif
+// End Android Change
 
+// Begin Android Add
+# define PAGER_OUT_OF_RANGE_CORRUPTION           101
+# define INVALID_KEY_INTO_POINTERMAP_CORRUPTION  102
+# define INVALID_PETYPE_CORRUPTION               103
+# define PARENT_PAGE_CORRUPTION                  104
+# define TOO_MANY_CELLS_IN_PAGE_CORRUPTION       105
+# define NEED_AT_LEAST_CELL_CORRUPTION           106
+# define FREE_BLOCK_ERR_CORRUPTION               107
+# define FREE_BLOCK_NOT_IN_ORDER_CORRUPTION      108
+# define FREE_SPACE_ERR_CORRUPTION               109
+# define INVALID_PG_FETCH_CORRUPTION             110
+# define PAGE_POINTER_DATA_CORRUPTION            111
+# define PAGE_POINTER_DATA_2_CORRUPTION          112
+# define PTRMAP_ROOTPAGE_CORRUPTION              113
+# define PTRMAP_ISPAGE_CORRUPTION                114
+# define ACCESS_PAYLOAD_CORRUPTION               115
+# define BTREE_KEY_CORRUPTION                    116
+# define MOVE_TO_CHILD_CORRUPTION                117
+# define BTREE_MOVE_TO_CORRUPTION                118
+# define BTREE_PAGE_CORRUPTION                   119
+# define FREE_PAGE_OFF_THE_FILE_CORRUPTION       120
+# define CLEAR_CELL_CORRUPTION                   121
+# define CLEAR_DATABASE_PAGE_CORRUPTION          122
+# define VDBE_INDEX_ROWID_CORRUPTION             123
+# define DATA_CORRUPTION                         124
+# define BTREE_FLAGS_CORRUPTION                  125
+# define NOT_TABLE_NOT_KEY_CORRUPTION            126
+# define BTREE_INTKEY_CORRUPTION                 127
+// End Android Add
 /*
 ** Internal function prototypes
 */
@@ -25820,6 +25850,7 @@ static int sqlite3PagerOpentemp(
 // Begin Android add 
 #define LOG_TAG "sqlite3"
 #include <utils/Log.h>
+#include <cutils/log.h>
 // END Android add
 
 /*
@@ -27484,7 +27515,7 @@ static int pagerAcquire(
   ** number greater than this, or zero, is requested.
   */
   if( pgno>PAGER_MAX_PGNO || pgno==0 || pgno==PAGER_MJ_PGNO(pPager) ){
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(PAGER_OUT_OF_RANGE_CORRUPTION); // Android Change
   }
 
   /* Make sure we have not hit any critical errors.
@@ -30466,7 +30497,7 @@ static int ptrmapPut(BtShared *pBt, Pgno key, u8 eType, Pgno parent){
 
   assert( pBt->autoVacuum );
   if( key==0 ){
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(INVALID_KEY_INTO_POINTERMAP_CORRUPTION); // Android Change
   }
   iPtrmap = PTRMAP_PAGENO(pBt, key);
   rc = sqlite3PagerGet(pBt->pPager, iPtrmap, &pDbPage);
@@ -30518,7 +30549,9 @@ static int ptrmapGet(BtShared *pBt, Pgno key, u8 *pEType, Pgno *pPgno){
   if( pPgno ) *pPgno = get4byte(&pPtrmap[offset+1]);
 
   sqlite3PagerUnref(pDbPage);
-  if( *pEType<1 || *pEType>5 ) return SQLITE_CORRUPT_BKPT;
+  if( *pEType<1 || *pEType>5 ) {
+    return SQLITE_CORRUPT_BKPT(INVALID_PETYPE_CORRUPTION); // Android Change
+  }
   return SQLITE_OK;
 }
 
@@ -30952,7 +30985,7 @@ SQLITE_PRIVATE int sqlite3BtreeInitPage(
   assert( pPage->aData == sqlite3PagerGetData(pPage->pDbPage) );
   if( pPage->pParent!=pParent && (pPage->pParent!=0 || pPage->isInit) ){
     /* The parent page should never change unless the file is corrupt */
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(PARENT_PAGE_CORRUPTION); // Android Change
   }
   if( pPage->isInit ) return SQLITE_OK;
   if( pPage->pParent==0 && pParent!=0 ){
@@ -30970,11 +31003,11 @@ SQLITE_PRIVATE int sqlite3BtreeInitPage(
   pPage->nCell = get2byte(&data[hdr+3]);
   if( pPage->nCell>MX_CELL(pBt) ){
     /* To many cells for a single page.  The page must be corrupt */
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(TOO_MANY_CELLS_IN_PAGE_CORRUPTION); // Android Change
   }
   if( pPage->nCell==0 && pParent!=0 && pParent->pgno!=1 ){
     /* All pages must have at least one cell, except for root pages */
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(NEED_AT_LEAST_CELL_CORRUPTION); // Android Change
   }
 
   /* Compute the total free space on the page */
@@ -30984,13 +31017,13 @@ SQLITE_PRIVATE int sqlite3BtreeInitPage(
     int next, size;
     if( pc>usableSize-4 ){
       /* Free block is off the page */
-      return SQLITE_CORRUPT_BKPT; 
+      return SQLITE_CORRUPT_BKPT(FREE_BLOCK_ERR_CORRUPTION); // Android Change
     }
     next = get2byte(&data[pc]);
     size = get2byte(&data[pc+2]);
     if( next>0 && next<=pc+size+3 ){
       /* Free blocks must be in accending order */
-      return SQLITE_CORRUPT_BKPT; 
+      return SQLITE_CORRUPT_BKPT(FREE_BLOCK_NOT_IN_ORDER_CORRUPTION); // Android Change
     }
     nFree += size;
     pc = next;
@@ -30998,7 +31031,7 @@ SQLITE_PRIVATE int sqlite3BtreeInitPage(
   pPage->nFree = nFree;
   if( nFree>=usableSize ){
     /* Free space cannot exceed total page size */
-    return SQLITE_CORRUPT_BKPT; 
+    return SQLITE_CORRUPT_BKPT(FREE_SPACE_ERR_CORRUPTION); // Android Change
   }
 
   pPage->isInit = 1;
@@ -31084,7 +31117,7 @@ static int getAndInitPage(
   int rc;
   assert( sqlite3_mutex_held(pBt->mutex) );
   if( pgno==0 ){
-    return SQLITE_CORRUPT_BKPT; 
+    return SQLITE_CORRUPT_BKPT(INVALID_PG_FETCH_CORRUPTION); // Android Change
   }
   rc = sqlite3BtreeGetPage(pBt, pgno, ppPage, 0);
   if( rc==SQLITE_OK && (*ppPage)->isInit==0 ){
@@ -32065,7 +32098,7 @@ static int modifyPagePointer(MemPage *pPage, Pgno iFrom, Pgno iTo, u8 eType){
   if( eType==PTRMAP_OVERFLOW2 ){
     /* The pointer is always the first 4 bytes of the page in this case.  */
     if( get4byte(pPage->aData)!=iFrom ){
-      return SQLITE_CORRUPT_BKPT;
+      return SQLITE_CORRUPT_BKPT(PAGE_POINTER_DATA_CORRUPTION); // Android Change
     }
     put4byte(pPage->aData, iTo);
   }else{
@@ -32098,7 +32131,7 @@ static int modifyPagePointer(MemPage *pPage, Pgno iFrom, Pgno iTo, u8 eType){
     if( i==nCell ){
       if( eType!=PTRMAP_BTREE || 
           get4byte(&pPage->aData[pPage->hdrOffset+8])!=iFrom ){
-        return SQLITE_CORRUPT_BKPT;
+        return SQLITE_CORRUPT_BKPT(PAGE_POINTER_DATA_2_CORRUPTION); // Android Change
       }
       put4byte(&pPage->aData[pPage->hdrOffset+8], iTo);
     }
@@ -32228,7 +32261,7 @@ static int incrVacuumStep(BtShared *pBt, Pgno nFin){
       return rc;
     }
     if( eType==PTRMAP_ROOTPAGE ){
-      return SQLITE_CORRUPT_BKPT;
+      return SQLITE_CORRUPT_BKPT(PTRMAP_ROOTPAGE_CORRUPTION); // Android Change
     }
 
     if( eType==PTRMAP_FREEPAGE ){
@@ -32346,7 +32379,7 @@ static int autoVacuumCommit(BtShared *pBt, Pgno *pnTrunc){
       Pgno nOrig = sqlite3PagerPagecount(pBt->pPager);
 
       if( PTRMAP_ISPAGE(pBt, nOrig) ){
-        return SQLITE_CORRUPT_BKPT;
+        return SQLITE_CORRUPT_BKPT(PTRMAP_ISPAGE_CORRUPTION); // Android Change
       }
       if( nOrig==PENDING_BYTE_PAGE(pBt) ){
         nOrig--;
@@ -33242,7 +33275,7 @@ static int accessPayload(
   }
 
   if( rc==SQLITE_OK && amt>0 ){
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(ACCESS_PAYLOAD_CORRUPTION); // Android Change
   }
   return rc;
 }
@@ -33265,7 +33298,7 @@ SQLITE_PRIVATE int sqlite3BtreeKey(BtCursor *pCur, u32 offset, u32 amt, void *pB
     assert( pCur->eState==CURSOR_VALID );
     assert( pCur->pPage!=0 );
     if( pCur->pPage->intKey ){
-      return SQLITE_CORRUPT_BKPT;
+      return SQLITE_CORRUPT_BKPT(BTREE_KEY_CORRUPTION); // Android Change
     }
     assert( pCur->pPage->intKey==0 );
     assert( pCur->idx>=0 && pCur->idx<pCur->pPage->nCell );
@@ -33406,7 +33439,7 @@ static int moveToChild(BtCursor *pCur, u32 newPgno){
   pCur->info.nSize = 0;
   pCur->validNKey = 0;
   if( pNewPage->nCell<1 ){
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(MOVE_TO_CHILD_CORRUPTION); // Android Change
   }
   return SQLITE_OK;
 }
@@ -33703,7 +33736,7 @@ SQLITE_PRIVATE int sqlite3BtreeMoveto(
     lwr = 0;
     upr = pPage->nCell-1;
     if( !pPage->intKey && pUnKey==0 ){
-      rc = SQLITE_CORRUPT_BKPT;
+      rc = SQLITE_CORRUPT_BKPT(BTREE_MOVE_TO_CORRUPTION); // Android Change
       goto moveto_finish;
     }
     if( biasRight ){
@@ -34058,7 +34091,7 @@ static int allocateBtreePage(
         TRACE(("ALLOCATE: %d trunk - %d free pages left\n", *pPgno, n-1));
       }else if( k>pBt->usableSize/4 - 8 ){
         /* Value of k is out of range.  Database corruption */
-        rc = SQLITE_CORRUPT_BKPT;
+        rc = SQLITE_CORRUPT_BKPT(BTREE_PAGE_CORRUPTION); // Android Change
         goto end_allocate_page;
 #ifndef SQLITE_OMIT_AUTOVACUUM
       }else if( searchList && nearby==iTrunk ){
@@ -34142,7 +34175,7 @@ static int allocateBtreePage(
           *pPgno = iPage;
           if( *pPgno>sqlite3PagerPagecount(pBt->pPager) ){
             /* Free page off the end of the file */
-            rc = SQLITE_CORRUPT_BKPT;
+            rc = SQLITE_CORRUPT_BKPT(FREE_PAGE_OFF_THE_FILE_CORRUPTION); // Android Change
             goto end_allocate_page;
           }
           TRACE(("ALLOCATE: %d was leaf %d of %d on trunk %d"
@@ -34324,7 +34357,7 @@ static int clearCell(MemPage *pPage, unsigned char *pCell){
   while( nOvfl-- ){
     MemPage *pOvfl;
     if( ovflPgno==0 || ovflPgno>sqlite3PagerPagecount(pBt->pPager) ){
-      return SQLITE_CORRUPT_BKPT;
+      return SQLITE_CORRUPT_BKPT(CLEAR_CELL_CORRUPTION); // Android Change
     }
 
     rc = getOverflowPage(pBt, ovflPgno, &pOvfl, (nOvfl==0)?0:&ovflPgno);
@@ -36046,7 +36079,7 @@ static int clearDatabasePage(
 
   assert( sqlite3_mutex_held(pBt->mutex) );
   if( pgno>sqlite3PagerPagecount(pBt->pPager) ){
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(CLEAR_DATABASE_PAGE_CORRUPTION); // Android Change
   }
 
   rc = getAndInitPage(pBt, pgno, &pPage, pParent);
@@ -40779,7 +40812,7 @@ SQLITE_PRIVATE int sqlite3VdbeIdxRowid(BtCursor *pCur, i64 *rowid){
 
   sqlite3BtreeKeySize(pCur, &nCellKey);
   if( nCellKey<=0 ){
-    return SQLITE_CORRUPT_BKPT;
+    return SQLITE_CORRUPT_BKPT(VDBE_INDEX_ROWID_CORRUPTION); // Android Change
   }
   m.flags = 0;
   m.db = 0;
@@ -44200,7 +44233,7 @@ case OP_Column: {
     ** with a corrupt database.
     */
     if( zIdx>zEndHdr || offset>payloadSize || (zIdx==zEndHdr && offset!=payloadSize) ){
-      rc = SQLITE_CORRUPT_BKPT;
+      rc = SQLITE_CORRUPT_BKPT(DATA_CORRUPTION); // Android Change
       goto op_column_out;
     }
   }
@@ -44791,7 +44824,7 @@ case OP_OpenWrite: {
       ** only mean that we are dealing with a corrupt database file
       */
       if( (flags & 0xf0)!=0 || ((flags & 0x07)!=5 && (flags & 0x07)!=2) ){
-        rc = SQLITE_CORRUPT_BKPT;
+        rc = SQLITE_CORRUPT_BKPT(BTREE_FLAGS_CORRUPTION); // Android Change
         goto abort_due_to_error;
       }
       pCur->isTable = (flags & BTREE_INTKEY)!=0;
@@ -44802,7 +44835,7 @@ case OP_OpenWrite: {
       */
       if( (pCur->isTable && pOp->p4type==P4_KEYINFO)
        || (pCur->isIndex && pOp->p4type!=P4_KEYINFO) ){
-        rc = SQLITE_CORRUPT_BKPT;
+        rc = SQLITE_CORRUPT_BKPT(NOT_TABLE_NOT_KEY_CORRUPTION); // Android Change
         goto abort_due_to_error;
       }
       break;
@@ -45358,7 +45391,7 @@ case OP_NewRowid: {           /* out2-prerelease */
     cnt = 0;
     if( (sqlite3BtreeFlags(pC->pCursor)&(BTREE_INTKEY|BTREE_ZERODATA)) !=
           BTREE_INTKEY ){
-      rc = SQLITE_CORRUPT_BKPT;
+      rc = SQLITE_CORRUPT_BKPT(BTREE_INTKEY_CORRUPTION); // Android Change
       goto abort_due_to_error;
     }
     assert( (sqlite3BtreeFlags(pC->pCursor) & BTREE_INTKEY)!=0 );
@@ -78688,16 +78721,25 @@ SQLITE_API int sqlite3_get_autocommit(sqlite3 *db){
   return db->autoCommit;
 }
 
-#ifdef SQLITE_DEBUG
+// Android Change #ifdef SQLITE_DEBUG
 /*
 ** The following routine is subtituted for constant SQLITE_CORRUPT in
 ** debugging builds.  This provides a way to set a breakpoint for when
 ** corruption is first detected.
 */
-SQLITE_PRIVATE int sqlite3Corrupt(void){
+// Begin Android Change
+// the following should match up with value in java/android/database/sqlite/SQLiteDatabase.java
+# define EVENT_DB_CORRUPT 75004
+
+SQLITE_PRIVATE int sqlite3Corrupt(int corruption_type){
+  // write an event to the log
+  char buf[50];
+  int payload_len = sprintf(buf, "corruption_type = %d", corruption_type);
+  android_btWriteLog(EVENT_DB_CORRUPT, EVENT_TYPE_STRING, buf, payload_len);
   return SQLITE_CORRUPT;
 }
-#endif
+// #endif
+// End Android Change
 
 /*
 ** This is a convenience routine that makes sure that all thread-specific
