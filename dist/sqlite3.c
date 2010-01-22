@@ -72388,7 +72388,7 @@ static void minMaxFinalize(sqlite3_context *context){
 /*
 ** group_concat(EXPR, ?SEPARATOR?)
 */
-static void groupConcatStep_notused/* Android Change */(
+static void groupConcatStep(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -72421,7 +72421,7 @@ static void groupConcatStep_notused/* Android Change */(
     sqlite3StrAccumAppend(pAccum, zVal, nVal);
   }
 }
-static void groupConcatFinalize_notused/* Android Change */(sqlite3_context *context){
+static void groupConcatFinalize(sqlite3_context *context){
   StrAccum *pAccum;
   pAccum = sqlite3_aggregate_context(context, 0);
   if( pAccum ){
@@ -110976,75 +110976,6 @@ static char *android_getenv(char *varname) {
     return ANDROID_TMP_DIR_NAME;
   } else {
     return getenv(varname);
-  }
-}
-
-
-// group_concat is an aggregation funcation that joins its values with
-// a delimiter of space.  
-// We use this version of groupConcatStep because 
-// 1) it is faster since the sqlite3 version does malloc and copy for each 
-//    append. since the sqlite3 one allows more than 1024 chars, we may want to 
-//    fix this issue too.
-// 2) sqlite3 version return NULL when nothing to concat, 
-//    sqlite3StrAccumFinish(pAccum) return NULL. this returns empty string
-//    some gmail code depends on it returns empty string than null. 
-
-typedef struct GroupConcatCtx GroupConcatCtx;
-#define GROUP_CONCAT_BUFFER_LENGTH (1024)
-struct GroupConcatCtx {
-  char buffer[GROUP_CONCAT_BUFFER_LENGTH];
-  int charsWritten;
-  Bool outOfSpace;
-};
-static void groupConcatStep(
-    sqlite3_context *context, int argc, sqlite3_value **argv){
-  GroupConcatCtx *p;
-
-  p = sqlite3_aggregate_context(context, sizeof(*p));
-  if( p  && !p->outOfSpace){
-    const char* value = sqlite3_value_text(argv[0]);
-    if (!value) return; // null sql values are converted to null char* values
-    int valueLength = strlen(value);
-
-    const char* delimiter;
-    int delimiterLength;
-
-    int bytesNeeded = valueLength;
-    Bool writeDelimeter = p->charsWritten != 0;
-    if (writeDelimeter) {
-      if (argc==2) {
-        delimiter = (char*)sqlite3_value_text(argv[1]);
-        delimiterLength = strlen(delimiter);
-      } else {
-        delimiterLength = 1;
-        delimiter = ",";
-      }
-      bytesNeeded += delimiterLength;
-    }
-
-    // The "- 1" is to leave room for the nul.
-    if (GROUP_CONCAT_BUFFER_LENGTH - p->charsWritten - 1 >= bytesNeeded) {
-      if (writeDelimeter) {
-        strcpy(p->buffer + p->charsWritten, delimiter);
-        p->charsWritten += delimiterLength;
-      }
-      strcpy(p->buffer + p->charsWritten, value);
-      p->charsWritten += valueLength;
-    } else {
-      p->outOfSpace = 1;
-    }
-  }
-}
-static void groupConcatFinalize(sqlite3_context *context){
-  GroupConcatCtx *p;
-  p = sqlite3_aggregate_context(context, 0);
-  if ( p ) {
-    if ( p->outOfSpace ) {
-      sqlite3_result_error_toobig(context);
-    } else {
-      sqlite3_result_text(context, p->buffer, -1, SQLITE_TRANSIENT);
-    }
   }
 }
 // End Android Add
