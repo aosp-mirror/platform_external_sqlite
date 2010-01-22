@@ -6266,6 +6266,7 @@ SQLITE_PRIVATE int sqlite3Corrupt(int corruption_type){
 #define VDBE_INDEX_ROWID_CORRUPTION           148
 #define OP_OPENWRITE_CORRUPTION               149
 #define OVERSIZE_HEADER_CORRUPTION            150
+#define UNSUPPORTED_FILE_FORMAT_CORRUPTION    151
 
 // End Android Add
 /************** Continuing where we left off in sqliteInt.h ******************/
@@ -78498,7 +78499,7 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
   }
   if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
     sqlite3SetString(pzErrMsg, db, "unsupported file format");
-    rc = SQLITE_ERROR;
+    rc = SQLITE_CORRUPT_BKPT(UNSUPPORTED_FILE_FORMAT_CORRUPTION); // Android Change
     goto initone_error_out;
   }
 
