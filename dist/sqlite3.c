@@ -6191,13 +6191,6 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 #define SQLITE_BeginImmediate 0x00200000  /* Default BEGIN to IMMEDIATE */
 #define fdatasync fsync
 
-// here is where journal files are stored.
-#define ANDROID_TMP_DIR_NAME "/data/sqlite_stmt_journals"
-
-static char *android_getenv(char *);
-static void groupConcatStep(sqlite3_context *,int,sqlite3_value **);
-static void groupConcatFinalize(sqlite3_context *);
-
 #define LOG_TAG "sqlite3"
 #include <utils/Log.h>
 #include <cutils/log.h>
@@ -25292,7 +25285,7 @@ static int getTempname(int nBuf, char *zBuf){
 
   azDirs[0] = sqlite3_temp_directory;
   if (NULL == azDirs[1]) {
-    azDirs[1] = android_getenv/* Android Change */("TMPDIR");
+    azDirs[1] = getenv("TMPDIR");
   }
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
@@ -25567,7 +25560,7 @@ static int unixOpen(
 
 #if SQLITE_PREFER_PROXY_LOCKING
   if( zPath!=NULL && !noLock && pVfs->xOpen ){
-    char *envforce = android_getenv/* Android Change */("SQLITE_FORCE_PROXY_LOCKING");
+    char *envforce = getenv("SQLITE_FORCE_PROXY_LOCKING");
     int useProxy = 0;
 
     /* SQLITE_FORCE_PROXY_LOCKING==1 means force always use proxy, 0 means 
@@ -110980,12 +110973,5 @@ SQLITE_API void sqlite3_get_pager_stats(sqlite3_int64 * totalBytesOut,
    *referencedBytesOut = 0;
    *dbBytesOut = 0;
    *numPagersOut = 0;
-}
-static char *android_getenv(char *varname) {
-  if (!strcmp(varname, "TMPDIR")) {
-    return ANDROID_TMP_DIR_NAME;
-  } else {
-    return getenv(varname);
-  }
 }
 // End Android Add
