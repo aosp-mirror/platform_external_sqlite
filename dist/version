@@ -1,1 +1,2 @@
-3.6.22
+3.6.22 plus the following patches:
+http://www.sqlite.org/src/ci/26cb1df735

@@ -29760,6 +29760,7 @@ SQLITE_PRIVATE int sqlite3PcacheFetch(
         pPg && (pPg->nRef || (pPg->flags&PGHDR_NEED_SYNC)); 
         pPg=pPg->pDirtyPrev
     );
+    pCache->pSynced = pPg;  // http://www.sqlite.org/src/ci/26cb1df735
     if( !pPg ){
       for(pPg=pCache->pDirtyTail; pPg && pPg->nRef; pPg=pPg->pDirtyPrev);
     }
