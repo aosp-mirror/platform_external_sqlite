@@ -95896,18 +95896,8 @@ SQLITE_API int sqlite3_close(sqlite3 *db){
 
   /* If there are any outstanding VMs, return SQLITE_BUSY. */
   if( db->pVdbe ){
-    // Begin Android Change
-    // print the first unfinalized statement in the error message, to help the developer
-    // figure out what the unfinalized statement is.
-    char *msgPrefix = "unable to close due to unfinalised statements: ";
-    int len = strlen(msgPrefix) + strlen(db->pVdbe->zSql) + 1;
-    char *buff =(char*)sqlite3_malloc(len);
-    strncat(buff, msgPrefix, strlen(msgPrefix));
-    strncat(buff, db->pVdbe->zSql, strlen(db->pVdbe->zSql));
-    buff[len-1] = NULL; // null terminate the string, just in case. paranoid, eh? :)
-    sqlite3Error(db, SQLITE_BUSY, buff);
-    sqlite3_free(buff);
-    // End Android Change
+    sqlite3Error(db, SQLITE_BUSY,
+        "unable to close due to unfinalised statements");
     sqlite3_mutex_leave(db->mutex);
     return SQLITE_BUSY;
   }
