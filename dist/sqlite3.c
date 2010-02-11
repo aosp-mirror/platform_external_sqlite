@@ -862,6 +862,13 @@ SQLITE_API int sqlite3_exec(
   char **errmsg                              /* Error msg written here */
 );
 
+// Begin Android Add to debug # 2419869 STOPSHIP 
+SQLITE_PRIVATE int android_STOPSHIP_seppuku(void){
+  int *ptr = '\0'; *ptr = 1; // cause segfault to get stacktrace
+  return -1;
+}
+// End Android Add STOPSHIP
+
 /*
 ** CAPI3REF: Result Codes
 ** KEYWORDS: SQLITE_OK {error code} {error codes}
@@ -10958,7 +10965,7 @@ SQLITE_PRIVATE void sqlite3StatusSet(int op, int X){
 SQLITE_API int sqlite3_status(int op, int *pCurrent, int *pHighwater, int resetFlag){
   wsdStatInit;
   if( op<0 || op>=ArraySize(wsdStat.nowValue) ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
   }
   *pCurrent = wsdStat.nowValue[op];
   *pHighwater = wsdStat.mxValue[op];
@@ -22653,7 +22660,7 @@ static int transferOwnership(unixFile *pFile){
   }
   if( pFile->locktype!=NO_LOCK ){
     /* We cannot change ownership while we are holding a lock! */
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
   }
   OSTRACE4("Transfer ownership of %d from %d to %d\n",
             pFile->h, pFile->tid, hSelf);
@@ -23100,7 +23107,7 @@ static int unixUnlock(sqlite3_file *id, int locktype){
     return SQLITE_OK;
   }
   if( CHECK_THREADID(pFile) ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   unixEnterMutex();
   h = pFile->h;
@@ -24202,7 +24209,7 @@ static int afpUnlock(sqlite3_file *id, int locktype) {
     return SQLITE_OK;
   }
   if( CHECK_THREADID(pFile) ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   unixEnterMutex();
   if( pFile->locktype>SHARED_LOCK ){
@@ -50632,7 +50639,7 @@ static int sqlite3Step(Vdbe *p){
 
   assert(p);
   if( p->magic!=VDBE_MAGIC_RUN ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
 
   /* Assert that malloc() has not failed */
@@ -50650,7 +50657,7 @@ static int sqlite3Step(Vdbe *p){
   }
   if( sqlite3SafetyOn(db) ){
     p->rc = SQLITE_MISUSE;
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   if( p->pc<0 ){
     /* If there are no other statements currently running, then
@@ -50685,7 +50692,7 @@ static int sqlite3Step(Vdbe *p){
   }
 
   if( sqlite3SafetyOff(db) ){
-    rc = SQLITE_MISUSE;
+    android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
 
 #ifndef SQLITE_OMIT_TRACE
@@ -50767,6 +50774,8 @@ SQLITE_API int sqlite3_step(sqlite3_stmt *pStmt){
     rc = sqlite3ApiExit(db, rc);
     sqlite3_mutex_leave(db->mutex);
   }
+  if (rc == SQLITE_MISUSE)
+      android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
   return rc;
 }
 
@@ -51236,12 +51245,12 @@ SQLITE_API const void *sqlite3_column_origin_name16(sqlite3_stmt *pStmt, int N){
 */
 static int vdbeUnbind(Vdbe *p, int i){
   Mem *pVar;
-  if( p==0 ) return SQLITE_MISUSE;
+  if( p==0 ) return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   sqlite3_mutex_enter(p->db->mutex);
   if( p->magic!=VDBE_MAGIC_RUN || p->pc>=0 ){
     sqlite3Error(p->db, SQLITE_MISUSE, 0);
     sqlite3_mutex_leave(p->db->mutex);
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   if( i<1 || i>p->nVar ){
     sqlite3Error(p->db, SQLITE_RANGE, 0);
@@ -58071,6 +58080,7 @@ no_mem:
   */
 abort_due_to_misuse:
   rc = SQLITE_MISUSE;
+  android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
   /* Fall thru into abort_due_to_error */
 
   /* Jump to here for any other kind of fatal error.  The "rc" variable
@@ -58196,7 +58206,7 @@ SQLITE_API int sqlite3_blob_open(
       sqlite3DbFree(db, zErr);
       sqlite3StackFree(db, pParse);
       sqlite3_mutex_leave(db->mutex);
-      return SQLITE_MISUSE;
+      return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
     }
 
     sqlite3BtreeEnterAll(db);
@@ -58426,7 +58436,7 @@ static int blobReadWrite(
   Vdbe *v;
   sqlite3 *db;
 
-  if( p==0 ) return SQLITE_MISUSE;
+  if( p==0 ) return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   db = p->db;
   sqlite3_mutex_enter(db->mutex);
   v = (Vdbe*)p->pStmt;
@@ -78738,7 +78748,7 @@ static int sqlite3Prepare(
   pParse->pReprepare = pReprepare;
 
   if( sqlite3SafetyOn(db) ){
-    rc = SQLITE_MISUSE;
+    rc = android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
     goto end_prepare;
   }
   assert( ppStmt && *ppStmt==0 );
@@ -78851,7 +78861,7 @@ static int sqlite3Prepare(
 #endif
 
   if( sqlite3SafetyOff(db) ){
-    rc = SQLITE_MISUSE;
+    rc = android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
 
   assert( db->init.busy==0 || saveSqlFlag==0 );
@@ -78901,7 +78911,7 @@ static int sqlite3LockAndPrepare(
   assert( ppStmt!=0 );
   *ppStmt = 0;
   if( !sqlite3SafetyCheckOk(db) ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   sqlite3_mutex_enter(db->mutex);
   sqlite3BtreeEnterAll(db);
@@ -79009,7 +79019,7 @@ static int sqlite3Prepare16(
   assert( ppStmt );
   *ppStmt = 0;
   if( !sqlite3SafetyCheckOk(db) ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   sqlite3_mutex_enter(db->mutex);
   zSql8 = sqlite3Utf16to8(db, zSql, nBytes);
@@ -86283,7 +86293,7 @@ SQLITE_API int sqlite3_declare_vtab(sqlite3 *db, const char *zCreateTable){
   if( !pTab ){
     sqlite3Error(db, SQLITE_MISUSE, 0);
     sqlite3_mutex_leave(db->mutex);
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   assert( (pTab->tabFlags & TF_Virtual)!=0 );
 
@@ -95545,7 +95555,7 @@ SQLITE_API int sqlite3_config(int op, ...){
 
   /* sqlite3_config() shall return SQLITE_MISUSE if it is invoked while
   ** the SQLite library is in use. */
-  if( sqlite3GlobalConfig.isInit ) return SQLITE_MISUSE;
+  if( sqlite3GlobalConfig.isInit ) return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
 
   va_start(ap, op);
   switch( op ){
@@ -95879,7 +95889,7 @@ SQLITE_API int sqlite3_close(sqlite3 *db){
     return SQLITE_OK;
   }
   if( !sqlite3SafetyCheckSickOrOk(db) ){
-    return SQLITE_MISUSE;
+    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   sqlite3_mutex_enter(db->mutex);
 
