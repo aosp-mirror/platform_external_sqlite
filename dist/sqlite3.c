@@ -50639,6 +50639,7 @@ static int sqlite3Step(Vdbe *p){
 
   assert(p);
   if( p->magic!=VDBE_MAGIC_RUN ){
+    LOGE("trying to use already finalized prepared statement");
     return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
 
@@ -51250,6 +51251,10 @@ static int vdbeUnbind(Vdbe *p, int i){
   if( p->magic!=VDBE_MAGIC_RUN || p->pc>=0 ){
     sqlite3Error(p->db, SQLITE_MISUSE, 0);
     sqlite3_mutex_leave(p->db->mutex);
+    if (p->magic==VDBE_MAGIC_RUN || p->magic==VDBE_MAGIC_INIT || p->magic==VDBE_MAGIC_HALT)
+      LOGE("prepared statement is busy (database = %s)", sqlite3BtreeGetFilename(p->db->aDb[0].pBt));
+    else
+      LOGE("binding to an already_finalized prepared statement");
     return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   if( i<1 || i>p->nVar ){
