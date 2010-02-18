@@ -633,7 +633,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.22"
 #define SQLITE_VERSION_NUMBER 3006022
-#define SQLITE_SOURCE_ID      "2010-01-05 15:30:36 28d0d7710761114a44a1a3a425a6883c661f06e7"
+#define SQLITE_SOURCE_ID      "android-modified-sqlite. please see external/sqllite/dist/version"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
