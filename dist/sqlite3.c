@@ -864,8 +864,7 @@ SQLITE_API int sqlite3_exec(
 
 // Begin Android Add to debug # 2419869 STOPSHIP 
 SQLITE_PRIVATE int android_STOPSHIP_seppuku(void){
-  int *ptr = '\0'; *ptr = 1; // cause segfault to get stacktrace
-  return -1;
+  return 21;
 }
 // End Android Add STOPSHIP
 
