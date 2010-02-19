@@ -6204,11 +6204,9 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 // the following should match up with value in java/android/database/sqlite/SQLiteDatabase.java
 #define EVENT_DB_CORRUPT 75004
 
-SQLITE_PRIVATE int sqlite3Corrupt(int corruption_type){
-  // write an event to the log
-  char buf[50];
-  int payload_len = sprintf(buf, "corruption_type = %d", corruption_type);
-  android_btWriteLog(EVENT_DB_CORRUPT, EVENT_TYPE_STRING, buf, payload_len); 
+SQLITE_PRIVATE int sqlite3Corrupt(int c){
+  // this is temporary change. sqlite is planning to implement logging of such events
+  LOGE("sqlite corruption event code = %d", c);
   return SQLITE_CORRUPT;
 }
 
