@@ -420,6 +420,9 @@ static void localized_collator_dtor(UCollator* collator)
 
 #define LOCALIZED_COLLATOR_NAME "LOCALIZED"
 
+// This collator may be removed in the near future, so you MUST not use now.
+#define PHONEBOOK_COLLATOR_NAME "PHONEBOOK"
+
 extern "C" int register_localized_collators(sqlite3* handle, const char* systemLocale, int utf16Storage)
 {
     int err;
@@ -438,7 +441,7 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
 
     status = U_ZERO_ERROR;
     char buf[1024];
-    int n = ucol_getShortDefinitionString(collator, NULL, buf, 1024, &status);
+    ucol_getShortDefinitionString(collator, NULL, buf, 1024, &status);
 
     if (utf16Storage) {
         err = sqlite3_create_collation_v2(handle, LOCALIZED_COLLATOR_NAME, SQLITE_UTF16, collator,
@@ -447,6 +450,7 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
         err = sqlite3_create_collation_v2(handle, LOCALIZED_COLLATOR_NAME, SQLITE_UTF8, collator,
                 collate8, (void(*)(void*))localized_collator_dtor);
     }
+
     if (err != SQLITE_OK) {
         return err;
     }
@@ -464,6 +468,41 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
     if (err != SQLITE_OK) {
         return err;
     }
+
+
+    //// PHONEBOOK_COLLATOR
+    // The collator may be removed in the near future. Do not depend on it.
+    // TODO: it might be better to have another function for registering phonebook collator.
+    status = U_ZERO_ERROR;
+    if (strcmp(systemLocale, "ja") == 0 || strcmp(systemLocale, "ja_JP") == 0) {
+        collator = ucol_open("ja@collation=phonebook", &status);
+    } else {
+        collator = ucol_open(systemLocale, &status);
+    }
+    if (U_FAILURE(status)) {
+        return -1;
+    }
+
+    status = U_ZERO_ERROR;
+    ucol_setAttribute(collator, UCOL_STRENGTH, UCOL_PRIMARY, &status);
+    if (U_FAILURE(status)) {
+        return -1;
+    }
+
+    status = U_ZERO_ERROR;
+    // ucol_getShortDefinitionString(collator, NULL, buf, 1024, &status);
+    if (utf16Storage) {
+        err = sqlite3_create_collation_v2(handle, PHONEBOOK_COLLATOR_NAME, SQLITE_UTF16, collator,
+                collate16, (void(*)(void*))localized_collator_dtor);
+    } else {
+        err = sqlite3_create_collation_v2(handle, PHONEBOOK_COLLATOR_NAME, SQLITE_UTF8, collator,
+                collate8, (void(*)(void*))localized_collator_dtor);
+    }
+
+    if (err != SQLITE_OK) {
+        return err;
+    }
+    //// PHONEBOOK_COLLATOR
 
     return SQLITE_OK;
 }
