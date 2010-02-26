@@ -6200,10 +6200,6 @@ SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
 
 
 /************** End of sqlite3.h *********************************************/
-// Begin Android Add
-#define SQLITE_BeginImmediate 0x00200000  /* Default BEGIN to IMMEDIATE */
-#define fdatasync fsync
-// End Android Add
 /************** Continuing where we left off in sqliteInt.h ******************/
 /************** Include hash.h in the middle of sqliteInt.h ******************/
 /************** Begin file hash.h ********************************************/
@@ -65787,7 +65783,7 @@ static void attachFunc(
   ** or may not be initialised.
   */
   rc = sqlite3BtreeFactory(db, zFile, 0, SQLITE_DEFAULT_CACHE_SIZE,
-                           db->openFlags | SQLITE_OPEN_MAIN_DB | SQLITE_OPEN_CREATE /* Android Change */,
+                           db->openFlags | SQLITE_OPEN_MAIN_DB,
                            &aNew->pBt);
   db->nDb++;
   if( rc==SQLITE_CONSTRAINT ){
@@ -78645,7 +78641,7 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
   }
   if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
     sqlite3SetString(pzErrMsg, db, "unsupported file format");
-    rc = SQLITE_CORRUPT_BKPT; // Android Change from "rc = SQLITE_ERROR;"
+    rc = SQLITE_ERROR;
     goto initone_error_out;
   }
 
@@ -92923,7 +92919,7 @@ static void yy_reduce(
 {sqlite3BeginTransaction(pParse, yymsp[-1].minor.yy328);}
         break;
       case 13: /* transtype ::= */
-{yygotominor.yy328 = (pParse->db->flags&SQLITE_BeginImmediate) ? TK_IMMEDIATE : TK_DEFERRED;}/* Android Change */
+{yygotominor.yy328 = TK_DEFERRED;}
         break;
       case 14: /* transtype ::= DEFERRED */
       case 15: /* transtype ::= IMMEDIATE */ yytestcase(yyruleno==15);
@@ -111096,28 +111092,3 @@ SQLITE_PRIVATE void sqlite3Fts3IcuTokenizerModule(
 #endif /* !defined(SQLITE_CORE) || defined(SQLITE_ENABLE_FTS3) */
 
 /************** End of fts3_icu.c ********************************************/
-// Begin Android Add
-/*
-** Change the default behavior of BEGIN to IMMEDIATE instead of DEFERRED.
-*/
-SQLITE_API int sqlite3_set_transaction_default_immediate(sqlite3* db, int immediate){
-  sqlite3_mutex_enter(db->mutex);
-    if( immediate ){
-      db->flags|=SQLITE_BeginImmediate;
-    }else{
-      db->flags&=~SQLITE_BeginImmediate;
-    }
-    sqlite3_mutex_leave(db->mutex);
-    return SQLITE_OK;
-}
-SQLITE_API void sqlite3_get_pager_stats(sqlite3_int64 * totalBytesOut,
-                                        sqlite3_int64 * referencedBytesOut,
-                                        sqlite3_int64 * dbBytesOut,
-                                        int * numPagersOut){
-   // TODO
-   *totalBytesOut = 0;
-   *referencedBytesOut = 0;
-   *dbBytesOut = 0;
-   *numPagersOut = 0;
-}
-// End Android Add

@@ -5660,16 +5660,7 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** is considered bad form.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
-// Begin Android add
-/*
-** Android additional API.
-**
-** This function changes the default behavior of BEGIN to IMMEDIATE if called
-** with immediate=1.
-** Calling with immediate=0 will revert to DEFERRED.
-*/
-int sqlite3_set_transaction_default_immediate(sqlite3*, int immediate);
-// End Android add
+
 /*
 ** Undo the hack that converts floating point types to integer for
 ** builds on processors without floating point support.
