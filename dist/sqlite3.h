@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.22"
 #define SQLITE_VERSION_NUMBER 3006022
-#define SQLITE_SOURCE_ID      "2010-01-05 15:30:36 28d0d7710761114a44a1a3a425a6883c661f06e7"
+#define SQLITE_SOURCE_ID      "2010-02-25 14:56:29 b8fbf4275bded6680e368a6a8343866467bd7e22"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -918,7 +918,6 @@ SQLITE_API int sqlite3_os_end(void);
 
 /*
 ** CAPI3REF: Configuring The SQLite Library
-** EXPERIMENTAL
 **
 ** The sqlite3_config() interface is used to make global configuration
 ** changes to SQLite in order to tune SQLite to the specific needs of
@@ -1259,6 +1258,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_CONFIG_LOOKASIDE    13  /* int int */
 #define SQLITE_CONFIG_PCACHE       14  /* sqlite3_pcache_methods* */
 #define SQLITE_CONFIG_GETPCACHE    15  /* sqlite3_pcache_methods* */
+#define SQLITE_CONFIG_LOG          16  /* xFunc, void* */
 
 /*
 ** CAPI3REF: Configuration Options
@@ -5647,6 +5647,19 @@ SQLITE_API int sqlite3_unlock_notify(
 */
 SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 
+/*
+** CAPI3REF: Error Logging Interface
+** EXPERIMENTAL
+**
+** ^The [sqlite3_log()] interface writes a message into the error log
+** established by the [SQLITE_CONFIG_ERRORLOG] option to [sqlite3_config()].
+**
+** The sqlite3_log() interface is intended for use by extensions such as
+** virtual tables, collating functions, and SQL functions.  While there is
+** nothing to prevent an application from calling sqlite3_log(), doing so
+** is considered bad form.
+*/
+SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
 // Begin Android add
 /*
 ** Android additional API.
@@ -5657,7 +5670,6 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 */
 int sqlite3_set_transaction_default_immediate(sqlite3*, int immediate);
 // End Android add
-
 /*
 ** Undo the hack that converts floating point types to integer for
 ** builds on processors without floating point support.

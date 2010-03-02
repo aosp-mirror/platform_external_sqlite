@@ -633,7 +633,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.22"
 #define SQLITE_VERSION_NUMBER 3006022
-#define SQLITE_SOURCE_ID      "android-modified-sqlite. please see external/sqllite/dist/version"
+#define SQLITE_SOURCE_ID      "2010-02-25 14:56:29 b8fbf4275bded6680e368a6a8343866467bd7e22"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -861,12 +861,6 @@ SQLITE_API int sqlite3_exec(
   void *,                                    /* 1st argument to callback */
   char **errmsg                              /* Error msg written here */
 );
-
-// Begin Android Add to debug # 2419869 STOPSHIP 
-SQLITE_PRIVATE int android_STOPSHIP_seppuku(void){
-  return 21;
-}
-// End Android Add STOPSHIP
 
 /*
 ** CAPI3REF: Result Codes
@@ -1448,7 +1442,6 @@ SQLITE_API int sqlite3_os_end(void);
 
 /*
 ** CAPI3REF: Configuring The SQLite Library
-** EXPERIMENTAL
 **
 ** The sqlite3_config() interface is used to make global configuration
 ** changes to SQLite in order to tune SQLite to the specific needs of
@@ -1789,6 +1782,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_CONFIG_LOOKASIDE    13  /* int int */
 #define SQLITE_CONFIG_PCACHE       14  /* sqlite3_pcache_methods* */
 #define SQLITE_CONFIG_GETPCACHE    15  /* sqlite3_pcache_methods* */
+#define SQLITE_CONFIG_LOG          16  /* xFunc, void* */
 
 /*
 ** CAPI3REF: Configuration Options
@@ -6178,6 +6172,20 @@ SQLITE_API int sqlite3_unlock_notify(
 SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 
 /*
+** CAPI3REF: Error Logging Interface
+** EXPERIMENTAL
+**
+** ^The [sqlite3_log()] interface writes a message into the error log
+** established by the [SQLITE_CONFIG_ERRORLOG] option to [sqlite3_config()].
+**
+** The sqlite3_log() interface is intended for use by extensions such as
+** virtual tables, collating functions, and SQL functions.  While there is
+** nothing to prevent an application from calling sqlite3_log(), doing so
+** is considered bad form.
+*/
+SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
+
+/*
 ** Undo the hack that converts floating point types to integer for
 ** builds on processors without floating point support.
 */
@@ -6193,78 +6201,9 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 
 /************** End of sqlite3.h *********************************************/
 // Begin Android Add
-
 #define SQLITE_BeginImmediate 0x00200000  /* Default BEGIN to IMMEDIATE */
 #define fdatasync fsync
-
-#define LOG_TAG "sqlite3"
-#include <utils/Log.h>
-#include <cutils/log.h>
-
-// the following should match up with value in java/android/database/sqlite/SQLiteDatabase.java
-#define EVENT_DB_CORRUPT 75004
-
-SQLITE_PRIVATE int sqlite3Corrupt(int c){
-  // this is temporary change. sqlite is planning to implement logging of such events
-  LOGE("sqlite corruption event code = %d", c);
-  return SQLITE_CORRUPT;
-}
-
-#define SQLITE_CORRUPT_BKPT(N) sqlite3Corrupt(N)
-
-// situations where DB corruption is reported
-#define PAGE_NUM_0_CORRUPTION                 101
-#define PAGER_OUT_OF_RANGE_CORRUPTION         102
-#define INVALID_KEY_INTO_PTRMAP_CORRUPTION    103
-#define INVALID_OFFSET_IN_PTRMAP_CORRUPTION   104
-#define INVALID_PETYPE_CORRUPTION             105
-#define CELL_INDEX_CORRUPTION                 106
-#define CELL_INDEX_TOO_LOW_CORRUPTION         107
-#define CELL_INDEX_INVALID_CORRUPTION         108
-#define DEFRAG_PAGE_CORRUPTION                109
-#define GAP_TOP_CORRUPTION                    110
-#define FREE_SLOT_AVAIL_CORRUPTION            111
-#define ALLOC_SPACE_CORRUPTION                112
-#define FREE_SPACE_1_CORRUPTION               113
-#define FREE_SPACE_2_CORRUPTION               114
-#define FREE_SPACE_3_CORRUPTION               115
-#define DECODE_FLAGS_CORRUPTION               116
-#define BTREE_INITPAGE_1_CORRUPTION           117
-#define TOO_MANY_CELLS_IN_PAGE_CORRUPTION     118
-#define CELL_LOC_OUT_OF_RANGE_CORRUPTION      119
-#define BTREE_INITPAGE_2_CORRUPTION           120
-#define FREE_BLOCK_ERR_CORRUPTION             121
-#define FREE_BLOCK_NOT_IN_ORDER_CORRUPTION    122
-#define FREE_SPACE_ERR_CORRUPTION             123
-#define MODIFY_PAGE_PTR_1_CORRUPTION          124
-#define MODIFY_PAGE_PTR_2_CORRUPTION          125
-#define INCR_VAC_STEP_1_CORRUPTION            126
-#define AUTO_VAC_COMMIT_1_CORRUPTION          127
-#define AUTO_VAC_COMMIT_2_CORRUPTION          128
-#define ACCESS_PAYLOAD_1_CORRUPTION           129
-#define DATA_CORRUPTION                       130
-#define MOVE_TO_CHILD_1_CORRUPTION            131
-#define MOVE_TO_CHILD_2_CORRUPTION            132
-#define MOVE_TO_ROOT_1_CORRUPTION             133
-#define MOVE_TO_ROOT_2_CORRUPTION             134
-#define BTREE_PAGE_1_CORRUPTION               135
-#define BTREE_PAGE_2_CORRUPTION               136
-#define BTREE_PAGE_3_CORRUPTION               137
-#define BTREE_PAGE_4_CORRUPTION               138
-#define BTREE_PAGE_5_CORRUPTION               139
-#define BTREE_PAGE_6_CORRUPTION               140
-#define FREEPAGE2_1_CORRUPTION                141
-#define CLEARCELL_CORRUPTION                  142
-#define FILL_IN_CELL_1_CORRUPTION             143
-#define DROP_CELL_CORRUPTION                  144
-#define BALANCE_QUICK_CORRUPTION              145
-#define BTREE_CREATE_TABLE_CORRUPTION         146
-#define CLEAR_DB_PAGE_CORRUPTION              147
-#define VDBE_INDEX_ROWID_CORRUPTION           148
-#define OP_OPENWRITE_CORRUPTION               149
-#define OVERSIZE_HEADER_CORRUPTION            150
-#define UNSUPPORTED_FILE_FORMAT_CORRUPTION    151
-
+#undef __APPLE__
 // End Android Add
 /************** Continuing where we left off in sqliteInt.h ******************/
 /************** Include hash.h in the middle of sqliteInt.h ******************/
@@ -7495,6 +7434,7 @@ SQLITE_PRIVATE void sqlite3VdbeChangeP4(Vdbe*, int addr, const char *zP4, int N)
 SQLITE_PRIVATE void sqlite3VdbeUsesBtree(Vdbe*, int);
 SQLITE_PRIVATE VdbeOp *sqlite3VdbeGetOp(Vdbe*, int);
 SQLITE_PRIVATE int sqlite3VdbeMakeLabel(Vdbe*);
+SQLITE_PRIVATE void sqlite3VdbeRunOnlyOnce(Vdbe*);
 SQLITE_PRIVATE void sqlite3VdbeDelete(Vdbe*);
 SQLITE_PRIVATE void sqlite3VdbeMakeReady(Vdbe*,int,int,int,int,int,int);
 SQLITE_PRIVATE int sqlite3VdbeFinalize(Vdbe*);
@@ -8379,6 +8319,7 @@ struct sqlite3 {
   u8 dfltLockMode;              /* Default locking-mode for attached dbs */
   u8 dfltJournalMode;           /* Default journal mode for attached dbs */
   signed char nextAutovac;      /* Autovac setting after VACUUM if >=0 */
+  u8 suppressErr;               /* Do not issue error messages if true */
   int nextPagesize;             /* Pagesize after VACUUM if >0 */
   int nTable;                   /* Number of tables in the database */
   CollSeq *pDfltColl;           /* The default collating sequence (BINARY) */
@@ -9955,6 +9896,8 @@ struct Sqlite3Config {
   int isPCacheInit;                 /* True after malloc is initialized */
   sqlite3_mutex *pInitMutex;        /* Mutex used by sqlite3_initialize() */
   int nRefInitMutex;                /* Number of users of pInitMutex */
+  void (*xLog)(void*,int,const char*); /* Function for logging */
+  void *pLogArg;                       /* First argument to xLog() */
 };
 
 /*
@@ -9996,19 +9939,19 @@ SQLITE_PRIVATE int sqlite3WalkSelectFrom(Walker*, Select*);
 }
 
 /*
-** The SQLITE_CORRUPT_BKPT macro can be either a constant (for production
-** builds) or a function call (for debugging).  If it is a function call,
-** it allows the operator to set a breakpoint at the spot where database
-** corruption is first detected.
+** The SQLITE_*_BKPT macros are substitutes for the error codes with
+** the same name but without the _BKPT suffix.  These macros invoke
+** routines that report the line-number on which the error originated
+** using sqlite3_log().  The routines also provide a convenient place
+** to set a debugger breakpoint.
 */
-/* Begin Android Delete 
-#ifdef SQLITE_DEBUG
-SQLITE_PRIVATE   int sqlite3Corrupt(void);
-# define SQLITE_CORRUPT_BKPT sqlite3Corrupt()
-#else
-# define SQLITE_CORRUPT_BKPT SQLITE_CORRUPT
-#endif
-*/
+SQLITE_PRIVATE int sqlite3CorruptError(int);
+SQLITE_PRIVATE int sqlite3MisuseError(int);
+SQLITE_PRIVATE int sqlite3CantopenError(int);
+#define SQLITE_CORRUPT_BKPT sqlite3CorruptError(__LINE__)
+#define SQLITE_MISUSE_BKPT sqlite3MisuseError(__LINE__)
+#define SQLITE_CANTOPEN_BKPT sqlite3CantopenError(__LINE__)
+
 
 /*
 ** The ctype.h header is needed for non-ASCII systems.  It is also
@@ -10126,7 +10069,6 @@ SQLITE_PRIVATE   void *sqlite3TestTextToPtr(const char*);
 #endif
 SQLITE_PRIVATE void sqlite3SetString(char **, sqlite3*, const char*, ...);
 SQLITE_PRIVATE void sqlite3ErrorMsg(Parse*, const char*, ...);
-SQLITE_PRIVATE void sqlite3ErrorClear(Parse*);
 SQLITE_PRIVATE int sqlite3Dequote(char*);
 SQLITE_PRIVATE int sqlite3KeywordCode(const unsigned char*, int);
 SQLITE_PRIVATE int sqlite3RunParser(Parse*, const char*, char **);
@@ -10296,13 +10238,6 @@ SQLITE_PRIVATE FuncDef *sqlite3FindFunction(sqlite3*,const char*,int,int,u8,int)
 SQLITE_PRIVATE void sqlite3RegisterBuiltinFunctions(sqlite3*);
 SQLITE_PRIVATE void sqlite3RegisterDateTimeFunctions(void);
 SQLITE_PRIVATE void sqlite3RegisterGlobalFunctions(void);
-#ifdef SQLITE_DEBUG
-SQLITE_PRIVATE   int sqlite3SafetyOn(sqlite3*);
-SQLITE_PRIVATE   int sqlite3SafetyOff(sqlite3*);
-#else
-# define sqlite3SafetyOn(A) 0
-# define sqlite3SafetyOff(A) 0
-#endif
 SQLITE_PRIVATE int sqlite3SafetyCheckOk(sqlite3*);
 SQLITE_PRIVATE int sqlite3SafetyCheckSickOrOk(sqlite3*);
 SQLITE_PRIVATE void sqlite3ChangeCookie(Parse*, int);
@@ -10838,6 +10773,8 @@ SQLITE_PRIVATE SQLITE_WSD struct Sqlite3Config sqlite3Config = {
    0,                         /* isPCacheInit */
    0,                         /* pInitMutex */
    0,                         /* nRefInitMutex */
+   0,                         /* xLog */
+   0,                         /* pLogArg */
 };
 
 
@@ -10962,7 +10899,7 @@ SQLITE_PRIVATE void sqlite3StatusSet(int op, int X){
 SQLITE_API int sqlite3_status(int op, int *pCurrent, int *pHighwater, int resetFlag){
   wsdStatInit;
   if( op<0 || op>=ArraySize(wsdStat.nowValue) ){
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
+    return SQLITE_MISUSE_BKPT;
   }
   *pCurrent = wsdStat.nowValue[op];
   *pHighwater = wsdStat.mxValue[op];
@@ -12598,6 +12535,9 @@ static void *sqlite3MemMalloc(int nByte){
   if( p ){
     p[0] = nByte;
     p++;
+  }else{
+    testcase( sqlite3GlobalConfig.xLog!=0 );
+    sqlite3_log(SQLITE_NOMEM, "failed to allocate %u bytes of memory", nByte);
   }
   return (void *)p;
 }
@@ -12615,6 +12555,18 @@ static void sqlite3MemFree(void *pPrior){
   assert( pPrior!=0 );
   p--;
   free(p);
+}
+
+/*
+** Report the allocated size of a prior return from xMalloc()
+** or xRealloc().
+*/
+static int sqlite3MemSize(void *pPrior){
+  sqlite3_int64 *p;
+  if( pPrior==0 ) return 0;
+  p = (sqlite3_int64*)pPrior;
+  p--;
+  return (int)p[0];
 }
 
 /*
@@ -12637,20 +12589,13 @@ static void *sqlite3MemRealloc(void *pPrior, int nByte){
   if( p ){
     p[0] = nByte;
     p++;
+  }else{
+    testcase( sqlite3GlobalConfig.xLog!=0 );
+    sqlite3_log(SQLITE_NOMEM,
+      "failed memory resize %u to %u bytes",
+      sqlite3MemSize(pPrior), nByte);
   }
   return (void*)p;
-}
-
-/*
-** Report the allocated size of a prior return from xMalloc()
-** or xRealloc().
-*/
-static int sqlite3MemSize(void *pPrior){
-  sqlite3_int64 *p;
-  if( pPrior==0 ) return 0;
-  p = (sqlite3_int64*)pPrior;
-  p--;
-  return (int)p[0];
 }
 
 /*
@@ -14127,7 +14072,11 @@ static void *memsys5MallocUnsafe(int nByte){
   ** two in order to create a new free block of size iLogsize.
   */
   for(iBin=iLogsize; mem5.aiFreelist[iBin]<0 && iBin<=LOGMAX; iBin++){}
-  if( iBin>LOGMAX ) return 0;
+  if( iBin>LOGMAX ){
+    testcase( sqlite3GlobalConfig.xLog!=0 );
+    sqlite3_log(SQLITE_NOMEM, "failed to allocate %u bytes", nByte);
+    return 0;
+  }
   i = memsys5UnlinkFirst(iBin);
   while( iBin>iLogsize ){
     int newSize;
@@ -17309,6 +17258,28 @@ SQLITE_API char *sqlite3_snprintf(int n, char *zBuf, const char *zFormat, ...){
   return z;
 }
 
+/*
+** Format and write a message to the log if logging is enabled.
+*/
+SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...){
+  void (*xLog)(void*, int, const char*);  /* The global logger function */
+  void *pLogArg;                          /* First argument to the logger */
+  va_list ap;                             /* Vararg list */
+  char *zMsg;                             /* Complete log message */
+  
+  xLog = sqlite3GlobalConfig.xLog;
+  if( xLog && zFormat ){
+    va_start(ap, zFormat);
+    sqlite3BeginBenignMalloc();
+    zMsg = sqlite3_vmprintf(zFormat, ap);
+    sqlite3EndBenignMalloc();
+    va_end(ap);
+    pLogArg = sqlite3GlobalConfig.pLogArg;
+    xLog(pLogArg, iErrCode, zMsg ? zMsg : zFormat);
+    sqlite3_free(zMsg);
+  }
+}
+
 #if defined(SQLITE_DEBUG)
 /*
 ** A version of printf() that understands %lld.  Used for debugging.
@@ -17831,6 +17802,7 @@ struct Vdbe {
   u8 explain;             /* True if EXPLAIN present on SQL command */
   u8 changeCntOn;         /* True to update the change-counter */
   u8 expired;             /* True if the VM needs to be recompiled */
+  u8 runOnlyOnce;         /* Automatically expire on reset */
   u8 minWriteFileFormat;  /* Minimum file format for writable database files */
   u8 inVtabMethod;        /* See comments above */
   u8 usesStmtJournal;     /* True if uses a statement journal */
@@ -18613,23 +18585,20 @@ SQLITE_PRIVATE void sqlite3Error(sqlite3 *db, int err_code, const char *zFormat,
 ** (sqlite3_step() etc.).
 */
 SQLITE_PRIVATE void sqlite3ErrorMsg(Parse *pParse, const char *zFormat, ...){
+  char *zMsg;
   va_list ap;
   sqlite3 *db = pParse->db;
-  pParse->nErr++;
-  sqlite3DbFree(db, pParse->zErrMsg);
   va_start(ap, zFormat);
-  pParse->zErrMsg = sqlite3VMPrintf(db, zFormat, ap);
+  zMsg = sqlite3VMPrintf(db, zFormat, ap);
   va_end(ap);
-  pParse->rc = SQLITE_ERROR;
-}
-
-/*
-** Clear the error message in pParse, if any
-*/
-SQLITE_PRIVATE void sqlite3ErrorClear(Parse *pParse){
-  sqlite3DbFree(pParse->db, pParse->zErrMsg);
-  pParse->zErrMsg = 0;
-  pParse->nErr = 0;
+  if( db->suppressErr ){
+    sqlite3DbFree(db, zMsg);
+  }else{
+    pParse->nErr++;
+    sqlite3DbFree(db, pParse->zErrMsg);
+    pParse->zErrMsg = zMsg;
+    pParse->rc = SQLITE_ERROR;
+  }
 }
 
 /*
@@ -19464,64 +19433,17 @@ SQLITE_PRIVATE void *sqlite3HexToBlob(sqlite3 *db, const char *z, int n){
 }
 #endif /* !SQLITE_OMIT_BLOB_LITERAL || SQLITE_HAS_CODEC */
 
-
 /*
-** Change the sqlite.magic from SQLITE_MAGIC_OPEN to SQLITE_MAGIC_BUSY.
-** Return an error (non-zero) if the magic was not SQLITE_MAGIC_OPEN
-** when this routine is called.
-**
-** This routine is called when entering an SQLite API.  The SQLITE_MAGIC_OPEN
-** value indicates that the database connection passed into the API is
-** open and is not being used by another thread.  By changing the value
-** to SQLITE_MAGIC_BUSY we indicate that the connection is in use.
-** sqlite3SafetyOff() below will change the value back to SQLITE_MAGIC_OPEN
-** when the API exits. 
-**
-** This routine is a attempt to detect if two threads use the
-** same sqlite* pointer at the same time.  There is a race 
-** condition so it is possible that the error is not detected.
-** But usually the problem will be seen.  The result will be an
-** error which can be used to debug the application that is
-** using SQLite incorrectly.
-**
-** Ticket #202:  If db->magic is not a valid open value, take care not
-** to modify the db structure at all.  It could be that db is a stale
-** pointer.  In other words, it could be that there has been a prior
-** call to sqlite3_close(db) and db has been deallocated.  And we do
-** not want to write into deallocated memory.
+** Log an error that is an API call on a connection pointer that should
+** not have been used.  The "type" of connection pointer is given as the
+** argument.  The zType is a word like "NULL" or "closed" or "invalid".
 */
-#ifdef SQLITE_DEBUG
-SQLITE_PRIVATE int sqlite3SafetyOn(sqlite3 *db){
-  if( db->magic==SQLITE_MAGIC_OPEN ){
-    db->magic = SQLITE_MAGIC_BUSY;
-    assert( sqlite3_mutex_held(db->mutex) );
-    return 0;
-  }else if( db->magic==SQLITE_MAGIC_BUSY ){
-    db->magic = SQLITE_MAGIC_ERROR;
-    db->u1.isInterrupted = 1;
-  }
-  return 1;
+static void logBadConnection(const char *zType){
+  sqlite3_log(SQLITE_MISUSE, 
+     "API call with %s database connection pointer",
+     zType
+  );
 }
-#endif
-
-/*
-** Change the magic from SQLITE_MAGIC_BUSY to SQLITE_MAGIC_OPEN.
-** Return an error (non-zero) if the magic was not SQLITE_MAGIC_BUSY
-** when this routine is called.
-*/
-#ifdef SQLITE_DEBUG
-SQLITE_PRIVATE int sqlite3SafetyOff(sqlite3 *db){
-  if( db->magic==SQLITE_MAGIC_BUSY ){
-    db->magic = SQLITE_MAGIC_OPEN;
-    assert( sqlite3_mutex_held(db->mutex) );
-    return 0;
-  }else{
-    db->magic = SQLITE_MAGIC_ERROR;
-    db->u1.isInterrupted = 1;
-    return 1;
-  }
-}
-#endif
 
 /*
 ** Check to make sure we have a valid db pointer.  This test is not
@@ -19539,13 +19461,15 @@ SQLITE_PRIVATE int sqlite3SafetyOff(sqlite3 *db){
 */
 SQLITE_PRIVATE int sqlite3SafetyCheckOk(sqlite3 *db){
   u32 magic;
-  if( db==0 ) return 0;
+  if( db==0 ){
+    logBadConnection("NULL");
+    return 0;
+  }
   magic = db->magic;
-  if( magic!=SQLITE_MAGIC_OPEN 
-#ifdef SQLITE_DEBUG
-     && magic!=SQLITE_MAGIC_BUSY
-#endif
-  ){
+  if( magic!=SQLITE_MAGIC_OPEN ){
+    if( !sqlite3SafetyCheckSickOrOk(db) ){
+      logBadConnection("unopened");
+    }
     return 0;
   }else{
     return 1;
@@ -19556,8 +19480,12 @@ SQLITE_PRIVATE int sqlite3SafetyCheckSickOrOk(sqlite3 *db){
   magic = db->magic;
   if( magic!=SQLITE_MAGIC_SICK &&
       magic!=SQLITE_MAGIC_OPEN &&
-      magic!=SQLITE_MAGIC_BUSY ) return 0;
-  return 1;
+      magic!=SQLITE_MAGIC_BUSY ){
+    logBadConnection("invalid");
+    return 0;
+  }else{
+    return 1;
+  }
 }
 
 /************** End of util.c ************************************************/
@@ -22657,7 +22585,7 @@ static int transferOwnership(unixFile *pFile){
   }
   if( pFile->locktype!=NO_LOCK ){
     /* We cannot change ownership while we are holding a lock! */
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
+    return SQLITE_MISUSE_BKPT;
   }
   OSTRACE4("Transfer ownership of %d from %d to %d\n",
             pFile->h, pFile->tid, hSelf);
@@ -23104,7 +23032,7 @@ static int unixUnlock(sqlite3_file *id, int locktype){
     return SQLITE_OK;
   }
   if( CHECK_THREADID(pFile) ){
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    return SQLITE_MISUSE_BKPT;
   }
   unixEnterMutex();
   h = pFile->h;
@@ -24206,7 +24134,7 @@ static int afpUnlock(sqlite3_file *id, int locktype) {
     return SQLITE_OK;
   }
   if( CHECK_THREADID(pFile) ){
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    return SQLITE_MISUSE_BKPT;
   }
   unixEnterMutex();
   if( pFile->locktype>SHARED_LOCK ){
@@ -25256,7 +25184,7 @@ static int openDirectory(const char *zFilename, int *pFd){
     }
   }
   *pFd = fd;
-  return (fd>=0?SQLITE_OK:SQLITE_CANTOPEN);
+  return (fd>=0?SQLITE_OK:SQLITE_CANTOPEN_BKPT);
 }
 
 /*
@@ -25516,7 +25444,7 @@ static int unixOpen(
       fd = open(zName, openFlags, openMode);
     }
     if( fd<0 ){
-      rc = SQLITE_CANTOPEN;
+      rc = SQLITE_CANTOPEN_BKPT;
       goto open_finished;
     }
   }
@@ -25715,7 +25643,7 @@ static int unixFullPathname(
   }else{
     int nCwd;
     if( getcwd(zOut, nOut-1)==0 ){
-      return SQLITE_CANTOPEN;
+      return SQLITE_CANTOPEN_BKPT;
     }
     nCwd = (int)strlen(zOut);
     sqlite3_snprintf(nOut-nCwd, &zOut[nCwd], "/%s", zPath);
@@ -26301,6 +26229,50 @@ static int proxyCreateUnixFile(const char *path, unixFile **ppFile) {
   ** unixOpen() is NULL. This tells unixOpen() may try to open a proxy-file 
   ** for the proxy-file (creating a potential infinite loop).
   */
+  pUnused = findReusableFd(path, openFlags);
+  if( pUnused ){
+    fd = pUnused->fd;
+  }else{
+    pUnused = sqlite3_malloc(sizeof(*pUnused));
+    if( !pUnused ){
+      return SQLITE_NOMEM;
+    }
+  }
+  if( fd<0 ){
+    fd = open(path, openFlags, SQLITE_DEFAULT_FILE_PERMISSIONS);
+    terrno = errno;
+    if( fd<0 && errno==ENOENT && islockfile ){
+      if( proxyCreateLockPath(path) == SQLITE_OK ){
+        fd = open(path, openFlags, SQLITE_DEFAULT_FILE_PERMISSIONS);
+      }
+    }
+  }
+  if( fd<0 ){
+    openFlags = O_RDONLY;
+    fd = open(path, openFlags, SQLITE_DEFAULT_FILE_PERMISSIONS);
+    terrno = errno;
+  }
+  if( fd<0 ){
+    if( islockfile ){
+      return SQLITE_BUSY;
+    }
+    switch (terrno) {
+      case EACCES:
+        return SQLITE_PERM;
+      case EIO: 
+        return SQLITE_IOERR_LOCK; /* even though it is the conch */
+      default:
+        return SQLITE_CANTOPEN_BKPT;
+    }
+  }
+  
+  pNew = (unixFile *)sqlite3_malloc(sizeof(*pNew));
+  if( pNew==NULL ){
+    rc = SQLITE_NOMEM;
+    goto end_create_proxy;
+  }
+  memset(pNew, 0, sizeof(unixFile));
+  pNew->openFlags = openFlags;
   dummyVfs.pAppData = (void*)&autolockIoFinder;
   dummyVfs.xOpen = 0;
   rc = unixOpen(&dummyVfs, path, (sqlite3_file *)pNew, flags, &flags);
@@ -26465,11 +26437,150 @@ end_takeconch:
                      pCtx->lockProxyPath;
         }
       }
+>>>>>>> BEGIN MERGE CONFLICT
+      
+      /* if the conch isn't writable and doesn't match, we can't take it */
+      if( (conchFile->openFlags&O_RDWR) == 0 ){
+        rc = SQLITE_BUSY;
+        goto end_takeconch;
+      }
+      
+      /* either the conch didn't match or we need to create a new one */
+      if( !pCtx->lockProxyPath ){
+        proxyGetLockPath(pCtx->dbPath, lockPath, MAXPATHLEN);
+        tempLockPath = lockPath;
+        /* create a copy of the lock path _only_ if the conch is taken */
+      }
+      
+      /* update conch with host and path (this will fail if other process
+      ** has a shared lock already), if the host id matches, use the big
+      ** stick.
+      */
+      futimes(conchFile->h, NULL);
+      if( hostIdMatch && !createConch ){
+        if( conchFile->pLock && conchFile->pLock->cnt>1 ){
+          /* We are trying for an exclusive lock but another thread in this
+           ** same process is still holding a shared lock. */
+          rc = SQLITE_BUSY;
+        } else {          
+          rc = proxyConchLock(pFile, myHostID, EXCLUSIVE_LOCK);
+        }
+      }else{
+        rc = conchFile->pMethod->xLock((sqlite3_file*)conchFile, EXCLUSIVE_LOCK);
+      }
+      if( rc==SQLITE_OK ){
+        char writeBuffer[PROXY_MAXCONCHLEN];
+        int writeSize = 0;
+        
+        writeBuffer[0] = (char)PROXY_CONCHVERSION;
+        memcpy(&writeBuffer[PROXY_HEADERLEN], myHostID, PROXY_HOSTIDLEN);
+        if( pCtx->lockProxyPath!=NULL ){
+          strlcpy(&writeBuffer[PROXY_PATHINDEX], pCtx->lockProxyPath, MAXPATHLEN);
+        }else{
+          strlcpy(&writeBuffer[PROXY_PATHINDEX], tempLockPath, MAXPATHLEN);
+        }
+        writeSize = PROXY_PATHINDEX + strlen(&writeBuffer[PROXY_PATHINDEX]);
+        ftruncate(conchFile->h, writeSize);
+        rc = unixWrite((sqlite3_file *)conchFile, writeBuffer, writeSize, 0);
+        fsync(conchFile->h);
+        /* If we created a new conch file (not just updated the contents of a 
+         ** valid conch file), try to match the permissions of the database 
+         */
+        if( rc==SQLITE_OK && createConch ){
+          struct stat buf;
+          int err = fstat(pFile->h, &buf);
+          if( err==0 ){
+            mode_t cmode = buf.st_mode&(S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP |
+                                        S_IROTH|S_IWOTH);
+            /* try to match the database file R/W permissions, ignore failure */
+#ifndef SQLITE_PROXY_DEBUG
+            fchmod(conchFile->h, cmode);
+#else
+            if( fchmod(conchFile->h, cmode)!=0 ){
+              int code = errno;
+              fprintf(stderr, "fchmod %o FAILED with %d %s\n",
+                      cmode, code, strerror(code));
+            } else {
+              fprintf(stderr, "fchmod %o SUCCEDED\n",cmode);
+            }
+          }else{
+            int code = errno;
+            fprintf(stderr, "STAT FAILED[%d] with %d %s\n", 
+                    err, code, strerror(code));
+#endif
+          }
+        }
+      }
+      conchFile->pMethod->xUnlock((sqlite3_file*)conchFile, SHARED_LOCK);
+      
+    end_takeconch:
+      OSTRACE2("TRANSPROXY: CLOSE  %d\n", pFile->h);
+      if( rc==SQLITE_OK && pFile->openFlags ){
+        if( pFile->h>=0 ){
+#ifdef STRICT_CLOSE_ERROR
+          if( close(pFile->h) ){
+            pFile->lastErrno = errno;
+            return SQLITE_IOERR_CLOSE;
+          }
+#else
+          close(pFile->h); /* silently leak fd if fail */
+#endif
+        }
+        pFile->h = -1;
+        int fd = open(pCtx->dbPath, pFile->openFlags,
+                      SQLITE_DEFAULT_FILE_PERMISSIONS);
+        OSTRACE2("TRANSPROXY: OPEN  %d\n", fd);
+        if( fd>=0 ){
+          pFile->h = fd;
+        }else{
+          rc=SQLITE_CANTOPEN_BKPT; /* SQLITE_BUSY? proxyTakeConch called
+           during locking */
+        }
+      }
+      if( rc==SQLITE_OK && !pCtx->lockProxy ){
+        char *path = tempLockPath ? tempLockPath : pCtx->lockProxyPath;
+        rc = proxyCreateUnixFile(path, &pCtx->lockProxy, 1);
+        if( rc!=SQLITE_OK && rc!=SQLITE_NOMEM && tryOldLockPath ){
+          /* we couldn't create the proxy lock file with the old lock file path
+           ** so try again via auto-naming 
+           */
+          forceNewLockPath = 1;
+          tryOldLockPath = 0;
+          continue; /* go back to the do {} while start point, try again */
+        }
+      }
+      if( rc==SQLITE_OK ){
+        /* Need to make a copy of path if we extracted the value
+         ** from the conch file or the path was allocated on the stack
+         */
+        if( tempLockPath ){
+          pCtx->lockProxyPath = sqlite3DbStrDup(0, tempLockPath);
+          if( !pCtx->lockProxyPath ){
+            rc = SQLITE_NOMEM;
+          }
+        }
+      }
+      if( rc==SQLITE_OK ){
+        pCtx->conchHeld = 1;
+        
+        if( pCtx->lockProxy->pMethod == &afpIoMethods ){
+          afpLockingContext *afpCtx;
+          afpCtx = (afpLockingContext *)pCtx->lockProxy->lockingContext;
+          afpCtx->dbPath = pCtx->lockProxyPath;
+        }
+      } else {
+        conchFile->pMethod->xUnlock((sqlite3_file*)conchFile, NO_LOCK);
+      }
+      OSTRACE3("TAKECONCH  %d %s\n", conchFile->h, rc==SQLITE_OK?"ok":"failed");
+      return rc;
+    } while (1); /* in case we need to retry the :auto: lock file - we should never get here except via the 'continue' call. */
+============================
     } else {
       conchFile->pMethod->xUnlock((sqlite3_file*)conchFile, NO_LOCK);
     }
     OSTRACE3("TAKECONCH  %d %s\n", conchFile->h, rc==SQLITE_OK?"ok":"failed");
     return rc;
+<<<<<<< END MERGE CONFLICT
   }
 }
 
@@ -28602,7 +28713,7 @@ static int winOpen(
       return winOpen(pVfs, zName, id, 
              ((flags|SQLITE_OPEN_READONLY)&~SQLITE_OPEN_READWRITE), pOutFlags);
     }else{
-      return SQLITE_CANTOPEN;
+      return SQLITE_CANTOPEN_BKPT;
     }
   }
   if( pOutFlags ){
@@ -28624,7 +28735,7 @@ static int winOpen(
   ){
     CloseHandle(h);
     free(zConverted);
-    return SQLITE_CANTOPEN;
+    return SQLITE_CANTOPEN_BKPT;
   }
   if( isTemp ){
     pFile->zDeleteOnClose = zConverted;
@@ -29764,7 +29875,7 @@ SQLITE_PRIVATE int sqlite3PcacheFetch(
         pPg && (pPg->nRef || (pPg->flags&PGHDR_NEED_SYNC)); 
         pPg=pPg->pDirtyPrev
     );
-    pCache->pSynced = pPg;  // http://www.sqlite.org/src/ci/26cb1df735
+    pCache->pSynced = pPg;
     if( !pPg ){
       for(pPg=pCache->pDirtyTail; pPg && pPg->nRef; pPg=pPg->pDirtyPrev);
     }
@@ -34468,7 +34579,7 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
       ** as it will not be possible to open the journal file or even
       ** check for a hot-journal before reading.
       */
-      rc = SQLITE_CANTOPEN;
+      rc = SQLITE_CANTOPEN_BKPT;
     }
     if( rc!=SQLITE_OK ){
       sqlite3_free(zPathname);
@@ -34927,7 +35038,7 @@ SQLITE_PRIVATE int sqlite3PagerSharedLock(Pager *pPager){
             rc = sqlite3OsOpen(pVfs, pPager->zJournal, pPager->jfd, f, &fout);
             assert( rc!=SQLITE_OK || isOpen(pPager->jfd) );
             if( rc==SQLITE_OK && fout&SQLITE_OPEN_READONLY ){
-              rc = SQLITE_CANTOPEN;
+              rc = SQLITE_CANTOPEN_BKPT;
               sqlite3OsClose(pPager->jfd);
             }
           }else{
@@ -35097,7 +35208,7 @@ SQLITE_PRIVATE int sqlite3PagerAcquire(
   assert( pPager->state>PAGER_UNLOCK );
 
   if( pgno==0 ){
-    return SQLITE_CORRUPT_BKPT(PAGE_NUM_0_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
 
   /* If the pager is in the error state, return an error immediately. 
@@ -35137,7 +35248,7 @@ SQLITE_PRIVATE int sqlite3PagerAcquire(
     /* The maximum page number is 2^31. Return SQLITE_CORRUPT if a page
     ** number greater than this, or the unused locking-page, is requested. */
     if( pgno>PAGER_MAX_PGNO || pgno==PAGER_MJ_PGNO(pPager) ){
-      rc = SQLITE_CORRUPT_BKPT(PAGER_OUT_OF_RANGE_CORRUPTION); // Android Change
+      rc = SQLITE_CORRUPT_BKPT;
       goto pager_acquire_err;
     }
 
@@ -35146,7 +35257,7 @@ SQLITE_PRIVATE int sqlite3PagerAcquire(
       goto pager_acquire_err;
     }
 
-    if( MEMDB || nMax<(int)pgno || noContent ){
+    if( MEMDB || nMax<(int)pgno || noContent || !isOpen(pPager->fd) ){
       if( pgno>pPager->mxPgno ){
 	rc = SQLITE_FULL;
 	goto pager_acquire_err;
@@ -36285,30 +36396,34 @@ SQLITE_PRIVATE int sqlite3PagerSavepoint(Pager *pPager, int op, int iSavepoint){
     ** operation. Store this value in nNew. Then free resources associated 
     ** with any savepoints that are destroyed by this operation.
     */
-    nNew = iSavepoint + (op==SAVEPOINT_ROLLBACK);
+    nNew = iSavepoint + (( op==SAVEPOINT_RELEASE ) ? 0 : 1);
     for(ii=nNew; ii<pPager->nSavepoint; ii++){
       sqlite3BitvecDestroy(pPager->aSavepoint[ii].pInSavepoint);
     }
     pPager->nSavepoint = nNew;
 
-    /* If this is a rollback operation, playback the specified savepoint.
+    /* If this is a release of the outermost savepoint, truncate 
+    ** the sub-journal to zero bytes in size. */
+    if( op==SAVEPOINT_RELEASE ){
+      if( nNew==0 && isOpen(pPager->sjfd) ){
+        /* Only truncate if it is an in-memory sub-journal. */
+        if( sqlite3IsMemJournal(pPager->sjfd) ){
+          rc = sqlite3OsTruncate(pPager->sjfd, 0);
+        }
+        pPager->nSubRec = 0;
+      }
+    }
+    /* Else this is a rollback operation, playback the specified savepoint.
     ** If this is a temp-file, it is possible that the journal file has
     ** not yet been opened. In this case there have been no changes to
     ** the database file, so the playback operation can be skipped.
     */
-    if( op==SAVEPOINT_ROLLBACK && isOpen(pPager->jfd) ){
+    else if( isOpen(pPager->jfd) ){
       PagerSavepoint *pSavepoint = (nNew==0)?0:&pPager->aSavepoint[nNew-1];
       rc = pagerPlaybackSavepoint(pPager, pSavepoint);
       assert(rc!=SQLITE_DONE);
     }
   
-    /* If this is a release of the outermost savepoint, truncate 
-    ** the sub-journal to zero bytes in size. */
-    if( nNew==0 && op==SAVEPOINT_RELEASE && isOpen(pPager->sjfd) ){
-      assert( rc==SQLITE_OK );
-      rc = sqlite3OsTruncate(pPager->sjfd, 0);
-      pPager->nSubRec = 0;
-    }
   }
   return rc;
 }
@@ -38407,7 +38522,7 @@ static void ptrmapPut(BtShared *pBt, Pgno key, u8 eType, Pgno parent, int *pRC){
 
   assert( pBt->autoVacuum );
   if( key==0 ){
-    *pRC = SQLITE_CORRUPT_BKPT(INVALID_KEY_INTO_PTRMAP_CORRUPTION); // Android Change
+    *pRC = SQLITE_CORRUPT_BKPT;
     return;
   }
   iPtrmap = PTRMAP_PAGENO(pBt, key);
@@ -38418,7 +38533,7 @@ static void ptrmapPut(BtShared *pBt, Pgno key, u8 eType, Pgno parent, int *pRC){
   }
   offset = PTRMAP_PTROFFSET(iPtrmap, key);
   if( offset<0 ){
-    *pRC = SQLITE_CORRUPT_BKPT(INVALID_OFFSET_IN_PTRMAP_CORRUPTION); // Android Change
+    *pRC = SQLITE_CORRUPT_BKPT;
     goto ptrmap_exit;
   }
   pPtrmap = (u8 *)sqlite3PagerGetData(pDbPage);
@@ -38465,8 +38580,7 @@ static int ptrmapGet(BtShared *pBt, Pgno key, u8 *pEType, Pgno *pPgno){
   if( pPgno ) *pPgno = get4byte(&pPtrmap[offset+1]);
 
   sqlite3PagerUnref(pDbPage);
-  if( *pEType<1 || *pEType>5 )
-    return SQLITE_CORRUPT_BKPT(INVALID_PETYPE_CORRUPTION); // Android Change
+  if( *pEType<1 || *pEType>5 ) return SQLITE_CORRUPT_BKPT;
   return SQLITE_OK;
 }
 
@@ -38734,7 +38848,7 @@ static int defragmentPage(MemPage *pPage){
     ** if SQLITE_ENABLE_OVERSIZE_CELL_CHECK is defined 
     */
     if( pc<iCellFirst || pc>iCellLast ){
-      return SQLITE_CORRUPT_BKPT(CELL_INDEX_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
 #endif
     assert( pc>=iCellFirst && pc<=iCellLast );
@@ -38742,11 +38856,11 @@ static int defragmentPage(MemPage *pPage){
     cbrk -= size;
 #if defined(SQLITE_ENABLE_OVERSIZE_CELL_CHECK)
     if( cbrk<iCellFirst ){
-      return SQLITE_CORRUPT_BKPT(CELL_INDEX_TOO_LOW_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
 #else
     if( cbrk<iCellFirst || pc+size>usableSize ){
-      return SQLITE_CORRUPT_BKPT(CELL_INDEX_INVALID_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
 #endif
     assert( cbrk+size<=usableSize && cbrk>=iCellFirst );
@@ -38763,7 +38877,7 @@ static int defragmentPage(MemPage *pPage){
   memset(&data[iCellFirst], 0, cbrk-iCellFirst);
   assert( sqlite3PagerIswriteable(pPage->pDbPage) );
   if( cbrk-iCellFirst!=pPage->nFree ){
-    return SQLITE_CORRUPT_BKPT(DEFRAG_PAGE_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   return SQLITE_OK;
 }
@@ -38803,7 +38917,7 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
   assert( pPage->cellOffset == hdr + 12 - 4*pPage->leaf );
   gap = pPage->cellOffset + 2*pPage->nCell;
   top = get2byte(&data[hdr+5]);
-  if( gap>top ) return SQLITE_CORRUPT_BKPT(GAP_TOP_CORRUPTION); // Android Change
+  if( gap>top ) return SQLITE_CORRUPT_BKPT;
   testcase( gap+2==top );
   testcase( gap+1==top );
   testcase( gap==top );
@@ -38822,7 +38936,7 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
     for(addr=hdr+1; (pc = get2byte(&data[addr]))>0; addr=pc){
       int size;            /* Size of the free slot */
       if( pc>usableSize-4 || pc<addr+4 ){
-        return SQLITE_CORRUPT_BKPT(FREE_SLOT_AVAIL_CORRUPTION); // Android Change
+        return SQLITE_CORRUPT_BKPT;
       }
       size = get2byte(&data[pc+2]);
       if( size>=nByte ){
@@ -38835,7 +38949,7 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
           memcpy(&data[addr], &data[pc], 2);
           data[hdr+7] = (u8)(nFrag + x);
         }else if( size+pc > usableSize ){
-          return SQLITE_CORRUPT_BKPT(ALLOC_SPACE_CORRUPTION); // Android Change
+          return SQLITE_CORRUPT_BKPT;
         }else{
           /* The slot remains on the free-list. Reduce its size to account
           ** for the portion used by the new allocation. */
@@ -38913,12 +39027,12 @@ static int freeSpace(MemPage *pPage, int start, int size){
   assert( start<=iLast );
   while( (pbegin = get2byte(&data[addr]))<start && pbegin>0 ){
     if( pbegin<addr+4 ){
-      return SQLITE_CORRUPT_BKPT(FREE_SPACE_1_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
     addr = pbegin;
   }
   if( pbegin>iLast ){
-    return SQLITE_CORRUPT_BKPT(FREE_SPACE_2_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   assert( pbegin>addr || pbegin==0 );
   put2byte(&data[addr], start);
@@ -38937,7 +39051,7 @@ static int freeSpace(MemPage *pPage, int start, int size){
     if( pbegin + psize + 3 >= pnext && pnext>0 ){
       int frag = pnext - (pbegin+psize);
       if( (frag<0) || (frag>(int)data[hdr+7]) ){
-        return SQLITE_CORRUPT_BKPT(FREE_SPACE_3_CORRUPTION); // Android Change
+        return SQLITE_CORRUPT_BKPT;
       }
       data[hdr+7] -= (u8)frag;
       x = get2byte(&data[pnext]);
@@ -38993,7 +39107,7 @@ static int decodeFlags(MemPage *pPage, int flagByte){
     pPage->maxLocal = pBt->maxLocal;
     pPage->minLocal = pBt->minLocal;
   }else{
-    return SQLITE_CORRUPT_BKPT(DECODE_FLAGS_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   return SQLITE_OK;
 }
@@ -39031,8 +39145,7 @@ static int btreeInitPage(MemPage *pPage){
 
     hdr = pPage->hdrOffset;
     data = pPage->aData;
-    if( decodeFlags(pPage, data[hdr]) )
-      return SQLITE_CORRUPT_BKPT(BTREE_INITPAGE_1_CORRUPTION); // Android Change
+    if( decodeFlags(pPage, data[hdr]) ) return SQLITE_CORRUPT_BKPT;
     assert( pBt->pageSize>=512 && pBt->pageSize<=32768 );
     pPage->maskPage = pBt->pageSize - 1;
     pPage->nOverflow = 0;
@@ -39042,7 +39155,7 @@ static int btreeInitPage(MemPage *pPage){
     pPage->nCell = get2byte(&data[hdr+3]);
     if( pPage->nCell>MX_CELL(pBt) ){
       /* To many cells for a single page.  The page must be corrupt */
-      return SQLITE_CORRUPT_BKPT(TOO_MANY_CELLS_IN_PAGE_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
     testcase( pPage->nCell==MX_CELL(pBt) );
 
@@ -39066,12 +39179,12 @@ static int btreeInitPage(MemPage *pPage){
         testcase( pc==iCellFirst );
         testcase( pc==iCellLast );
         if( pc<iCellFirst || pc>iCellLast ){
-          return SQLITE_CORRUPT_BKPT(CELL_LOC_OUT_OF_RANGE_CORRUPTION); // Android Change
+          return SQLITE_CORRUPT_BKPT;
         }
         sz = cellSizePtr(pPage, &data[pc]);
         testcase( pc+sz==usableSize );
         if( pc+sz>usableSize ){
-          return SQLITE_CORRUPT_BKPT(BTREE_INITPAGE_2_CORRUPTION); // Android Change
+          return SQLITE_CORRUPT_BKPT;
         }
       }
       if( !pPage->leaf ) iCellLast++;
@@ -39085,14 +39198,14 @@ static int btreeInitPage(MemPage *pPage){
       u16 next, size;
       if( pc<iCellFirst || pc>iCellLast ){
         /* Start of free block is off the page */
-        return SQLITE_CORRUPT_BKPT(FREE_BLOCK_ERR_CORRUPTION); // Android Change 
+        return SQLITE_CORRUPT_BKPT; 
       }
       next = get2byte(&data[pc]);
       size = get2byte(&data[pc+2]);
       if( (next>0 && next<=pc+size+3) || pc+size>usableSize ){
         /* Free blocks must be in ascending order. And the last byte of
 	** the free-block must lie on the database page.  */
-        return SQLITE_CORRUPT_BKPT(FREE_BLOCK_NOT_IN_ORDER_CORRUPTION); // Android Change 
+        return SQLITE_CORRUPT_BKPT; 
       }
       nFree = nFree + size;
       pc = next;
@@ -39106,7 +39219,7 @@ static int btreeInitPage(MemPage *pPage){
     ** area, according to the page header, lies within the page.
     */
     if( nFree>usableSize ){
-      return SQLITE_CORRUPT_BKPT(FREE_SPACE_ERR_CORRUPTION); // Android Change 
+      return SQLITE_CORRUPT_BKPT; 
     }
     pPage->nFree = (u16)(nFree - iCellFirst);
     pPage->isInit = 1;
@@ -40246,7 +40359,7 @@ static int modifyPagePointer(MemPage *pPage, Pgno iFrom, Pgno iTo, u8 eType){
   if( eType==PTRMAP_OVERFLOW2 ){
     /* The pointer is always the first 4 bytes of the page in this case.  */
     if( get4byte(pPage->aData)!=iFrom ){
-      return SQLITE_CORRUPT_BKPT(MODIFY_PAGE_PTR_1_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
     put4byte(pPage->aData, iTo);
   }else{
@@ -40279,7 +40392,7 @@ static int modifyPagePointer(MemPage *pPage, Pgno iFrom, Pgno iTo, u8 eType){
     if( i==nCell ){
       if( eType!=PTRMAP_BTREE || 
           get4byte(&pPage->aData[pPage->hdrOffset+8])!=iFrom ){
-        return SQLITE_CORRUPT_BKPT(MODIFY_PAGE_PTR_2_CORRUPTION); // Android Change
+        return SQLITE_CORRUPT_BKPT;
       }
       put4byte(&pPage->aData[pPage->hdrOffset+8], iTo);
     }
@@ -40414,7 +40527,7 @@ static int incrVacuumStep(BtShared *pBt, Pgno nFin, Pgno iLastPg){
       return rc;
     }
     if( eType==PTRMAP_ROOTPAGE ){
-      return SQLITE_CORRUPT_BKPT(INCR_VAC_STEP_1_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
 
     if( eType==PTRMAP_FREEPAGE ){
@@ -40548,7 +40661,7 @@ static int autoVacuumCommit(BtShared *pBt){
       ** is either a pointer-map page or the pending-byte page. If one
       ** is encountered, this indicates corruption.
       */
-      return SQLITE_CORRUPT_BKPT(AUTO_VAC_COMMIT_1_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
 
     nFree = get4byte(&pBt->pPage1->aData[36]);
@@ -40561,7 +40674,7 @@ static int autoVacuumCommit(BtShared *pBt){
     while( PTRMAP_ISPAGE(pBt, nFin) || nFin==PENDING_BYTE_PAGE(pBt) ){
       nFin--;
     }
-    if( nFin>nOrig ) return SQLITE_CORRUPT_BKPT(AUTO_VAC_COMMIT_2_CORRUPTION); // Android Change
+    if( nFin>nOrig ) return SQLITE_CORRUPT_BKPT;
 
     for(iFree=nOrig; iFree>nFin && rc==SQLITE_OK; iFree--){
       rc = incrVacuumStep(pBt, nFin, iFree);
@@ -41346,7 +41459,7 @@ static int accessPayload(
    || &aPayload[pCur->info.nLocal] > &pPage->aData[pBt->usableSize]
   ){
     /* Trying to read or write past the end of the data is an error */
-    return SQLITE_CORRUPT_BKPT(ACCESS_PAYLOAD_1_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
 
   /* Check if data must be read/written to/from the btree page itself. */
@@ -41446,7 +41559,7 @@ static int accessPayload(
   }
 
   if( rc==SQLITE_OK && amt>0 ){
-    return SQLITE_CORRUPT_BKPT(AUTO_VAC_COMMIT_2_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   return rc;
 }
@@ -41610,7 +41723,7 @@ static int moveToChild(BtCursor *pCur, u32 newPgno){
   assert( pCur->eState==CURSOR_VALID );
   assert( pCur->iPage<BTCURSOR_MAX_DEPTH );
   if( pCur->iPage>=(BTCURSOR_MAX_DEPTH-1) ){
-    return SQLITE_CORRUPT_BKPT(MOVE_TO_CHILD_1_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   rc = getAndInitPage(pBt, newPgno, &pNewPage);
   if( rc ) return rc;
@@ -41621,7 +41734,7 @@ static int moveToChild(BtCursor *pCur, u32 newPgno){
   pCur->info.nSize = 0;
   pCur->validNKey = 0;
   if( pNewPage->nCell<1 || pNewPage->intKey!=pCur->apPage[i]->intKey ){
-    return SQLITE_CORRUPT_BKPT(MOVE_TO_CHILD_2_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   return SQLITE_OK;
 }
@@ -41729,7 +41842,7 @@ static int moveToRoot(BtCursor *pCur){
     ** return an SQLITE_CORRUPT error.  */
     assert( pCur->apPage[0]->intKey==1 || pCur->apPage[0]->intKey==0 );
     if( (pCur->pKeyInfo==0)!=pCur->apPage[0]->intKey ){
-      return SQLITE_CORRUPT_BKPT(MOVE_TO_ROOT_1_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
   }
 
@@ -41750,7 +41863,7 @@ static int moveToRoot(BtCursor *pCur){
 
   if( pRoot->nCell==0 && !pRoot->leaf ){
     Pgno subpage;
-    if( pRoot->pgno!=1 ) return SQLITE_CORRUPT_BKPT(MOVE_TO_ROOT_2_CORRUPTION); // Android Change
+    if( pRoot->pgno!=1 ) return SQLITE_CORRUPT_BKPT;
     subpage = get4byte(&pRoot->aData[pRoot->hdrOffset+8]);
     pCur->eState = CURSOR_VALID;
     rc = moveToChild(pCur, subpage);
@@ -42267,7 +42380,7 @@ static int allocateBtreePage(
   n = get4byte(&pPage1->aData[36]);
   testcase( n==mxPage-1 );
   if( n>=mxPage ){
-    return SQLITE_CORRUPT_BKPT(BTREE_PAGE_1_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
   if( n>0 ){
     /* There are pages on the freelist.  Reuse one of those pages. */
@@ -42312,7 +42425,7 @@ static int allocateBtreePage(
       }
       testcase( iTrunk==mxPage );
       if( iTrunk>mxPage ){
-        rc = SQLITE_CORRUPT_BKPT(BTREE_PAGE_2_CORRUPTION); // Android Change
+        rc = SQLITE_CORRUPT_BKPT;
       }else{
         rc = btreeGetPage(pBt, iTrunk, &pTrunk, 0);
       }
@@ -42338,7 +42451,7 @@ static int allocateBtreePage(
         TRACE(("ALLOCATE: %d trunk - %d free pages left\n", *pPgno, n-1));
       }else if( k>(u32)(pBt->usableSize/4 - 2) ){
         /* Value of k is out of range.  Database corruption */
-        rc = SQLITE_CORRUPT_BKPT(BTREE_PAGE_3_CORRUPTION); // Android Change
+        rc = SQLITE_CORRUPT_BKPT;
         goto end_allocate_page;
 #ifndef SQLITE_OMIT_AUTOVACUUM
       }else if( searchList && nearby==iTrunk ){
@@ -42366,7 +42479,7 @@ static int allocateBtreePage(
           MemPage *pNewTrunk;
           Pgno iNewTrunk = get4byte(&pTrunk->aData[8]);
           if( iNewTrunk>mxPage ){ 
-            rc = SQLITE_CORRUPT_BKPT(BTREE_PAGE_4_CORRUPTION); // Android Change
+            rc = SQLITE_CORRUPT_BKPT;
             goto end_allocate_page;
           }
           testcase( iNewTrunk==mxPage );
@@ -42427,7 +42540,7 @@ static int allocateBtreePage(
         iPage = get4byte(&aData[8+closest*4]);
         testcase( iPage==mxPage );
         if( iPage>mxPage ){
-          rc = SQLITE_CORRUPT_BKPT(BTREE_PAGE_5_CORRUPTION); // Android Change
+          rc = SQLITE_CORRUPT_BKPT;
           goto end_allocate_page;
         }
         testcase( iPage==mxPage );
@@ -42504,7 +42617,7 @@ end_allocate_page:
   if( rc==SQLITE_OK ){
     if( sqlite3PagerPageRefcount((*ppPage)->pDbPage)>1 ){
       releasePage(*ppPage);
-      return SQLITE_CORRUPT_BKPT(BTREE_PAGE_6_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
     (*ppPage)->isInit = 0;
   }else{
@@ -42589,7 +42702,7 @@ static int freePage2(BtShared *pBt, MemPage *pMemPage, Pgno iPage){
     nLeaf = get4byte(&pTrunk->aData[4]);
     assert( pBt->usableSize>32 );
     if( nLeaf > (u32)pBt->usableSize/4 - 2 ){
-      rc = SQLITE_CORRUPT_BKPT(FREEPAGE2_1_CORRUPTION); // Android Change
+      rc = SQLITE_CORRUPT_BKPT;
       goto freepage_out;
     }
     if( nLeaf < (u32)pBt->usableSize/4 - 8 ){
@@ -42683,7 +42796,7 @@ static int clearCell(MemPage *pPage, unsigned char *pCell){
       /* 0 is not a legal page number and page 1 cannot be an 
       ** overflow page. Therefore if ovflPgno<2 or past the end of the 
       ** file the database must be corrupt. */
-      return SQLITE_CORRUPT_BKPT(CLEARCELL_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
     if( nOvfl ){
       rc = getOverflowPage(pBt, ovflPgno, &pOvfl, &iNext);
@@ -42763,7 +42876,7 @@ static int fillInCell(
     nData = 0;
   }else{ 
     if( NEVER(nKey>0x7fffffff || pKey==0) ){
-      return SQLITE_CORRUPT_BKPT(FILL_IN_CELL_1_CORRUPTION); // Android Change
+      return SQLITE_CORRUPT_BKPT;
     }
     nPayload += (int)nKey;
     pSrc = pKey;
@@ -42890,7 +43003,7 @@ static void dropCell(MemPage *pPage, int idx, int sz, int *pRC){
   testcase( pc==get2byte(&data[hdr+5]) );
   testcase( pc+sz==pPage->pBt->usableSize );
   if( pc < get2byte(&data[hdr+5]) || pc+sz > pPage->pBt->usableSize ){
-    *pRC = SQLITE_CORRUPT_BKPT(DROP_CELL_CORRUPTION); // Android Change
+    *pRC = SQLITE_CORRUPT_BKPT;
     return;
   }
   rc = freeSpace(pPage, pc, sz);
@@ -43097,7 +43210,7 @@ static int balance_quick(MemPage *pParent, MemPage *pPage, u8 *pSpace){
   assert( sqlite3PagerIswriteable(pParent->pDbPage) );
   assert( pPage->nOverflow==1 );
 
-  if( pPage->nCell<=0 ) return SQLITE_CORRUPT_BKPT(BALANCE_QUICK_CORRUPTION); // Android Change
+  if( pPage->nCell<=0 ) return SQLITE_CORRUPT_BKPT;
 
   /* Allocate a new page. This page will become the right-sibling of 
   ** pPage. Make the parent page writable, so that the new divider cell
@@ -43547,7 +43660,7 @@ static int balance_nonroot(
       if( leafData ){ i--; }
       subtotal = 0;
       k++;
-      if( k>NB+1 ){ rc = SQLITE_CORRUPT; goto balance_cleanup; }
+      if( k>NB+1 ){ rc = SQLITE_CORRUPT_BKPT; goto balance_cleanup; }
     }
   }
   szNew[k] = subtotal;
@@ -43601,7 +43714,7 @@ static int balance_nonroot(
   ** Allocate k new pages.  Reuse old pages where possible.
   */
   if( apOld[0]->pgno<=1 ){
-    rc = SQLITE_CORRUPT;
+    rc = SQLITE_CORRUPT_BKPT;
     goto balance_cleanup;
   }
   pageFlags = apOld[0]->aData[0];
@@ -44452,7 +44565,7 @@ static int btreeCreateTable(Btree *p, int *piTable, int flags){
       }
       rc = ptrmapGet(pBt, pgnoRoot, &eType, &iPtrPage);
       if( eType==PTRMAP_ROOTPAGE || eType==PTRMAP_FREEPAGE ){
-        rc = SQLITE_CORRUPT_BKPT(BTREE_CREATE_TABLE_CORRUPTION); // Android Change
+        rc = SQLITE_CORRUPT_BKPT;
       }
       if( rc!=SQLITE_OK ){
         releasePage(pRoot);
@@ -44528,7 +44641,7 @@ static int clearDatabasePage(
 
   assert( sqlite3_mutex_held(pBt->mutex) );
   if( pgno>pagerPagecount(pBt) ){
-    return SQLITE_CORRUPT_BKPT(CLEAR_DB_PAGE_CORRUPTION); // Android Change
+    return SQLITE_CORRUPT_BKPT;
   }
 
   rc = getAndInitPage(pBt, pgno, &pPage);
@@ -45039,7 +45152,9 @@ static void checkList(
 static int checkTreePage(
   IntegrityCk *pCheck,  /* Context for the sanity check */
   int iPage,            /* Page number of the page to check */
-  char *zParentContext  /* Parent context */
+  char *zParentContext, /* Parent context */
+  i64 *pnParentMinKey, 
+  i64 *pnParentMaxKey
 ){
   MemPage *pPage;
   int i, rc, depth, d2, pgno, cnt;
@@ -45050,6 +45165,8 @@ static int checkTreePage(
   int usableSize;
   char zContext[100];
   char *hit = 0;
+  i64 nMinKey = 0;
+  i64 nMaxKey = 0;
 
   sqlite3_snprintf(sizeof(zContext), zContext, "Page %d: ", iPage);
 
@@ -45092,6 +45209,16 @@ static int checkTreePage(
     btreeParseCellPtr(pPage, pCell, &info);
     sz = info.nData;
     if( !pPage->intKey ) sz += (int)info.nKey;
+    /* For intKey pages, check that the keys are in order.
+    */
+    else if( i==0 ) nMinKey = nMaxKey = info.nKey;
+    else{
+      if( info.nKey <= nMaxKey ){
+        checkAppendMsg(pCheck, zContext, 
+            "Rowid %lld out of order (previous was %lld)", info.nKey, nMaxKey);
+      }
+      nMaxKey = info.nKey;
+    }
     assert( sz==info.nPayload );
     if( (sz>info.nLocal) 
      && (&pCell[info.iOverflow]<=&pPage->aData[pBt->usableSize])
@@ -45115,25 +45242,62 @@ static int checkTreePage(
         checkPtrmap(pCheck, pgno, PTRMAP_BTREE, iPage, zContext);
       }
 #endif
-      d2 = checkTreePage(pCheck, pgno, zContext);
+      d2 = checkTreePage(pCheck, pgno, zContext, &nMinKey, i==0 ? NULL : &nMaxKey);
       if( i>0 && d2!=depth ){
         checkAppendMsg(pCheck, zContext, "Child page depth differs");
       }
       depth = d2;
     }
   }
+
   if( !pPage->leaf ){
     pgno = get4byte(&pPage->aData[pPage->hdrOffset+8]);
     sqlite3_snprintf(sizeof(zContext), zContext, 
                      "On page %d at right child: ", iPage);
 #ifndef SQLITE_OMIT_AUTOVACUUM
     if( pBt->autoVacuum ){
-      checkPtrmap(pCheck, pgno, PTRMAP_BTREE, iPage, 0);
+      checkPtrmap(pCheck, pgno, PTRMAP_BTREE, iPage, zContext);
     }
 #endif
-    checkTreePage(pCheck, pgno, zContext);
+    checkTreePage(pCheck, pgno, zContext, NULL, !pPage->nCell ? NULL : &nMaxKey);
   }
  
+  /* For intKey leaf pages, check that the min/max keys are in order
+  ** with any left/parent/right pages.
+  */
+  if( pPage->leaf && pPage->intKey ){
+    /* if we are a left child page */
+    if( pnParentMinKey ){
+      /* if we are the left most child page */
+      if( !pnParentMaxKey ){
+        if( nMaxKey > *pnParentMinKey ){
+          checkAppendMsg(pCheck, zContext, 
+              "Rowid %lld out of order (max larger than parent min of %lld)",
+              nMaxKey, *pnParentMinKey);
+        }
+      }else{
+        if( nMinKey <= *pnParentMinKey ){
+          checkAppendMsg(pCheck, zContext, 
+              "Rowid %lld out of order (min less than parent min of %lld)",
+              nMinKey, *pnParentMinKey);
+        }
+        if( nMaxKey > *pnParentMaxKey ){
+          checkAppendMsg(pCheck, zContext, 
+              "Rowid %lld out of order (max larger than parent max of %lld)",
+              nMaxKey, *pnParentMaxKey);
+        }
+        *pnParentMinKey = nMaxKey;
+      }
+    /* else if we're a right child page */
+    } else if( pnParentMaxKey ){
+      if( nMinKey <= *pnParentMaxKey ){
+        checkAppendMsg(pCheck, zContext, 
+            "Rowid %lld out of order (min less than parent max of %lld)",
+            nMinKey, *pnParentMaxKey);
+      }
+    }
+  }
+
   /* Check for complete coverage of the page
   */
   data = pPage->aData;
@@ -45157,7 +45321,7 @@ static int checkTreePage(
       }
       if( (pc+size-1)>=usableSize ){
         checkAppendMsg(pCheck, 0, 
-            "Corruption detected in cell %d on page %d",i,iPage,0);
+            "Corruption detected in cell %d on page %d",i,iPage);
       }else{
         for(j=pc+size-1; j>=pc; j--) hit[j]++;
       }
@@ -45263,7 +45427,7 @@ SQLITE_PRIVATE char *sqlite3BtreeIntegrityCheck(
       checkPtrmap(&sCheck, aRoot[i], PTRMAP_ROOTPAGE, 0, 0);
     }
 #endif
-    checkTreePage(&sCheck, aRoot[i], "List of tree roots: ");
+    checkTreePage(&sCheck, aRoot[i], "List of tree roots: ", NULL, NULL);
   }
 
   /* Make sure every page in the file is referenced
@@ -45596,10 +45760,10 @@ static Btree *findBtree(sqlite3 *pErrorDb, sqlite3 *pDb, const char *zDb){
     }else{
       pParse->db = pDb;
       if( sqlite3OpenTempDatabase(pParse) ){
-        sqlite3ErrorClear(pParse);
         sqlite3Error(pErrorDb, pParse->rc, "%s", pParse->zErrMsg);
         rc = SQLITE_ERROR;
       }
+      sqlite3DbFree(pErrorDb, pParse->zErrMsg);
       sqlite3StackFree(pErrorDb, pParse);
     }
     if( rc ){
@@ -47484,6 +47648,13 @@ SQLITE_PRIVATE void sqlite3VdbeResolveLabel(Vdbe *p, int x){
   }
 }
 
+/*
+** Mark the VDBE as one that can only be run one time.
+*/
+SQLITE_PRIVATE void sqlite3VdbeRunOnlyOnce(Vdbe *p){
+  p->runOnlyOnce = 1;
+}
+
 #ifdef SQLITE_DEBUG /* sqlite3AssertMayAbort() logic */
 
 /*
@@ -48288,7 +48459,6 @@ SQLITE_PRIVATE int sqlite3VdbeList(
 
   assert( p->explain );
   assert( p->magic==VDBE_MAGIC_RUN );
-  assert( db->magic==SQLITE_MAGIC_BUSY );
   assert( p->rc==SQLITE_OK || p->rc==SQLITE_BUSY || p->rc==SQLITE_NOMEM );
 
   /* Even though this opcode does not use dynamic strings for
@@ -48703,9 +48873,7 @@ SQLITE_PRIVATE void sqlite3VdbeFreeCursor(Vdbe *p, VdbeCursor *pCx){
     sqlite3_vtab_cursor *pVtabCursor = pCx->pVtabCursor;
     const sqlite3_module *pModule = pCx->pModule;
     p->inVtabMethod = 1;
-    (void)sqlite3SafetyOff(p->db);
     pModule->xClose(pVtabCursor);
-    (void)sqlite3SafetyOn(p->db);
     p->inVtabMethod = 0;
   }
 #endif
@@ -48886,9 +49054,7 @@ static int vdbeCommit(sqlite3 *db, Vdbe *p){
 
   /* If there are any write-transactions at all, invoke the commit hook */
   if( needXcommit && db->xCommitCallback ){
-    (void)sqlite3SafetyOff(db);
     rc = db->xCommitCallback(db->pCommitArg);
-    (void)sqlite3SafetyOn(db);
     if( rc ){
       return SQLITE_CONSTRAINT;
     }
@@ -49442,9 +49608,7 @@ SQLITE_PRIVATE int sqlite3VdbeReset(Vdbe *p){
   ** error, then it might not have been halted properly.  So halt
   ** it now.
   */
-  (void)sqlite3SafetyOn(db);
   sqlite3VdbeHalt(p);
-  (void)sqlite3SafetyOff(db);
 
   /* If the VDBE has be run even partially, then transfer the error code
   ** and error message from the VDBE into the main database structure.  But
@@ -49464,6 +49628,7 @@ SQLITE_PRIVATE int sqlite3VdbeReset(Vdbe *p){
     }else{
       sqlite3Error(db, SQLITE_OK, 0);
     }
+    if( p->runOnlyOnce ) p->expired = 1;
   }else if( p->rc && p->expired ){
     /* The expired flag was set on the VDBE before the first call
     ** to sqlite3_step(). For consistency (since sqlite3_step() was
@@ -50214,7 +50379,7 @@ SQLITE_PRIVATE int sqlite3VdbeIdxRowid(sqlite3 *db, BtCursor *pCur, i64 *rowid){
 idx_rowid_corruption:
   testcase( m.zMalloc!=0 );
   sqlite3VdbeMemRelease(&m);
-  return SQLITE_CORRUPT_BKPT(VDBE_INDEX_ROWID_CORRUPTION); // Android Change
+  return SQLITE_CORRUPT_BKPT;
 }
 
 /*
@@ -50245,7 +50410,7 @@ SQLITE_PRIVATE int sqlite3VdbeIdxKeyCompare(
   ** that btreeParseCellPtr() and sqlite3GetVarint32() are implemented */
   if( nCellKey<=0 || nCellKey>0x7fffffff ){
     *res = 0;
-    return SQLITE_CORRUPT;
+    return SQLITE_CORRUPT_BKPT;
   }
   memset(&m, 0, sizeof(m));
   rc = sqlite3VdbeMemFromBtree(pC->pCursor, 0, (int)nCellKey, 1, &m);
@@ -50373,6 +50538,28 @@ SQLITE_API int sqlite3_expired(sqlite3_stmt *pStmt){
 #endif
 
 /*
+** Check on a Vdbe to make sure it has not been finalized.  Log
+** an error and return true if it has been finalized (or is otherwise
+** invalid).  Return false if it is ok.
+*/
+static int vdbeSafety(Vdbe *p){
+  if( p->db==0 ){
+    sqlite3_log(SQLITE_MISUSE, "API called with finalized prepared statement");
+    return 1;
+  }else{
+    return 0;
+  }
+}
+static int vdbeSafetyNotNull(Vdbe *p){
+  if( p==0 ){
+    sqlite3_log(SQLITE_MISUSE, "API called with NULL prepared statement");
+    return 1;
+  }else{
+    return vdbeSafety(p);
+  }
+}
+
+/*
 ** The following routine destroys a virtual machine that is created by
 ** the sqlite3_compile() routine. The integer returned is an SQLITE_
 ** success/failure code that describes the result of executing the virtual
@@ -50389,7 +50576,11 @@ SQLITE_API int sqlite3_finalize(sqlite3_stmt *pStmt){
     Vdbe *v = (Vdbe*)pStmt;
     sqlite3 *db = v->db;
 #if SQLITE_THREADSAFE
-    sqlite3_mutex *mutex = v->db->mutex;
+    sqlite3_mutex *mutex;
+#endif
+    if( vdbeSafety(v) ) return SQLITE_MISUSE_BKPT;
+#if SQLITE_THREADSAFE
+    mutex = v->db->mutex;
 #endif
     sqlite3_mutex_enter(mutex);
     rc = sqlite3VdbeFinalize(v);
@@ -50636,8 +50827,9 @@ static int sqlite3Step(Vdbe *p){
 
   assert(p);
   if( p->magic!=VDBE_MAGIC_RUN ){
-    LOGE("trying to use already finalized prepared statement");
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    sqlite3_log(SQLITE_MISUSE, 
+          "attempt to step a halted statement: [%s]", p->zSql);
+    return SQLITE_MISUSE_BKPT;
   }
 
   /* Assert that malloc() has not failed */
@@ -50647,15 +50839,11 @@ static int sqlite3Step(Vdbe *p){
   }
 
   if( p->pc<=0 && p->expired ){
-    if( ALWAYS(p->rc==SQLITE_OK || p->rc==SQLITE_SCHEMA) ){
+    if( p->rc==SQLITE_OK ){
       p->rc = SQLITE_SCHEMA;
     }
     rc = SQLITE_ERROR;
     goto end_of_step;
-  }
-  if( sqlite3SafetyOn(db) ){
-    p->rc = SQLITE_MISUSE;
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
   if( p->pc<0 ){
     /* If there are no other statements currently running, then
@@ -50687,10 +50875,6 @@ static int sqlite3Step(Vdbe *p){
 #endif /* SQLITE_OMIT_EXPLAIN */
   {
     rc = sqlite3VdbeExec(p);
-  }
-
-  if( sqlite3SafetyOff(db) ){
-    android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
   }
 
 #ifndef SQLITE_OMIT_TRACE
@@ -50739,41 +50923,44 @@ end_of_step:
 ** call sqlite3Reprepare() and try again.
 */
 SQLITE_API int sqlite3_step(sqlite3_stmt *pStmt){
-  int rc = SQLITE_MISUSE;
-  if( pStmt ){
-    int cnt = 0;
-    Vdbe *v = (Vdbe*)pStmt;
-    sqlite3 *db = v->db;
-    sqlite3_mutex_enter(db->mutex);
-    while( (rc = sqlite3Step(v))==SQLITE_SCHEMA
-           && cnt++ < 5
-           && (rc = sqlite3Reprepare(v))==SQLITE_OK ){
-      sqlite3_reset(pStmt);
-      v->expired = 0;
-    }
-    if( rc==SQLITE_SCHEMA && ALWAYS(v->isPrepareV2) && ALWAYS(db->pErr) ){
-      /* This case occurs after failing to recompile an sql statement. 
-      ** The error message from the SQL compiler has already been loaded 
-      ** into the database handle. This block copies the error message 
-      ** from the database handle into the statement and sets the statement
-      ** program counter to 0 to ensure that when the statement is 
-      ** finalized or reset the parser error message is available via
-      ** sqlite3_errmsg() and sqlite3_errcode().
-      */
-      const char *zErr = (const char *)sqlite3_value_text(db->pErr); 
-      sqlite3DbFree(db, v->zErrMsg);
-      if( !db->mallocFailed ){
-        v->zErrMsg = sqlite3DbStrDup(db, zErr);
-      } else {
-        v->zErrMsg = 0;
-        v->rc = SQLITE_NOMEM;
-      }
-    }
-    rc = sqlite3ApiExit(db, rc);
-    sqlite3_mutex_leave(db->mutex);
+  int rc = SQLITE_OK;      /* Result from sqlite3Step() */
+  int rc2 = SQLITE_OK;     /* Result from sqlite3Reprepare() */
+  Vdbe *v = (Vdbe*)pStmt;  /* the prepared statement */
+  int cnt = 0;             /* Counter to prevent infinite loop of reprepares */
+  sqlite3 *db;             /* The database connection */
+
+  if( vdbeSafetyNotNull(v) ){
+    return SQLITE_MISUSE_BKPT;
   }
-  if (rc == SQLITE_MISUSE)
-      android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
+  db = v->db;
+  sqlite3_mutex_enter(db->mutex);
+  while( (rc = sqlite3Step(v))==SQLITE_SCHEMA
+         && cnt++ < 5
+         && (rc2 = rc = sqlite3Reprepare(v))==SQLITE_OK ){
+    sqlite3_reset(pStmt);
+    v->expired = 0;
+  }
+  if( rc2!=SQLITE_OK && v->isPrepareV2 && db->pErr ){
+    /* This case occurs after failing to recompile an sql statement. 
+    ** The error message from the SQL compiler has already been loaded 
+    ** into the database handle. This block copies the error message 
+    ** from the database handle into the statement and sets the statement
+    ** program counter to 0 to ensure that when the statement is 
+    ** finalized or reset the parser error message is available via
+    ** sqlite3_errmsg() and sqlite3_errcode().
+    */
+    const char *zErr = (const char *)sqlite3_value_text(db->pErr); 
+    sqlite3DbFree(db, v->zErrMsg);
+    if( !db->mallocFailed ){
+      v->zErrMsg = sqlite3DbStrDup(db, zErr);
+      v->rc = rc2;
+    } else {
+      v->zErrMsg = 0;
+      v->rc = rc = SQLITE_NOMEM;
+    }
+  }
+  rc = sqlite3ApiExit(db, rc);
+  sqlite3_mutex_leave(db->mutex);
   return rc;
 }
 
@@ -51243,16 +51430,16 @@ SQLITE_API const void *sqlite3_column_origin_name16(sqlite3_stmt *pStmt, int N){
 */
 static int vdbeUnbind(Vdbe *p, int i){
   Mem *pVar;
-  if( p==0 ) return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+  if( vdbeSafetyNotNull(p) ){
+    return SQLITE_MISUSE_BKPT;
+  }
   sqlite3_mutex_enter(p->db->mutex);
   if( p->magic!=VDBE_MAGIC_RUN || p->pc>=0 ){
     sqlite3Error(p->db, SQLITE_MISUSE, 0);
     sqlite3_mutex_leave(p->db->mutex);
-    if (p->magic==VDBE_MAGIC_RUN || p->magic==VDBE_MAGIC_INIT || p->magic==VDBE_MAGIC_HALT)
-      LOGE("prepared statement is busy (database = %s)", sqlite3BtreeGetFilename(p->db->aDb[0].pBt));
-    else
-      LOGE("binding to an already_finalized prepared statement");
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    sqlite3_log(SQLITE_MISUSE, 
+        "bind on a busy prepared statement: [%s]", p->zSql);
+    return SQLITE_MISUSE_BKPT;
   }
   if( i<1 || i>p->nVar ){
     sqlite3Error(p->db, SQLITE_RANGE, 0);
@@ -52456,7 +52643,7 @@ SQLITE_PRIVATE int sqlite3VdbeExec(
       u8 *zIdx;          /* Index into header */
       u8 *zEndHdr;       /* Pointer to first byte after the header */
       u32 offset;        /* Offset into the data */
-      u64 offset64;      /* 64-bit offset.  64 bits needed to catch overflow */
+      u32 szField;       /* Number of bytes in the content of a field */
       int szHdr;         /* Size of the header size field at start of record */
       int avail;         /* Number of bytes of available data */
       Mem *pReg;         /* PseudoTable input register */
@@ -52768,7 +52955,6 @@ SQLITE_PRIVATE int sqlite3VdbeExec(
   ********************************************************************/
 
   assert( p->magic==VDBE_MAGIC_RUN );  /* sqlite3_step() verifies this */
-  assert( db->magic==SQLITE_MAGIC_BUSY );
   sqlite3VdbeMutexArrayEnter(p);
   if( p->rc==SQLITE_NOMEM ){
     /* This happens if a malloc() inside a call to sqlite3_column_text() or
@@ -52853,9 +53039,7 @@ SQLITE_PRIVATE int sqlite3VdbeExec(
     if( checkProgress ){
       if( db->nProgressOps==nProgressOps ){
         int prc;
-        if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
-        prc =db->xProgress(db->pProgressArg);
-        if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
+        prc = db->xProgress(db->pProgressArg);
         if( prc!=0 ){
           rc = SQLITE_INTERRUPT;
           goto vdbe_error_halt;
@@ -53057,7 +53241,13 @@ case OP_Halt: {
   p->errorAction = (u8)pOp->p2;
   p->pc = pc;
   if( pOp->p4.z ){
+    assert( p->rc!=SQLITE_OK );
     sqlite3SetString(&p->zErrMsg, db, "%s", pOp->p4.z);
+    testcase( sqlite3GlobalConfig.xLog!=0 );
+    sqlite3_log(pOp->p1, "abort at %d in [%s]: %s", pc, p->zSql, pOp->p4.z);
+  }else if( p->rc ){
+    testcase( sqlite3GlobalConfig.xLog!=0 );
+    sqlite3_log(pOp->p1, "constraint failed at %d in [%s]", pc, p->zSql);
   }
   rc = sqlite3VdbeHalt(p);
   assert( rc==SQLITE_BUSY || rc==SQLITE_OK || rc==SQLITE_ERROR );
@@ -53612,21 +53802,12 @@ case OP_Function: {
     assert( pOp[-1].opcode==OP_CollSeq );
     u.ag.ctx.pColl = pOp[-1].p4.pColl;
   }
-  if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
   (*u.ag.ctx.pFunc->xFunc)(&u.ag.ctx, u.ag.n, u.ag.apVal);
-  if( sqlite3SafetyOn(db) ){
-    sqlite3VdbeMemRelease(&u.ag.ctx.s);
-    goto abort_due_to_misuse;
-  }
   if( db->mallocFailed ){
     /* Even though a malloc() has failed, the implementation of the
     ** user function may have called an sqlite3_result_XXX() function
     ** to return a value. The following call releases any resources
     ** associated with such a value.
-    **
-    ** Note: Maybe MemRelease() should be called if sqlite3SafetyOn()
-    ** fails also (the if(...) statement above). But if people are
-    ** misusing sqlite, they have bigger problems than a leaked value.
     */
     sqlite3VdbeMemRelease(&u.ag.ctx.s);
     goto no_mem;
@@ -54289,7 +54470,7 @@ case OP_Column: {
   u8 *zIdx;          /* Index into header */
   u8 *zEndHdr;       /* Pointer to first byte after the header */
   u32 offset;        /* Offset into the data */
-  u64 offset64;      /* 64-bit offset.  64 bits needed to catch overflow */
+  u32 szField;       /* Number of bytes in the content of a field */
   int szHdr;         /* Size of the header size field at start of record */
   int avail;         /* Number of bytes of available data */
   Mem *pReg;         /* PseudoTable input register */
@@ -54422,7 +54603,7 @@ case OP_Column: {
     ** extra bytes for the header length itself.  32768*3 + 3 = 98307.
     */
     if( u.am.offset > 98307 ){
-      rc = SQLITE_CORRUPT_BKPT(OVERSIZE_HEADER_CORRUPTION); // Android Change
+      rc = SQLITE_CORRUPT_BKPT;
       goto op_column_out;
     }
 
@@ -54465,12 +54646,16 @@ case OP_Column: {
     ** column and u.am.aOffset[u.am.i] will contain the u.am.offset from the beginning
     ** of the record to the start of the data for the u.am.i-th column
     */
-    u.am.offset64 = u.am.offset;
     for(u.am.i=0; u.am.i<u.am.nField; u.am.i++){
       if( u.am.zIdx<u.am.zEndHdr ){
-        u.am.aOffset[u.am.i] = (u32)u.am.offset64;
+        u.am.aOffset[u.am.i] = u.am.offset;
         u.am.zIdx += getVarint32(u.am.zIdx, u.am.aType[u.am.i]);
-        u.am.offset64 += sqlite3VdbeSerialTypeLen(u.am.aType[u.am.i]);
+        u.am.szField = sqlite3VdbeSerialTypeLen(u.am.aType[u.am.i]);
+        u.am.offset += u.am.szField;
+        if( u.am.offset<u.am.szField ){  /* True if u.am.offset overflows */
+          u.am.zIdx = &u.am.zEndHdr[1];  /* Forces SQLITE_CORRUPT return below */
+          break;
+        }
       }else{
         /* If u.am.i is less that u.am.nField, then there are less fields in this
         ** record than SetNumColumns indicated there are columns in the
@@ -54490,9 +54675,9 @@ case OP_Column: {
     ** of the record (when all fields present), then we must be dealing
     ** with a corrupt database.
     */
-    if( (u.am.zIdx > u.am.zEndHdr)|| (u.am.offset64 > u.am.payloadSize)
-     || (u.am.zIdx==u.am.zEndHdr && u.am.offset64!=(u64)u.am.payloadSize) ){
-      rc = SQLITE_CORRUPT_BKPT(DATA_CORRUPTION); // Android Change
+    if( (u.am.zIdx > u.am.zEndHdr) || (u.am.offset > u.am.payloadSize)
+         || (u.am.zIdx==u.am.zEndHdr && u.am.offset!=u.am.payloadSize) ){
+      rc = SQLITE_CORRUPT_BKPT;
       goto op_column_out;
     }
   }
@@ -55250,7 +55435,7 @@ case OP_OpenWrite: {
     ** If there were a failure, the prepared statement would have halted
     ** before reaching this instruction. */
     if( NEVER(u.aw.p2<2) ) {
-      rc = SQLITE_CORRUPT_BKPT(OP_OPENWRITE_CORRUPTION); // Android Change
+      rc = SQLITE_CORRUPT_BKPT;
       goto abort_due_to_error;
     }
   }
@@ -56311,12 +56496,10 @@ case OP_Rowid: {                 /* out2-prerelease */
     u.bi.pVtab = u.bi.pC->pVtabCursor->pVtab;
     u.bi.pModule = u.bi.pVtab->pModule;
     assert( u.bi.pModule->xRowid );
-    if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
     rc = u.bi.pModule->xRowid(u.bi.pC->pVtabCursor, &u.bi.v);
     sqlite3DbFree(db, p->zErrMsg);
     p->zErrMsg = u.bi.pVtab->zErrMsg;
     u.bi.pVtab->zErrMsg = 0;
-    if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
 #endif /* SQLITE_OMIT_VIRTUALTABLE */
   }else{
     assert( u.bi.pC->pCursor!=0 );
@@ -56876,7 +57059,6 @@ case OP_ParseSchema: {
     if( u.bu.zSql==0 ){
       rc = SQLITE_NOMEM;
     }else{
-      (void)sqlite3SafetyOff(db);
       assert( db->init.busy==0 );
       db->init.busy = 1;
       u.bu.initData.rc = SQLITE_OK;
@@ -56885,7 +57067,6 @@ case OP_ParseSchema: {
       if( rc==SQLITE_OK ) rc = u.bu.initData.rc;
       sqlite3DbFree(db, u.bu.zSql);
       db->init.busy = 0;
-      (void)sqlite3SafetyOn(db);
     }
   }
   sqlite3BtreeLeaveAll(db);
@@ -57471,9 +57652,7 @@ case OP_AggFinal: {
 ** a transaction.
 */
 case OP_Vacuum: {
-  if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse; 
   rc = sqlite3RunVacuum(&p->zErrMsg, db);
-  if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
   break;
 }
 #endif
@@ -57623,12 +57802,10 @@ case OP_VOpen: {
   u.cf.pVtab = pOp->p4.pVtab->pVtab;
   u.cf.pModule = (sqlite3_module *)u.cf.pVtab->pModule;
   assert(u.cf.pVtab && u.cf.pModule);
-  if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
   rc = u.cf.pModule->xOpen(u.cf.pVtab, &u.cf.pVtabCursor);
   sqlite3DbFree(db, p->zErrMsg);
   p->zErrMsg = u.cf.pVtab->zErrMsg;
   u.cf.pVtab->zErrMsg = 0;
-  if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
   if( SQLITE_OK==rc ){
     /* Initialize sqlite3_vtab_cursor base class */
     u.cf.pVtabCursor->pVtab = u.cf.pVtab;
@@ -57704,7 +57881,6 @@ case OP_VFilter: {   /* jump */
       sqlite3VdbeMemStoreType(u.cg.apArg[u.cg.i]);
     }
 
-    if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
     p->inVtabMethod = 1;
     rc = u.cg.pModule->xFilter(u.cg.pVtabCursor, u.cg.iQuery, pOp->p4.z, u.cg.nArg, u.cg.apArg);
     p->inVtabMethod = 0;
@@ -57714,7 +57890,6 @@ case OP_VFilter: {   /* jump */
     if( rc==SQLITE_OK ){
       u.cg.res = u.cg.pModule->xEof(u.cg.pVtabCursor);
     }
-    if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
 
     if( u.cg.res ){
       pc = pOp->p2 - 1;
@@ -57762,7 +57937,6 @@ case OP_VColumn: {
   sqlite3VdbeMemMove(&u.ch.sContext.s, u.ch.pDest);
   MemSetTypeFlag(&u.ch.sContext.s, MEM_Null);
 
-  if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
   rc = u.ch.pModule->xColumn(pCur->pVtabCursor, &u.ch.sContext, pOp->p2);
   sqlite3DbFree(db, p->zErrMsg);
   p->zErrMsg = u.ch.pVtab->zErrMsg;
@@ -57780,9 +57954,6 @@ case OP_VColumn: {
   REGISTER_TRACE(pOp->p3, u.ch.pDest);
   UPDATE_MAX_BLOBSIZE(u.ch.pDest);
 
-  if( sqlite3SafetyOn(db) ){
-    goto abort_due_to_misuse;
-  }
   if( sqlite3VdbeMemTooBig(u.ch.pDest) ){
     goto too_big;
   }
@@ -57821,7 +57992,6 @@ case OP_VNext: {   /* jump */
   ** data is available) and the error code returned when xColumn or
   ** some other method is next invoked on the save virtual table cursor.
   */
-  if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
   p->inVtabMethod = 1;
   rc = u.ci.pModule->xNext(u.ci.pCur->pVtabCursor);
   p->inVtabMethod = 0;
@@ -57831,7 +58001,6 @@ case OP_VNext: {   /* jump */
   if( rc==SQLITE_OK ){
     u.ci.res = u.ci.pModule->xEof(u.ci.pCur->pVtabCursor);
   }
-  if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
 
   if( !u.ci.res ){
     /* If there is data, jump to P2 */
@@ -57859,12 +58028,10 @@ case OP_VRename: {
   assert( u.cj.pVtab->pModule->xRename );
   REGISTER_TRACE(pOp->p1, u.cj.pName);
   assert( u.cj.pName->flags & MEM_Str );
-  if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
   rc = u.cj.pVtab->pModule->xRename(u.cj.pVtab, u.cj.pName->z);
   sqlite3DbFree(db, p->zErrMsg);
   p->zErrMsg = u.cj.pVtab->zErrMsg;
   u.cj.pVtab->zErrMsg = 0;
-  if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
 
   break;
 }
@@ -57917,12 +58084,10 @@ case OP_VUpdate: {
       u.ck.apArg[u.ck.i] = u.ck.pX;
       u.ck.pX++;
     }
-    if( sqlite3SafetyOff(db) ) goto abort_due_to_misuse;
     rc = u.ck.pModule->xUpdate(u.ck.pVtab, u.ck.nArg, u.ck.apArg, &u.ck.rowid);
     sqlite3DbFree(db, p->zErrMsg);
     p->zErrMsg = u.ck.pVtab->zErrMsg;
     u.ck.pVtab->zErrMsg = 0;
-    if( sqlite3SafetyOn(db) ) goto abort_due_to_misuse;
     if( rc==SQLITE_OK && pOp->p1 ){
       assert( u.ck.nArg>1 && u.ck.apArg[0] && (u.ck.apArg[0]->flags&MEM_Null) );
       db->lastRowid = u.ck.rowid;
@@ -58050,6 +58215,7 @@ default: {          /* This is really OP_Noop and OP_Explain */
 vdbe_error_halt:
   assert( rc );
   p->rc = rc;
+  sqlite3_log(rc, "prepared statement aborts at %d: [%s]", pc, p->zSql);
   sqlite3VdbeHalt(p);
   if( rc==SQLITE_IOERR_NOMEM ) db->mallocFailed = 1;
   rc = SQLITE_ERROR;
@@ -58077,13 +58243,6 @@ no_mem:
   sqlite3SetString(&p->zErrMsg, db, "out of memory");
   rc = SQLITE_NOMEM;
   goto vdbe_error_halt;
-
-  /* Jump to here for an SQLITE_MISUSE error.
-  */
-abort_due_to_misuse:
-  rc = SQLITE_MISUSE;
-  android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
-  /* Fall thru into abort_due_to_error */
 
   /* Jump to here for any other kind of fatal error.  The "rc" variable
   ** should hold the error number.
@@ -58204,13 +58363,6 @@ SQLITE_API int sqlite3_blob_open(
     memset(pParse, 0, sizeof(Parse));
     pParse->db = db;
 
-    if( sqlite3SafetyOn(db) ){
-      sqlite3DbFree(db, zErr);
-      sqlite3StackFree(db, pParse);
-      sqlite3_mutex_leave(db->mutex);
-      return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
-    }
-
     sqlite3BtreeEnterAll(db);
     pTab = sqlite3LocateTable(pParse, 0, zTable, zDb);
     if( pTab && IsVirtual(pTab) ){
@@ -58230,7 +58382,6 @@ SQLITE_API int sqlite3_blob_open(
         pParse->zErrMsg = 0;
       }
       rc = SQLITE_ERROR;
-      (void)sqlite3SafetyOff(db);
       sqlite3BtreeLeaveAll(db);
       goto blob_open_out;
     }
@@ -58245,7 +58396,6 @@ SQLITE_API int sqlite3_blob_open(
       sqlite3DbFree(db, zErr);
       zErr = sqlite3MPrintf(db, "no such column: \"%s\"", zColumn);
       rc = SQLITE_ERROR;
-      (void)sqlite3SafetyOff(db);
       sqlite3BtreeLeaveAll(db);
       goto blob_open_out;
     }
@@ -58286,7 +58436,6 @@ SQLITE_API int sqlite3_blob_open(
         sqlite3DbFree(db, zErr);
         zErr = sqlite3MPrintf(db, "cannot open %s column for writing", zFault);
         rc = SQLITE_ERROR;
-        (void)sqlite3SafetyOff(db);
         sqlite3BtreeLeaveAll(db);
         goto blob_open_out;
       }
@@ -58336,8 +58485,7 @@ SQLITE_API int sqlite3_blob_open(
     }
    
     sqlite3BtreeLeaveAll(db);
-    rc = sqlite3SafetyOff(db);
-    if( NEVER(rc!=SQLITE_OK) || db->mallocFailed ){
+    if( db->mallocFailed ){
       goto blob_open_out;
     }
 
@@ -58438,7 +58586,7 @@ static int blobReadWrite(
   Vdbe *v;
   sqlite3 *db;
 
-  if( p==0 ) return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+  if( p==0 ) return SQLITE_MISUSE_BKPT;
   db = p->db;
   sqlite3_mutex_enter(db->mutex);
   v = (Vdbe*)p->pStmt;
@@ -59796,6 +59944,9 @@ static int resolveOrderByTermToExprList(
   int i;             /* Loop counter */
   ExprList *pEList;  /* The columns of the result set */
   NameContext nc;    /* Name context for resolving pE */
+  sqlite3 *db;       /* Database connection */
+  int rc;            /* Return code from subprocedures */
+  u8 savedSuppErr;   /* Saved value of db->suppressErr */
 
   assert( sqlite3ExprIsInteger(pE, &i)==0 );
   pEList = pSelect->pEList;
@@ -59808,10 +59959,12 @@ static int resolveOrderByTermToExprList(
   nc.pEList = pEList;
   nc.allowAgg = 1;
   nc.nErr = 0;
-  if( sqlite3ResolveExprNames(&nc, pE) ){
-    sqlite3ErrorClear(pParse);
-    return 0;
-  }
+  db = pParse->db;
+  savedSuppErr = db->suppressErr;
+  db->suppressErr = 1;
+  rc = sqlite3ResolveExprNames(&nc, pE);
+  db->suppressErr = savedSuppErr;
+  if( rc ) return 0;
 
   /* Try to match the ORDER BY expression against an expression
   ** in the result set.  Return an 1-based index of the matching
@@ -65422,9 +65575,7 @@ SQLITE_PRIVATE int sqlite3AnalysisLoad(sqlite3 *db, int iDb){
   if( zSql==0 ){
     rc = SQLITE_NOMEM;
   }else{
-    (void)sqlite3SafetyOff(db);
     rc = sqlite3_exec(db, zSql, analysisLoader, &sInfo, 0);
-    (void)sqlite3SafetyOn(db);
     sqlite3DbFree(db, zSql);
   }
 
@@ -65442,14 +65593,11 @@ SQLITE_PRIVATE int sqlite3AnalysisLoad(sqlite3 *db, int iDb){
     if( !zSql ){
       rc = SQLITE_NOMEM;
     }else{
-      (void)sqlite3SafetyOff(db);
       rc = sqlite3_prepare(db, zSql, -1, &pStmt, 0);
-      (void)sqlite3SafetyOn(db);
       sqlite3DbFree(db, zSql);
     }
 
     if( rc==SQLITE_OK ){
-      (void)sqlite3SafetyOff(db);
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         char *zIndex = (char *)sqlite3_column_text(pStmt, 0);
         Index *pIdx = sqlite3FindIndex(db, zIndex, sInfo.zDatabase);
@@ -65499,7 +65647,6 @@ SQLITE_PRIVATE int sqlite3AnalysisLoad(sqlite3 *db, int iDb){
         }
       }
       rc = sqlite3_finalize(pStmt);
-      (void)sqlite3SafetyOn(db);
     }
   }
 #endif
@@ -65661,8 +65808,12 @@ static void attachFunc(
     sqlite3PagerLockingMode(pPager, db->dfltLockMode);
     sqlite3PagerJournalMode(pPager, db->dfltJournalMode);
   }
-  aNew->zName = sqlite3DbStrDup(db, zName);
   aNew->safety_level = 3;
+  aNew->zName = sqlite3DbStrDup(db, zName);
+  if( rc==SQLITE_OK && aNew->zName==0 ){
+    rc = SQLITE_NOMEM;
+  }
+
 
 #if SQLITE_HAS_CODEC
   if( rc==SQLITE_OK ){
@@ -65700,11 +65851,9 @@ static void attachFunc(
   ** we found it.
   */
   if( rc==SQLITE_OK ){
-    (void)sqlite3SafetyOn(db);
     sqlite3BtreeEnterAll(db);
     rc = sqlite3Init(db, &zErrDyn);
     sqlite3BtreeLeaveAll(db);
-    (void)sqlite3SafetyOff(db);
   }
   if( rc ){
     int iDb = db->nDb - 1;
@@ -68278,13 +68427,12 @@ SQLITE_PRIVATE void sqlite3DropTable(Parse *pParse, SrcList *pName, int isView, 
   }
   assert( pParse->nErr==0 );
   assert( pName->nSrc==1 );
+  if( noErr ) db->suppressErr++;
   pTab = sqlite3LocateTable(pParse, isView, 
                             pName->a[0].zName, pName->a[0].zDatabase);
+  if( noErr ) db->suppressErr--;
 
   if( pTab==0 ){
-    if( noErr ){
-      sqlite3ErrorClear(pParse);
-    }
     goto exit_drop_table;
   }
   iDb = sqlite3SchemaToIndex(db, pTab->pSchema);
@@ -77057,6 +77205,7 @@ SQLITE_PRIVATE void sqlite3Pragma(
   Db *pDb;
   Vdbe *v = pParse->pVdbe = sqlite3VdbeCreate(db);
   if( v==0 ) return;
+  sqlite3VdbeRunOnlyOnce(v);
   pParse->nMem = 2;
 
   /* Interpret the [database.] part of the pragma statement. iDb is the
@@ -78183,12 +78332,6 @@ SQLITE_PRIVATE void sqlite3Pragma(
  
   {/* Empty ELSE clause */}
 
-  /* Code an OP_Expire at the end of each PRAGMA program to cause
-  ** the VDBE implementing the pragma to expire. Most (all?) pragmas
-  ** are only valid for a single execution.
-  */
-  sqlite3VdbeAddOp2(v, OP_Expire, 1, 0);
-
   /*
   ** Reset the safety level, in case the fullfsync flag or synchronous
   ** setting changed.
@@ -78401,9 +78544,7 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
   initData.iDb = iDb;
   initData.rc = SQLITE_OK;
   initData.pzErrMsg = pzErrMsg;
-  (void)sqlite3SafetyOff(db);
   sqlite3InitCallback(&initData, 3, (char **)azArg, 0);
-  (void)sqlite3SafetyOn(db);
   if( initData.rc ){
     rc = initData.rc;
     goto error_out;
@@ -78505,7 +78646,7 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
   }
   if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
     sqlite3SetString(pzErrMsg, db, "unsupported file format");
-    rc = SQLITE_CORRUPT_BKPT(UNSUPPORTED_FILE_FORMAT_CORRUPTION); // Android Change
+    rc = SQLITE_CORRUPT_BKPT; // Android Change from "rc = SQLITE_ERROR;"
     goto initone_error_out;
   }
 
@@ -78526,7 +78667,6 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
     zSql = sqlite3MPrintf(db, 
         "SELECT name, rootpage, sql FROM '%q'.%s",
         db->aDb[iDb].zName, zMasterName);
-    (void)sqlite3SafetyOff(db);
 #ifndef SQLITE_OMIT_AUTHORIZATION
     {
       int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
@@ -78539,7 +78679,6 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
     }
 #endif
     if( rc==SQLITE_OK ) rc = initData.rc;
-    (void)sqlite3SafetyOn(db);
     sqlite3DbFree(db, zSql);
 #ifndef SQLITE_OMIT_ANALYZE
     if( rc==SQLITE_OK ){
@@ -78748,11 +78887,6 @@ static int sqlite3Prepare(
     goto end_prepare;
   }
   pParse->pReprepare = pReprepare;
-
-  if( sqlite3SafetyOn(db) ){
-    rc = android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
-    goto end_prepare;
-  }
   assert( ppStmt && *ppStmt==0 );
   assert( !db->mallocFailed );
   assert( sqlite3_mutex_held(db->mutex) );
@@ -78788,7 +78922,6 @@ static int sqlite3Prepare(
       if( rc ){
         const char *zDb = db->aDb[i].zName;
         sqlite3Error(db, rc, "database schema is locked: %s", zDb);
-        (void)sqlite3SafetyOff(db);
         testcase( db->flags & SQLITE_ReadUncommitted );
         goto end_prepare;
       }
@@ -78805,7 +78938,6 @@ static int sqlite3Prepare(
     testcase( nBytes==mxLen+1 );
     if( nBytes>mxLen ){
       sqlite3Error(db, SQLITE_TOOBIG, "statement too long");
-      (void)sqlite3SafetyOff(db);
       rc = sqlite3ApiExit(db, SQLITE_TOOBIG);
       goto end_prepare;
     }
@@ -78862,10 +78994,6 @@ static int sqlite3Prepare(
   }
 #endif
 
-  if( sqlite3SafetyOff(db) ){
-    rc = android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
-  }
-
   assert( db->init.busy==0 || saveSqlFlag==0 );
   if( db->init.busy==0 ){
     Vdbe *pVdbe = pParse->pVdbe;
@@ -78913,7 +79041,7 @@ static int sqlite3LockAndPrepare(
   assert( ppStmt!=0 );
   *ppStmt = 0;
   if( !sqlite3SafetyCheckOk(db) ){
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    return SQLITE_MISUSE_BKPT;
   }
   sqlite3_mutex_enter(db->mutex);
   sqlite3BtreeEnterAll(db);
@@ -78952,7 +79080,7 @@ SQLITE_PRIVATE int sqlite3Reprepare(Vdbe *p){
       db->mallocFailed = 1;
     }
     assert( pNew==0 );
-    return (rc==SQLITE_LOCKED) ? SQLITE_LOCKED : SQLITE_SCHEMA;
+    return rc;
   }else{
     assert( pNew!=0 );
   }
@@ -79021,7 +79149,7 @@ static int sqlite3Prepare16(
   assert( ppStmt );
   *ppStmt = 0;
   if( !sqlite3SafetyCheckOk(db) ){
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    return SQLITE_MISUSE_BKPT;
   }
   sqlite3_mutex_enter(db->mutex);
   zSql8 = sqlite3Utf16to8(db, zSql, nBytes);
@@ -85344,27 +85472,41 @@ static void updateVirtualTable(
 
 #if !defined(SQLITE_OMIT_VACUUM) && !defined(SQLITE_OMIT_ATTACH)
 /*
+** Finalize a prepared statement.  If there was an error, store the
+** text of the error message in *pzErrMsg.  Return the result code.
+*/
+static int vacuumFinalize(sqlite3 *db, sqlite3_stmt *pStmt, char **pzErrMsg){
+  int rc;
+  rc = sqlite3VdbeFinalize((Vdbe*)pStmt);
+  if( rc ){
+    sqlite3SetString(pzErrMsg, db, sqlite3_errmsg(db));
+  }
+  return rc;
+}
+
+/*
 ** Execute zSql on database db. Return an error code.
 */
-static int execSql(sqlite3 *db, const char *zSql){
+static int execSql(sqlite3 *db, char **pzErrMsg, const char *zSql){
   sqlite3_stmt *pStmt;
   VVA_ONLY( int rc; )
   if( !zSql ){
     return SQLITE_NOMEM;
   }
   if( SQLITE_OK!=sqlite3_prepare(db, zSql, -1, &pStmt, 0) ){
+    sqlite3SetString(pzErrMsg, db, sqlite3_errmsg(db));
     return sqlite3_errcode(db);
   }
   VVA_ONLY( rc = ) sqlite3_step(pStmt);
   assert( rc!=SQLITE_ROW );
-  return sqlite3_finalize(pStmt);
+  return vacuumFinalize(db, pStmt, pzErrMsg);
 }
 
 /*
 ** Execute zSql on database db. The statement returns exactly
 ** one column. Execute this as SQL on the same database.
 */
-static int execExecSql(sqlite3 *db, const char *zSql){
+static int execExecSql(sqlite3 *db, char **pzErrMsg, const char *zSql){
   sqlite3_stmt *pStmt;
   int rc;
 
@@ -85372,14 +85514,14 @@ static int execExecSql(sqlite3 *db, const char *zSql){
   if( rc!=SQLITE_OK ) return rc;
 
   while( SQLITE_ROW==sqlite3_step(pStmt) ){
-    rc = execSql(db, (char*)sqlite3_column_text(pStmt, 0));
+    rc = execSql(db, pzErrMsg, (char*)sqlite3_column_text(pStmt, 0));
     if( rc!=SQLITE_OK ){
-      sqlite3_finalize(pStmt);
+      vacuumFinalize(db, pStmt, pzErrMsg);
       return rc;
     }
   }
 
-  return sqlite3_finalize(pStmt);
+  return vacuumFinalize(db, pStmt, pzErrMsg);
 }
 
 /*
@@ -85450,7 +85592,7 @@ SQLITE_PRIVATE int sqlite3RunVacuum(char **pzErrMsg, sqlite3 *db){
   ** to write the journal header file.
   */
   zSql = "ATTACH '' AS vacuum_db;";
-  rc = execSql(db, zSql);
+  rc = execSql(db, pzErrMsg, zSql);
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
   pDb = &db->aDb[db->nDb-1];
   assert( strcmp(db->aDb[db->nDb-1].zName,"vacuum_db")==0 );
@@ -85482,7 +85624,7 @@ SQLITE_PRIVATE int sqlite3RunVacuum(char **pzErrMsg, sqlite3 *db){
     rc = SQLITE_NOMEM;
     goto end_of_vacuum;
   }
-  rc = execSql(db, "PRAGMA vacuum_db.synchronous=OFF");
+  rc = execSql(db, pzErrMsg, "PRAGMA vacuum_db.synchronous=OFF");
   if( rc!=SQLITE_OK ){
     goto end_of_vacuum;
   }
@@ -85493,23 +85635,23 @@ SQLITE_PRIVATE int sqlite3RunVacuum(char **pzErrMsg, sqlite3 *db){
 #endif
 
   /* Begin a transaction */
-  rc = execSql(db, "BEGIN EXCLUSIVE;");
+  rc = execSql(db, pzErrMsg, "BEGIN EXCLUSIVE;");
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
 
   /* Query the schema of the main database. Create a mirror schema
   ** in the temporary database.
   */
-  rc = execExecSql(db, 
+  rc = execExecSql(db, pzErrMsg,
       "SELECT 'CREATE TABLE vacuum_db.' || substr(sql,14) "
       "  FROM sqlite_master WHERE type='table' AND name!='sqlite_sequence'"
       "   AND rootpage>0"
   );
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
-  rc = execExecSql(db, 
+  rc = execExecSql(db, pzErrMsg,
       "SELECT 'CREATE INDEX vacuum_db.' || substr(sql,14)"
       "  FROM sqlite_master WHERE sql LIKE 'CREATE INDEX %' ");
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
-  rc = execExecSql(db, 
+  rc = execExecSql(db, pzErrMsg,
       "SELECT 'CREATE UNIQUE INDEX vacuum_db.' || substr(sql,21) "
       "  FROM sqlite_master WHERE sql LIKE 'CREATE UNIQUE INDEX %'");
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
@@ -85518,24 +85660,23 @@ SQLITE_PRIVATE int sqlite3RunVacuum(char **pzErrMsg, sqlite3 *db){
   ** an "INSERT INTO vacuum_db.xxx SELECT * FROM main.xxx;" to copy
   ** the contents to the temporary database.
   */
-  rc = execExecSql(db, 
+  rc = execExecSql(db, pzErrMsg,
       "SELECT 'INSERT INTO vacuum_db.' || quote(name) "
       "|| ' SELECT * FROM main.' || quote(name) || ';'"
       "FROM main.sqlite_master "
       "WHERE type = 'table' AND name!='sqlite_sequence' "
       "  AND rootpage>0"
-
   );
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
 
   /* Copy over the sequence table
   */
-  rc = execExecSql(db, 
+  rc = execExecSql(db, pzErrMsg,
       "SELECT 'DELETE FROM vacuum_db.' || quote(name) || ';' "
       "FROM vacuum_db.sqlite_master WHERE name='sqlite_sequence' "
   );
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
-  rc = execExecSql(db, 
+  rc = execExecSql(db, pzErrMsg,
       "SELECT 'INSERT INTO vacuum_db.' || quote(name) "
       "|| ' SELECT * FROM main.' || quote(name) || ';' "
       "FROM vacuum_db.sqlite_master WHERE name=='sqlite_sequence';"
@@ -85548,7 +85689,7 @@ SQLITE_PRIVATE int sqlite3RunVacuum(char **pzErrMsg, sqlite3 *db){
   ** associated storage, so all we have to do is copy their entries
   ** from the SQLITE_MASTER table.
   */
-  rc = execSql(db,
+  rc = execSql(db, pzErrMsg,
       "INSERT INTO vacuum_db.sqlite_master "
       "  SELECT type, name, tbl_name, rootpage, sql"
       "    FROM main.sqlite_master"
@@ -85760,16 +85901,7 @@ SQLITE_PRIVATE void sqlite3VtabUnlock(VTable *pVTab){
   if( pVTab->nRef==0 ){
     sqlite3_vtab *p = pVTab->pVtab;
     if( p ){
-#ifdef SQLITE_DEBUG
-      if( pVTab->db->magic==SQLITE_MAGIC_BUSY ){
-        (void)sqlite3SafetyOff(db);
-        p->pModule->xDisconnect(p);
-        (void)sqlite3SafetyOn(db);
-      } else
-#endif
-      {
-        p->pModule->xDisconnect(p);
-      }
+      p->pModule->xDisconnect(p);
     }
     sqlite3DbFree(db, pVTab);
   }
@@ -86105,9 +86237,7 @@ static int vtabCallConstructor(
   db->pVTab = pTab;
 
   /* Invoke the virtual table constructor */
-  (void)sqlite3SafetyOff(db);
   rc = xConstruct(db, pMod->pAux, nArg, azArg, &pVTable->pVtab, &zErr);
-  (void)sqlite3SafetyOn(db);
   if( rc==SQLITE_NOMEM ) db->mallocFailed = 1;
 
   if( SQLITE_OK!=rc ){
@@ -86295,7 +86425,7 @@ SQLITE_API int sqlite3_declare_vtab(sqlite3 *db, const char *zCreateTable){
   if( !pTab ){
     sqlite3Error(db, SQLITE_MISUSE, 0);
     sqlite3_mutex_leave(db->mutex);
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    return SQLITE_MISUSE_BKPT;
   }
   assert( (pTab->tabFlags & TF_Virtual)!=0 );
 
@@ -86354,10 +86484,8 @@ SQLITE_PRIVATE int sqlite3VtabCallDestroy(sqlite3 *db, int iDb, const char *zTab
   if( ALWAYS(pTab!=0 && pTab->pVTable!=0) ){
     VTable *p = vtabDisconnectAll(db, pTab);
 
-    rc = sqlite3SafetyOff(db);
     assert( rc==SQLITE_OK );
     rc = p->pMod->pModule->xDestroy(p->pVtab);
-    (void)sqlite3SafetyOn(db);
 
     /* Remove the sqlite3_vtab* from the aVTrans[] array, if applicable */
     if( rc==SQLITE_OK ){
@@ -86409,10 +86537,8 @@ static void callFinaliser(sqlite3 *db, int offset){
 SQLITE_PRIVATE int sqlite3VtabSync(sqlite3 *db, char **pzErrmsg){
   int i;
   int rc = SQLITE_OK;
-  int rcsafety;
   VTable **aVTrans = db->aVTrans;
 
-  rc = sqlite3SafetyOff(db);
   db->aVTrans = 0;
   for(i=0; rc==SQLITE_OK && i<db->nVTrans; i++){
     int (*x)(sqlite3_vtab *);
@@ -86425,11 +86551,6 @@ SQLITE_PRIVATE int sqlite3VtabSync(sqlite3 *db, char **pzErrmsg){
     }
   }
   db->aVTrans = aVTrans;
-  rcsafety = sqlite3SafetyOn(db);
-
-  if( rc==SQLITE_OK ){
-    rc = rcsafety;
-  }
   return rc;
 }
 
@@ -88357,12 +88478,10 @@ static int vtabBestIndex(Parse *pParse, Table *pTab, sqlite3_index_info *p){
   int i;
   int rc;
 
-  (void)sqlite3SafetyOff(pParse->db);
   WHERETRACE(("xBestIndex for %s\n", pTab->zName));
   TRACE_IDX_INPUTS(p);
   rc = pVtab->pModule->xBestIndex(pVtab, p);
   TRACE_IDX_OUTPUTS(p);
-  (void)sqlite3SafetyOn(pParse->db);
 
   if( rc!=SQLITE_OK ){
     if( rc==SQLITE_NOMEM ){
@@ -94879,6 +94998,7 @@ abort_parse:
   assert( pzErrMsg!=0 );
   if( pParse->zErrMsg ){
     *pzErrMsg = pParse->zErrMsg;
+    sqlite3_log(pParse->rc, "%s", *pzErrMsg);
     pParse->zErrMsg = 0;
     nErr++;
   }
@@ -95557,7 +95677,7 @@ SQLITE_API int sqlite3_config(int op, ...){
 
   /* sqlite3_config() shall return SQLITE_MISUSE if it is invoked while
   ** the SQLite library is in use. */
-  if( sqlite3GlobalConfig.isInit ) return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869
+  if( sqlite3GlobalConfig.isInit ) return SQLITE_MISUSE_BKPT;
 
   va_start(ap, op);
   switch( op ){
@@ -95676,6 +95796,16 @@ SQLITE_API int sqlite3_config(int op, ...){
     case SQLITE_CONFIG_LOOKASIDE: {
       sqlite3GlobalConfig.szLookaside = va_arg(ap, int);
       sqlite3GlobalConfig.nLookaside = va_arg(ap, int);
+      break;
+    }
+    
+    /* Record a pointer to the logger funcction and its first argument.
+    ** The default is NULL.  Logging is disabled if the function pointer is
+    ** NULL.
+    */
+    case SQLITE_CONFIG_LOG: {
+      sqlite3GlobalConfig.xLog = va_arg(ap, void(*)(void*,int,const char*));
+      sqlite3GlobalConfig.pLogArg = va_arg(ap, void*);
       break;
     }
 
@@ -95891,7 +96021,7 @@ SQLITE_API int sqlite3_close(sqlite3 *db){
     return SQLITE_OK;
   }
   if( !sqlite3SafetyCheckSickOrOk(db) ){
-    return android_STOPSHIP_seppuku(); // Android change STOPSHIP - to debug # 2419869;
+    return SQLITE_MISUSE_BKPT;
   }
   sqlite3_mutex_enter(db->mutex);
 
@@ -95908,7 +96038,7 @@ SQLITE_API int sqlite3_close(sqlite3 *db){
 
   /* If there are any outstanding VMs, return SQLITE_BUSY. */
   if( db->pVdbe ){
-    sqlite3Error(db, SQLITE_BUSY,
+    sqlite3Error(db, SQLITE_BUSY, 
         "unable to close due to unfinalised statements");
     sqlite3_mutex_leave(db->mutex);
     return SQLITE_BUSY;
@@ -96238,7 +96368,7 @@ SQLITE_PRIVATE int sqlite3CreateFunc(
       (!xFunc && (!xFinal && xStep)) ||
       (nArg<-1 || nArg>SQLITE_MAX_FUNCTION_ARG) ||
       (255<(nName = sqlite3Strlen30( zFunctionName))) ){
-    return SQLITE_MISUSE;
+    return SQLITE_MISUSE_BKPT;
   }
   
 #ifndef SQLITE_OMIT_UTF16
@@ -96569,7 +96699,7 @@ SQLITE_API const char *sqlite3_errmsg(sqlite3 *db){
     return sqlite3ErrStr(SQLITE_NOMEM);
   }
   if( !sqlite3SafetyCheckSickOrOk(db) ){
-    return sqlite3ErrStr(SQLITE_MISUSE);
+    return sqlite3ErrStr(SQLITE_MISUSE_BKPT);
   }
   sqlite3_mutex_enter(db->mutex);
   if( db->mallocFailed ){
@@ -96638,7 +96768,7 @@ SQLITE_API const void *sqlite3_errmsg16(sqlite3 *db){
 */
 SQLITE_API int sqlite3_errcode(sqlite3 *db){
   if( db && !sqlite3SafetyCheckSickOrOk(db) ){
-    return SQLITE_MISUSE;
+    return SQLITE_MISUSE_BKPT;
   }
   if( !db || db->mallocFailed ){
     return SQLITE_NOMEM;
@@ -96647,7 +96777,7 @@ SQLITE_API int sqlite3_errcode(sqlite3 *db){
 }
 SQLITE_API int sqlite3_extended_errcode(sqlite3 *db){
   if( db && !sqlite3SafetyCheckSickOrOk(db) ){
-    return SQLITE_MISUSE;
+    return SQLITE_MISUSE_BKPT;
   }
   if( !db || db->mallocFailed ){
     return SQLITE_NOMEM;
@@ -96685,7 +96815,7 @@ static int createCollation(
     enc2 = SQLITE_UTF16NATIVE;
   }
   if( enc2<SQLITE_UTF8 || enc2>SQLITE_UTF16BE ){
-    return SQLITE_MISUSE;
+    return SQLITE_MISUSE_BKPT;
   }
 
   /* Check if this call is removing or replacing an existing collation 
@@ -97229,18 +97359,34 @@ SQLITE_API int sqlite3_get_autocommit(sqlite3 *db){
   return db->autoCommit;
 }
 
-#ifdef SQLITE_DEBUG
 /*
-** The following routine is subtituted for constant SQLITE_CORRUPT in
-** debugging builds.  This provides a way to set a breakpoint for when
-** corruption is first detected.
+** The following routines are subtitutes for constants SQLITE_CORRUPT,
+** SQLITE_MISUSE, SQLITE_CANTOPEN, SQLITE_IOERR and possibly other error
+** constants.  They server two purposes:
+**
+**   1.  Serve as a convenient place to set a breakpoint in a debugger
+**       to detect when version error conditions occurs.
+**
+**   2.  Invoke sqlite3_log() to provide the source code location where
+**       a low-level error is first detected.
 */
-/* Begin Android Delete
-SQLITE_PRIVATE int sqlite3Corrupt(void){
+SQLITE_PRIVATE int sqlite3CorruptError(int lineno){
+  testcase( sqlite3GlobalConfig.xLog!=0 );
+  sqlite3_log(SQLITE_CORRUPT,
+              "database corruption found by source line %d", lineno);
   return SQLITE_CORRUPT;
 }
-*/
-#endif
+SQLITE_PRIVATE int sqlite3MisuseError(int lineno){
+  testcase( sqlite3GlobalConfig.xLog!=0 );
+  sqlite3_log(SQLITE_MISUSE, "misuse detected by source line %d", lineno);
+  return SQLITE_MISUSE;
+}
+SQLITE_PRIVATE int sqlite3CantopenError(int lineno){
+  testcase( sqlite3GlobalConfig.xLog!=0 );
+  sqlite3_log(SQLITE_CANTOPEN, "cannot open file at source line %d", lineno);
+  return SQLITE_CANTOPEN;
+}
+
 
 #ifndef SQLITE_OMIT_DEPRECATED
 /*
@@ -97284,7 +97430,6 @@ SQLITE_API int sqlite3_table_column_metadata(
 
   /* Ensure the database schema has been loaded */
   sqlite3_mutex_enter(db->mutex);
-  (void)sqlite3SafetyOn(db);
   sqlite3BtreeEnterAll(db);
   rc = sqlite3Init(db, &zErrMsg);
   if( SQLITE_OK!=rc ){
@@ -97343,7 +97488,6 @@ SQLITE_API int sqlite3_table_column_metadata(
 
 error_out:
   sqlite3BtreeLeaveAll(db);
-  (void)sqlite3SafetyOff(db);
 
   /* Whether the function call succeeded or failed, set the output parameters
   ** to whatever their local counterparts contain. If an error did occur,
