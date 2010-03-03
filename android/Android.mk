@@ -5,6 +5,7 @@ LOCAL_SRC_FILES:= \
 	PhoneNumberUtils.cpp \
 	PhoneticStringUtils.cpp \
 	OldPhoneNumberUtils.cpp \
+	PhonebookIndex.cpp \
 	sqlite3_android.cpp
 
 LOCAL_C_INCLUDES := \
