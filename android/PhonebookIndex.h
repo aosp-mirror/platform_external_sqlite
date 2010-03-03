@@ -25,11 +25,21 @@ namespace android {
 
 /**
  * A character converter that takes a UNICODE character and produces the
- * phonebook index for it in the specified locale. For example, "a" becomes "A"
+ * phone book index for it in the specified locale. For example, "a" becomes "A"
  * and so does A with accents. Conversion rules differ from locale
  * locale, which is why this function takes locale as an argument.
+ *
+ * @param iter iterator if input characters
+ * @param locale the string representation of the current locale, e.g. "ja"
+ * @param out output buffer
+ * @param size size of the output buffer in bytes. The buffer should be large enough
+ *        to hold the longest phone book index (e.g. a three-char word in Japan).
+ * @param isError will be set to TRUE if an error occurs
+ *
+ * @return number of characters returned
  */
-UChar GetPhonebookIndex(UCharIterator * iter, const char * locale);
+int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out, int32_t size,
+        UBool * isError);
 
 }  // namespace android
 
