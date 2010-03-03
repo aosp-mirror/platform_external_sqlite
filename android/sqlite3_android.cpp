@@ -95,17 +95,25 @@ static void get_phonebook_index(
     UCharIterator iter;
     uiter_setUTF8(&iter, src, -1);
 
-    UChar index = android::GetPhonebookIndex(&iter, locale);
-    if (index == 0) {
+    UBool isError = FALSE;
+    UChar index[SMALL_BUFFER_SIZE];
+    uint32_t len = android::GetPhonebookIndex(&iter, locale, index, sizeof(index), &isError);
+    if (isError) {
       sqlite3_result_null(context);
       return;
     }
 
     uint32_t outlen = 0;
     uint8_t out[SMALL_BUFFER_SIZE];
-    UBool isError = FALSE;
-    U8_APPEND(out, outlen, SMALL_BUFFER_SIZE * sizeof(uint8_t), index, isError);
-    if (isError || outlen == 0) {
+    for (uint32_t i = 0; i < len; i++) {
+      U8_APPEND(out, outlen, sizeof(out), index[i], isError);
+      if (isError) {
+        sqlite3_result_null(context);
+        return;
+      }
+    }
+
+    if (outlen == 0) {
       sqlite3_result_null(context);
       return;
     }
