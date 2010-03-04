@@ -180,10 +180,8 @@ int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out
   if (is_CJK(c)) {
     if (strncmp(locale, "ja", 2) == 0) {
       // Japanese word meaning "misc" or "other"
-      out[0] = 0x305D;
-      out[1] = 0x306E;
-      out[2] = 0x4ED6;
-      return 3;
+      out[0] = 0x4ED6;
+      return 1;
     } else {
       return 0;
     }
