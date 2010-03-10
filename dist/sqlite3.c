@@ -111116,14 +111116,4 @@ SQLITE_API int sqlite3_set_transaction_default_immediate(sqlite3* db, int immedi
     sqlite3_mutex_leave(db->mutex);
     return SQLITE_OK;
 }
-SQLITE_API void sqlite3_get_pager_stats(sqlite3_int64 * totalBytesOut,
-                                        sqlite3_int64 * referencedBytesOut,
-                                        sqlite3_int64 * dbBytesOut,
-                                        int * numPagersOut){
-   // TODO
-   *totalBytesOut = 0;
-   *referencedBytesOut = 0;
-   *dbBytesOut = 0;
-   *numPagersOut = 0;
-}
 // End Android Add
