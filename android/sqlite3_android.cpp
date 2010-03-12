@@ -230,12 +230,13 @@ static void delete_file(sqlite3_context * context, int argc, sqlite3_value ** ar
     }
 
     char const * path = (char const *)sqlite3_value_text(argv[0]);
-    if (path == NULL) {
+    char const * external_storage = getenv("EXTERNAL_STORAGE");
+    if (path == NULL || external_storage == NULL) {
         sqlite3_result_null(context);
         return;
     }
 
-    if (strncmp("/sdcard/", path, 8) != 0) {
+    if (strncmp(external_storage, path, strlen(external_storage)) != 0) {
         sqlite3_result_null(context);
         return;
     }
