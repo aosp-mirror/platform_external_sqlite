@@ -30,7 +30,6 @@
 #include "sqlite3_android.h"
 #include "PhoneNumberUtils.h"
 #include "PhonebookIndex.h"
-#include "PhoneticStringUtils.h"
 
 #define ENABLE_ANDROID_LOG 0
 #define SMALL_BUFFER_SIZE 10
@@ -119,45 +118,6 @@ static void get_phonebook_index(
     }
 
     sqlite3_result_text(context, (const char*)out, outlen, SQLITE_TRANSIENT);
-}
-
-static void get_phonetically_sortable_string(
-    sqlite3_context * context, int argc, sqlite3_value ** argv)
-{
-    if (argc != 1) {
-      sqlite3_result_null(context);
-      return;
-    }
-    char const * src = (char const *)sqlite3_value_text(argv[0]);
-    char * ret;
-    size_t len;
-
-    if (!android::GetPhoneticallySortableString(src, &ret, &len)) {
-        // Put this text at the end of a list.
-        sqlite3_result_text(context, "\xF0\x9F\xBF\xBD", -1, SQLITE_STATIC);
-        // sqlite3_result_null(context);
-    } else {
-        sqlite3_result_text(context, ret, len, free);
-    }
-}
-
-static void get_normalized_string(
-    sqlite3_context * context, int argc, sqlite3_value ** argv)
-{
-    if (argc != 1) {
-      sqlite3_result_null(context);
-      return;
-    }
-    char const * src = (char const *)sqlite3_value_text(argv[0]);
-    char * ret;
-    size_t len;
-
-    if (!android::GetNormalizedString(src, &ret, &len)) {
-        // Probably broken string. Return 0 length string.
-        sqlite3_result_text(context, "", -1, SQLITE_STATIC);
-    } else {
-        sqlite3_result_text(context, ret, len, free);
-    }
 }
 
 static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_value ** argv)
@@ -567,26 +527,6 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
         return err;
     }
 #endif
-
-    // Register the GET_PHONETICALLY_SORTABLE_STRING function
-    err = sqlite3_create_function(handle,
-                                  "GET_PHONETICALLY_SORTABLE_STRING",
-                                  1, SQLITE_UTF8, NULL,
-                                  get_phonetically_sortable_string,
-                                  NULL, NULL);
-    if (err != SQLITE_OK) {
-        return err;
-    }
-
-    // Register the GET_NORMALIZED_STRING function
-    err = sqlite3_create_function(handle,
-                                  "GET_NORMALIZED_STRING",
-                                  1, SQLITE_UTF8, NULL,
-                                  get_normalized_string,
-                                  NULL, NULL);
-    if (err != SQLITE_OK) {
-        return err;
-    }
 
     // Register the GET_PHONEBOOK_INDEX function
     err = sqlite3_create_function(handle,

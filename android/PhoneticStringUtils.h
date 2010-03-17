@@ -22,20 +22,6 @@
 
 namespace android {
 
-// Returns Unicode codepoint relevant to string "src", and set "next" to the 
-// next index. Returns negative value when input is invalid.
-int GetCodePointFromUtf8(const char *src, size_t len, size_t index, int *next);
-
-// Returns codepoint which is "phonetically sortable", whose definition
-// depends on each Locale. Note that currently this function considers only
-// Japanese. The variable "next_is_consumed" is set to true if "next_codepoint"
-// is "consumed" (e.g. Japanese halfwidth katakana's voiced mark is consumed
-// when previous "codepoint" is appropriate). If the codepoint should not be
-// considered when sorting (e.g. whitespaces), -1 is returned.
-int GetPhoneticallySortableCodePoint(char32_t codepoint,
-                                     char32_t next_codepoint,
-                                     bool *next_is_consumed);
-
 // Returns codepoint which is "normalized", whose definition depends on each
 // Locale. Note that currently this function normalizes only Japanese; the
 // other characters are remained as is.

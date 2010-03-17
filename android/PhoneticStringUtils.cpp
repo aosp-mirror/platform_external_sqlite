@@ -181,77 +181,6 @@ static int GetNormalizedKana(char32_t codepoint,
     return GetNormalizedHiragana(codepoint);
 }
 
-int GetPhoneticallySortableCodePoint(char32_t codepoint,
-                                     char32_t next_codepoint,
-                                     bool *next_is_consumed) {
-    if (next_is_consumed != NULL) {
-        *next_is_consumed = false;
-    }
-
-    if (codepoint <= 0x0020 || codepoint == 0x3000) {
-        // Whitespace should be ignored.
-        // Note: Formally, more "whitespace" exist. This block only
-        // handles part of them
-        return -1;
-    } else if ((0x0021 <= codepoint && codepoint <= 0x007E) ||
-               (0xFF01 <= codepoint && codepoint <= 0xFF5E)) {
-        // Ascii and fullwidth ascii
-
-        if (0x0021 <= codepoint && codepoint <= 0x007E) {
-            // Convert ascii to fullwidth ascii so that they become
-            // behind hiragana.
-            // 65248 = 0xFF01 - 0x0021
-            codepoint += 65248;
-        }
-
-        // Now, there is only fullwidth ascii.
-        if (0xFF10 <= codepoint && codepoint <= 0xFF19) {
-            // Numbers should be after alphabets but before symbols.
-            // 86 = 0xFF66
-            // (the beginning of halfwidth-katakankana space) - 0xFF10
-            return codepoint + 86;
-        } else if (0xFF41 <= codepoint && codepoint <= 0xFF5A) {
-            // Make lower alphabets same as capital alphabets.
-            // 32 = 0xFF41 - 0xFF21
-            return codepoint - 32;
-        } else if (0xFF01 <= codepoint && codepoint <= 0xFF0F) {
-            // Symbols (Ascii except alphabet nor number)
-            // These should be at the end of sorting, just after numebers
-            // (see below)
-            //
-            // We use halfwidth-katakana space for storing those symbols.
-            // 111 = 0xFF70 (0xFF19 + 86 + 1) - 0xFF01
-            return codepoint + 111;
-        } else if (0xFF1A <= codepoint && codepoint <= 0xFF20) {
-            // Symbols (cont.)
-            // 101 = 0xFF7F (0xFF0F + 111 + 1) - 0xFF1A
-            return codepoint + 101;
-        } else if (0xFF3B <= codepoint && codepoint <= 0xFF40) {
-            // Symbols (cont.)
-            // 75 = 0xFF86 (0xFF20 + 101 + 1) - 0xFF3B (= 101 - 26)
-            return codepoint + 75;
-        } else if (0xFF5B <= codepoint && codepoint <= 0xFF5E) {
-            // Symbols (cont.)
-            // 49 = 0xFF8C (0xFF40 + 75 + 1) - 0xFF5B (= 75 - 26)
-            return codepoint + 49;
-        } else {
-            return codepoint;
-        }
-    } else if (codepoint == 0x02DC || codepoint == 0x223C) {
-        // tilde
-        return 0xFF5E;
-    } else if (codepoint <= 0x3040 ||
-               (0x3100 <= codepoint && codepoint < 0xFF00) ||
-               codepoint == CODEPOINT_FOR_NULL_STR) {
-        // Move Kanji and other non-Japanese characters behind symbols.
-        return codepoint + 0x10000;
-    }
-
-    // Below is Kana-related handling.
-
-    return GetNormalizedKana(codepoint, next_codepoint, next_is_consumed);
-}
-
 int GetNormalizedCodePoint(char32_t codepoint,
                            char32_t next_codepoint,
                            bool *next_is_consumed) {
@@ -341,10 +270,6 @@ static bool GetExpectedString(
 
     *dst_len = new_len;
     return true;
-}
-
-bool GetPhoneticallySortableString(const char *src, char **dst, size_t *len) {
-    return GetExpectedString(src, dst, len, GetPhoneticallySortableCodePoint);
 }
 
 bool GetNormalizedString(const char *src, char **dst, size_t *len) {
