@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.22"
 #define SQLITE_VERSION_NUMBER 3006022
-#define SQLITE_SOURCE_ID      "2010-03-03 00:02:58 e5342234357dcfde33fb7589f87d64f6de7d9970"
+#define SQLITE_SOURCE_ID      "2010-03-22 23:55:10 82dd61fccff3e4c77e060e5734cd4b4e2eeb7c32"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5658,6 +5658,12 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** virtual tables, collating functions, and SQL functions.  While there is
 ** nothing to prevent an application from calling sqlite3_log(), doing so
 ** is considered bad form.
+**
+** To avoid deadlocks and other threading problems, the sqlite3_log() routine
+** will not use dynamically allocated memory.  The log message is stored in
+** a fixed-length buffer on the stack.  If the log message is longer than
+** a few hundred characters, it will be truncated to the length of the
+** buffer.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
 

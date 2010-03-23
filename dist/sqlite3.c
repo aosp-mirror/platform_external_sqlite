@@ -633,7 +633,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.22"
 #define SQLITE_VERSION_NUMBER 3006022
-#define SQLITE_SOURCE_ID      "2010-03-03 00:02:58 e5342234357dcfde33fb7589f87d64f6de7d9970"
+#define SQLITE_SOURCE_ID      "2010-03-22 23:55:10 82dd61fccff3e4c77e060e5734cd4b4e2eeb7c32"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -6182,6 +6182,12 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** virtual tables, collating functions, and SQL functions.  While there is
 ** nothing to prevent an application from calling sqlite3_log(), doing so
 ** is considered bad form.
+**
+** To avoid deadlocks and other threading problems, the sqlite3_log() routine
+** will not use dynamically allocated memory.  The log message is stored in
+** a fixed-length buffer on the stack.  If the log message is longer than
+** a few hundred characters, it will be truncated to the length of the
+** buffer.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
 
@@ -17259,24 +17265,38 @@ SQLITE_API char *sqlite3_snprintf(int n, char *zBuf, const char *zFormat, ...){
 }
 
 /*
+** This is the routine that actually formats the sqlite3_log() message.
+** We house it in a separate routine from sqlite3_log() to avoid using
+** stack space on small-stack systems when logging is disabled.
+**
+** sqlite3_log() must render into a static buffer.  It cannot dynamically
+** allocate memory because it might be called while the memory allocator
+** mutex is held.
+*/
+static void renderLogMsg(int iErrCode, const char *zFormat, va_list ap){
+  StrAccum acc;                           /* String accumulator */
+#ifdef SQLITE_SMALL_STACK
+  char zMsg[150];                         /* Complete log message */
+#else
+  char zMsg[400];                         /* Complete log message */
+#endif
+
+  sqlite3StrAccumInit(&acc, zMsg, sizeof(zMsg), 0);
+  acc.useMalloc = 0;
+  sqlite3VXPrintf(&acc, 0, zFormat, ap);
+  sqlite3GlobalConfig.xLog(sqlite3GlobalConfig.pLogArg, iErrCode,
+                           sqlite3StrAccumFinish(&acc));
+}
+
+/*
 ** Format and write a message to the log if logging is enabled.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...){
-  void (*xLog)(void*, int, const char*);  /* The global logger function */
-  void *pLogArg;                          /* First argument to the logger */
   va_list ap;                             /* Vararg list */
-  char *zMsg;                             /* Complete log message */
-  
-  xLog = sqlite3GlobalConfig.xLog;
-  if( xLog && zFormat ){
+  if( sqlite3GlobalConfig.xLog ){
     va_start(ap, zFormat);
-    sqlite3BeginBenignMalloc();
-    zMsg = sqlite3_vmprintf(zFormat, ap);
-    sqlite3EndBenignMalloc();
+    renderLogMsg(iErrCode, zFormat, ap);
     va_end(ap);
-    pLogArg = sqlite3GlobalConfig.pLogArg;
-    xLog(pLogArg, iErrCode, zMsg ? zMsg : zFormat);
-    sqlite3_free(zMsg);
   }
 }
 
@@ -33434,6 +33454,9 @@ end_playback:
     zMaster = pPager->pTmpSpace;
     rc = readMasterJournal(pPager->jfd, zMaster, pPager->pVfs->mxPathname+1);
     testcase( rc!=SQLITE_OK );
+  }
+  if( rc==SQLITE_OK && pPager->noSync==0 && pPager->state>=PAGER_EXCLUSIVE ){
+    rc = sqlite3OsSync(pPager->fd, pPager->sync_flags);
   }
   if( rc==SQLITE_OK ){
     rc = pager_end_transaction(pPager, zMaster[0]!='\0');
