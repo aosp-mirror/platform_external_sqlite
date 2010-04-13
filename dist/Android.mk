@@ -102,9 +102,11 @@ ifneq ($(strip $(have_readline)),)
 LOCAL_CFLAGS += -DHAVE_READLINE=1
 endif
 
+ifeq ($(strip $(USE_MINGW)),)
 LOCAL_LDLIBS += -lpthread
 ifneq ($(HOST_OS),freebsd)
 LOCAL_LDLIBS += -ldl
+endif
 endif
 
 ifneq ($(strip $(have_readline)),)
