@@ -95405,7 +95405,9 @@ SQLITE_API int sqlite3_complete16(const void *zSql){
 extern "C" {
 #endif  /* __cplusplus */
 
-SQLITE_PRIVATE int sqlite3Fts3Init(sqlite3 *db);
+// Begin Android Change
+SQLITE_PRIVATE int sqlite3Fts3Init(sqlite3 *db, const char* registerAs);
+// End Android Change
 
 #if 0
 }  /* extern "C" */
@@ -97148,6 +97150,9 @@ static int openDatabase(
   }
 
 #ifdef SQLITE_ENABLE_FTS1
+// Begin Android change
+#error "Do not enable FTS1 on Android as FTS3_BACKWARDS has been in use"
+// End Android add
   if( !db->mallocFailed ){
     extern int sqlite3Fts1Init(sqlite3*);
     rc = sqlite3Fts1Init(db);
@@ -97155,6 +97160,9 @@ static int openDatabase(
 #endif
 
 #ifdef SQLITE_ENABLE_FTS2
+// Begin Android change
+#error "Do not enable FTS2 on Android as FTS3_BACKWARDS has been in use"
+// End Android add
   if( !db->mallocFailed && rc==SQLITE_OK ){
     extern int sqlite3Fts2Init(sqlite3*);
     rc = sqlite3Fts2Init(db);
@@ -97162,9 +97170,24 @@ static int openDatabase(
 #endif
 
 #ifdef SQLITE_ENABLE_FTS3
-  if( !db->mallocFailed && rc==SQLITE_OK ){
-    rc = sqlite3Fts3Init(db);
-  }
+  // Begin Android change
+  #ifdef SQLITE_ENABLE_FTS3_BACKWARDS
+    /* Also register as fts1 and fts2, for backwards compatability on
+    ** systems known to have never seen a pre-fts3 database.
+    */
+    if( !db->mallocFailed && rc==SQLITE_OK ){
+      rc = sqlite3Fts3Init(db, "fts1");
+    }
+
+    if( !db->mallocFailed && rc==SQLITE_OK ){
+      rc = sqlite3Fts3Init(db, "fts2");
+    }
+  #endif
+
+    if( !db->mallocFailed && rc==SQLITE_OK ){
+      rc = sqlite3Fts3Init(db, "fts3");
+    }
+  // End Android change
 #endif
 
 #ifdef SQLITE_ENABLE_ICU
@@ -101095,7 +101118,10 @@ SQLITE_PRIVATE void sqlite3Fts3IcuTokenizerModule(sqlite3_tokenizer_module const
 ** SQLite. If fts3 is built as a dynamically loadable extension, this
 ** function is called by the sqlite3_extension_init() entry point.
 */
-SQLITE_PRIVATE int sqlite3Fts3Init(sqlite3 *db){
+// Begin Android change
+SQLITE_PRIVATE int sqlite3Fts3Init(sqlite3 *db, const char* registerAs){
+// End Android change
+
   int rc = SQLITE_OK;
   Fts3Hash *pHash = 0;
   const sqlite3_tokenizer_module *pSimple = 0;
@@ -101147,8 +101173,11 @@ SQLITE_PRIVATE int sqlite3Fts3Init(sqlite3 *db){
    && SQLITE_OK==(rc = sqlite3_overload_function(db, "matchinfo", -1))
    && SQLITE_OK==(rc = sqlite3_overload_function(db, "optimize", 1))
   ){
+    // Begin Android change
+    /* Also register as fts1 and fts2 */
     return sqlite3_create_module_v2(
-        db, "fts3", &fts3Module, (void *)pHash, hashDestroy
+        db, registerAs, &fts3Module, (void *)pHash, hashDestroy
+    // End Android change
     );
   }
 
