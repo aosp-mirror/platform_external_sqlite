@@ -40101,12 +40101,6 @@ static int lockBtree(BtShared *pBt){
 page1_init_failed:
   releasePage(pPage1);
   pBt->pPage1 = 0;
-  // Begin Android-add
-  if (rc == SQLITE_NOTADB) {
-    // the file-header is bad. assume that it got corrupted and return "corruption error"
-    rc = SQLITE_CORRUPT_BKPT;
-  }
-  // End Android-add
   return rc;
 }
 
