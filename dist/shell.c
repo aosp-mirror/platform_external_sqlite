@@ -25,6 +25,12 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+// Begin Android Add
+#ifndef NO_ANDROID_FUNCS
+#include <sqlite3_android.h>
+#endif
+// End Android Add
+
 #if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__)
 # include <signal.h>
 # if !defined(__RTP__) && !defined(_WRS_KERNEL)
@@ -2214,6 +2220,20 @@ static void open_db(struct callback_data *p){
 #ifndef SQLITE_OMIT_LOAD_EXTENSION
     sqlite3_enable_load_extension(p->db, 1);
 #endif
+    // Begin Android Add
+    #ifndef NO_ANDROID_FUNCS
+        int err = register_localized_collators(db, "en_US", 0);
+        if (err != SQLITE_OK) {
+          fprintf(stderr, "register_localized_collators() failed\n");
+          exit(1);
+        }
+        err = register_android_functions(db, 0);
+        if (err != SQLITE_OK) {
+          fprintf(stderr, "register_android_functions() failed\n");
+          exit(1);
+        }
+    #endif
+    // End Android Add
   }
 }
 
