@@ -94,7 +94,7 @@ static void beginTimer(void){
 
 /* Return the difference of two time_structs in seconds */
 static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
-  return (pEnd->tv_usec - pStart->tv_usec)*0.000001 + 
+  return (pEnd->tv_usec - pStart->tv_usec)*0.000001 +
          (double)(pEnd->tv_sec - pStart->tv_sec);
 }
 
@@ -149,7 +149,7 @@ static int hasTimer(void){
         if( NULL != getProcessTimesAddr ){
           return 1;
         }
-        FreeLibrary(hinstLib); 
+        FreeLibrary(hinstLib);
       }
     }
   }
@@ -191,7 +191,7 @@ static void endTimer(void){
 #define HAS_TIMER hasTimer()
 
 #else
-#define BEGIN_TIMER 
+#define BEGIN_TIMER
 #define END_TIMER
 #define HAS_TIMER 0
 #endif
@@ -337,7 +337,7 @@ static int schemaCreate(
   if( argc>3 ){
     int i;
     pType = 0;
-    for(i=0; aSchemaTable[i].zName; i++){ 
+    for(i=0; aSchemaTable[i].zName; i++){
       if( 0==strcmp(argv[3], aSchemaTable[i].zName) ){
         pType = &aSchemaTable[i];
       }
@@ -465,7 +465,7 @@ static int schemaNext(sqlite3_vtab_cursor *cur){
         goto next_exit;
       }
 
-      /* Set zSql to the SQL to pull the list of tables from the 
+      /* Set zSql to the SQL to pull the list of tables from the
       ** sqlite_master (or sqlite_temp_master) table of the database
       ** identfied by the row pointed to by the SQL statement pCur->pDbList
       ** (iterating through a "PRAGMA database_list;" statement).
@@ -520,7 +520,7 @@ next_exit:
 ** Reset a schema table cursor.
 */
 static int schemaFilter(
-  sqlite3_vtab_cursor *pVtabCursor, 
+  sqlite3_vtab_cursor *pVtabCursor,
   int idxNum, const char *idxStr,
   int argc, sqlite3_value **argv
 ){
@@ -586,8 +586,8 @@ static int installSchemaModule(sqlite3 *db, sqlite3 *sdb){
 /*
 **   sj(zValue, zJoin)
 **
-** The following block contains the implementation of an aggregate 
-** function that returns a string. Each time the function is stepped, 
+** The following block contains the implementation of an aggregate
+** function that returns a string. Each time the function is stepped,
 ** it appends data to an internal buffer. When the aggregate is finalized,
 ** the contents of the buffer are returned.
 **
@@ -628,7 +628,7 @@ static void joinStep(
     p->zBuf = sqlite3_mprintf("%s", sqlite3_value_text(argv[0]));
   }else{
     char *zTmp = p->zBuf;
-    p->zBuf = sqlite3_mprintf("%s%s%s", 
+    p->zBuf = sqlite3_mprintf("%s%s%s",
         zTmp, sqlite3_value_text(argv[1]), sqlite3_value_text(argv[0])
     );
     sqlite3_free(zTmp);
@@ -640,14 +640,14 @@ static void joinStep(
 **
 ** This scalar function accepts a single argument and interprets it as
 ** a text value. The return value is the argument enclosed in double
-** quotes. If any double quote characters are present in the argument, 
+** quotes. If any double quote characters are present in the argument,
 ** these are escaped.
 **
 **   dq('the raven "Nevermore."') == '"the raven ""Nevermore."""'
 */
 static void doublequote(
-  sqlite3_context *context, 
-  int argc, 
+  sqlite3_context *context,
+  int argc,
   sqlite3_value **argv
 ){
   int ii;
@@ -677,8 +677,8 @@ static void doublequote(
 **   multireplace(zString, zSearch1, zReplace1, ...)
 */
 static void multireplace(
-  sqlite3_context *context, 
-  int argc, 
+  sqlite3_context *context,
+  int argc,
   sqlite3_value **argv
 ){
   int i = 0;
@@ -771,8 +771,8 @@ static int detectSchemaProblem(
 */
 static int populateTempTable(sqlite3 *db, GenfkeyCb *pCallback){
   int rc;
-  
-  rc = sqlite3_exec(db, 
+
+  rc = sqlite3_exec(db,
       "CREATE VIRTUAL TABLE temp.v_fkey USING schema(foreign_key_list);"
       "CREATE VIRTUAL TABLE temp.v_col USING schema(table_info);"
       "CREATE VIRTUAL TABLE temp.v_idxlist USING schema(index_list);"
@@ -815,7 +815,7 @@ static int populateTempTable(sqlite3 *db, GenfkeyCb *pCallback){
   );
   if( rc!=SQLITE_OK ) return rc;
 
-  /* Detect attempts to implicitly map to the primary key of a table 
+  /* Detect attempts to implicitly map to the primary key of a table
   ** that has no primary key column.
   */
   rc = detectSchemaProblem(db, "implicit mapping to non-existant primary key",
@@ -828,7 +828,7 @@ static int populateTempTable(sqlite3 *db, GenfkeyCb *pCallback){
   if( rc!=SQLITE_OK ) return rc;
 
   /* Fix all the implicit primary key mappings in the temp.fkey table. */
-  rc = sqlite3_exec(db, 
+  rc = sqlite3_exec(db,
     "UPDATE temp.fkey SET to_col = "
       "(SELECT name FROM temp.v_col WHERE pk AND tablename=temp.fkey.to_tbl)"
     " WHERE to_col IS NULL;"
@@ -836,10 +836,10 @@ static int populateTempTable(sqlite3 *db, GenfkeyCb *pCallback){
   );
   if( rc!=SQLITE_OK ) return rc;
 
-  /* Now check that all all parent keys are either primary keys or 
+  /* Now check that all all parent keys are either primary keys or
   ** subject to a unique constraint.
   */
-  rc = sqlite3_exec(db, 
+  rc = sqlite3_exec(db,
     "CREATE TABLE temp.idx2 AS SELECT "
       "il.tablename AS tablename,"
       "ii.indexname AS indexname,"
@@ -851,12 +851,12 @@ static int populateTempTable(sqlite3 *db, GenfkeyCb *pCallback){
 
     "CREATE TABLE temp.idx AS SELECT "
       "tablename, indexname, sj(dq(col),',') AS cols "
-      "FROM (SELECT * FROM temp.idx2 ORDER BY col) " 
+      "FROM (SELECT * FROM temp.idx2 ORDER BY col) "
       "GROUP BY tablename, indexname;"
 
     "CREATE TABLE temp.fkey2 AS SELECT "
         "fkid, from_tbl, to_tbl, sj(dq(to_col),',') AS cols "
-        "FROM (SELECT * FROM temp.fkey ORDER BY to_col) " 
+        "FROM (SELECT * FROM temp.fkey ORDER BY to_col) "
         "GROUP BY fkid, from_tbl;"
 
     "CREATE TABLE temp.triggers AS SELECT "
@@ -902,12 +902,12 @@ static int genfkey_create_triggers(
       ** the referenced table.
       */
       "CREATE TRIGGER /name/_insert_referencing BEFORE INSERT ON /tbl/ WHEN \n"
-      "    /key_notnull/ AND NOT EXISTS (SELECT 1 FROM /ref/ WHERE /cond1/)\n" 
+      "    /key_notnull/ AND NOT EXISTS (SELECT 1 FROM /ref/ WHERE /cond1/)\n"
       "BEGIN\n"
         "  SELECT RAISE(ABORT, ''constraint failed'');\n"
       "END;\n"
 
-      /* The "BEFORE UPDATE ON <referencing>" trigger. This trigger's job 
+      /* The "BEFORE UPDATE ON <referencing>" trigger. This trigger's job
       ** is to throw an exception if the user tries to update a row in the
       ** referencing table causing it to correspond to no row in the
       ** referenced table.
@@ -915,14 +915,14 @@ static int genfkey_create_triggers(
       "CREATE TRIGGER /name/_update_referencing BEFORE\n"
       "    UPDATE OF /rkey_list/ ON /tbl/ WHEN \n"
       "    /key_notnull/ AND \n"
-      "    NOT EXISTS (SELECT 1 FROM /ref/ WHERE /cond1/)\n" 
+      "    NOT EXISTS (SELECT 1 FROM /ref/ WHERE /cond1/)\n"
       "BEGIN\n"
         "  SELECT RAISE(ABORT, ''constraint failed'');\n"
       "END;\n"
 
 
-      /* The "BEFORE DELETE ON <referenced>" trigger. This trigger's job 
-      ** is to detect when a row is deleted from the referenced table to 
+      /* The "BEFORE DELETE ON <referenced>" trigger. This trigger's job
+      ** is to detect when a row is deleted from the referenced table to
       ** which rows in the referencing table correspond. The action taken
       ** depends on the value of the 'ON DELETE' clause.
       */
@@ -932,10 +932,10 @@ static int genfkey_create_triggers(
       "  /delete_action/\n"
       "END;\n"
 
-      /* The "AFTER UPDATE ON <referenced>" trigger. This trigger's job 
-      ** is to detect when the key columns of a row in the referenced table 
+      /* The "AFTER UPDATE ON <referenced>" trigger. This trigger's job
+      ** is to detect when the key columns of a row in the referenced table
       ** to which one or more rows in the referencing table correspond are
-      ** updated. The action taken depends on the value of the 'ON UPDATE' 
+      ** updated. The action taken depends on the value of the 'ON UPDATE'
       ** clause.
       */
       "CREATE TRIGGER /name/_update_referenced AFTER\n"
@@ -1041,7 +1041,7 @@ static int genfkey_create_triggers(
   ** previous run of this program.
   */
   cb.eType = GENFKEY_DROPTRIGGER;
-  rc = sqlite3_exec(db, 
+  rc = sqlite3_exec(db,
     "SELECT 'DROP TRIGGER main.' || dq(triggername) || ';' FROM triggers"
     ,invokeCallback, (void *)&cb, 0
   );
@@ -1155,8 +1155,8 @@ static int isNumber(const char *z, int *realnum){
 }
 
 /*
-** A global char* and an SQL function to access its current value 
-** from within an SQL statement. This program used to use the 
+** A global char* and an SQL function to access its current value
+** from within an SQL statement. This program used to use the
 ** sqlite_exec_printf() API to substitue a string into an SQL statement.
 ** The correct way to do this with sqlite3 is to use the bind API, but
 ** since the shell is built around the callback paradigm it would be a lot
@@ -1412,11 +1412,11 @@ static void output_c_string(FILE *out, const char *z){
 static void output_html_string(FILE *out, const char *z){
   int i;
   while( *z ){
-    for(i=0;   z[i] 
-            && z[i]!='<' 
-            && z[i]!='&' 
-            && z[i]!='>' 
-            && z[i]!='\"' 
+    for(i=0;   z[i]
+            && z[i]!='<'
+            && z[i]!='&'
+            && z[i]!='>'
+            && z[i]!='\"'
             && z[i]!='\'';
         i++){}
     if( i>0 ){
@@ -1444,22 +1444,22 @@ static void output_html_string(FILE *out, const char *z){
 ** array, then the string must be quoted for CSV.
 */
 static const char needCsvQuote[] = {
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 0, 1, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 1, 
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
-  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,   
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 0, 1, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
 };
 
 /*
@@ -1476,8 +1476,8 @@ static void output_csv(struct callback_data *p, const char *z, int bSep){
     int i;
     int nSep = strlen30(p->separator);
     for(i=0; z[i]; i++){
-      if( needCsvQuote[((unsigned char*)z)[i]] 
-         || (z[i]==p->separator[0] && 
+      if( needCsvQuote[((unsigned char*)z)[i]]
+         || (z[i]==p->separator[0] &&
              (nSep==1 || memcmp(z, p->separator, nSep)==0)) ){
         i = 0;
         break;
@@ -1582,7 +1582,7 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
         }else{
            w = 10;
         }
-        if( p->mode==MODE_Explain && azArg[i] && 
+        if( p->mode==MODE_Explain && azArg[i] &&
            strlen30(azArg[i])>w ){
           w = strlen30(azArg[i]);
         }
@@ -1747,7 +1747,7 @@ static void set_table_name(struct callback_data *p, const char *zName){
 ** added to zIn, and the result returned in memory obtained from malloc().
 ** zIn, if it was not NULL, is freed.
 **
-** If the third argument, quote, is not '\0', then it is used as a 
+** If the third argument, quote, is not '\0', then it is used as a
 ** quote character for zAppend.
 */
 static char *appendText(char *zIn, char const *zAppend, char quote){
@@ -1834,12 +1834,12 @@ static char *save_err_msg(
 }
 
 /*
-** Execute a statement or set of statements.  Print 
-** any result rows/columns depending on the current mode 
+** Execute a statement or set of statements.  Print
+** any result rows/columns depending on the current mode
 ** set via the supplied callback.
 **
-** This is very similar to SQLite's built-in sqlite3_exec() 
-** function except it takes a slightly different callback 
+** This is very similar to SQLite's built-in sqlite3_exec()
+** function except it takes a slightly different callback
 ** and callback data argument.
 */
 static int shell_exec(
@@ -1890,7 +1890,7 @@ static int shell_exec(
             char **azVals = &azCols[nCol];       /* Results */
             int *aiTypes = (int *)&azVals[nCol]; /* Result types */
             int i;
-            assert(sizeof(int) <= sizeof(char *)); 
+            assert(sizeof(int) <= sizeof(char *));
             /* save off ptrs to column names */
             for(i=0; i<nCol; i++){
               azCols[i] = (char *)sqlite3_column_name(pStmt, i);
@@ -1912,7 +1912,7 @@ static int shell_exec(
               } /* end for */
 
               /* if data and types extracted successfully... */
-              if( SQLITE_ROW == rc ){ 
+              if( SQLITE_ROW == rc ){
                 /* call the supplied callback with the result row data */
                 if( xCallback(pArg, nCol, azVals, azCols, aiTypes) ){
                   rc = SQLITE_ABORT;
@@ -1933,7 +1933,7 @@ static int shell_exec(
         }
       }
 
-      /* Finalize the statement just executed. If this fails, save a 
+      /* Finalize the statement just executed. If this fails, save a
       ** copy of the error message. Otherwise, set zSql to point to the
       ** next statement to execute. */
       rc = sqlite3_finalize(pStmt);
@@ -1969,7 +1969,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
   zTable = azArg[0];
   zType = azArg[1];
   zSql = azArg[2];
-  
+
   if( strcmp(zTable, "sqlite_sequence")==0 ){
     zPrepStmt = "DELETE FROM sqlite_sequence;\n";
   }else if( strcmp(zTable, "sqlite_stat1")==0 ){
@@ -1999,7 +1999,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
     char *zTableInfo = 0;
     char *zTmp = 0;
     int nRow = 0;
-   
+
     zTableInfo = appendText(zTableInfo, "PRAGMA table_info(", 0);
     zTableInfo = appendText(zTableInfo, zTable, '"');
     zTableInfo = appendText(zTableInfo, ");", 0);
@@ -2055,7 +2055,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
 ** "ORDER BY rowid DESC" to the end.
 */
 static int run_schema_dump_query(
-  struct callback_data *p, 
+  struct callback_data *p,
   const char *zQuery,
   char **pzErrMsg
 ){
@@ -2112,7 +2112,7 @@ static int genfkeyCmdCb(void *pCtx, int eType, const char *z){
   if( eType==GENFKEY_ERROR && !p->isIgnoreErrors ){
     p->nErr++;
     fprintf(stderr, "%s\n", z);
-  } 
+  }
 
   if( p->nErr==0 && (
         (eType==GENFKEY_CREATETRIGGER)
@@ -2213,7 +2213,7 @@ static void open_db(struct callback_data *p){
           shellstaticFunc, 0, 0);
     }
     if( db==0 || SQLITE_OK!=sqlite3_errcode(db) ){
-      fprintf(stderr,"Error: unable to open database \"%s\": %s\n", 
+      fprintf(stderr,"Error: unable to open database \"%s\": %s\n",
           p->zDbFilename, sqlite3_errmsg(db));
       exit(1);
     }
@@ -2401,11 +2401,11 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     p->writableSchema = 0;
     sqlite3_exec(p->db, "PRAGMA writable_schema=ON", 0, 0, 0);
     if( nArg==1 ){
-      run_schema_dump_query(p, 
+      run_schema_dump_query(p,
         "SELECT name, type, sql FROM sqlite_master "
         "WHERE sql NOT NULL AND type=='table' AND name!='sqlite_sequence'", 0
       );
-      run_schema_dump_query(p, 
+      run_schema_dump_query(p,
         "SELECT name, type, sql FROM sqlite_master "
         "WHERE name=='sqlite_sequence'", 0
       );
@@ -2520,7 +2520,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     char *zSql;                 /* An SQL statement */
     char *zLine;                /* A single line of input from the file */
     char **azCol;               /* zLine[] broken up into columns */
-    char *zCommit;              /* How to commit changes */   
+    char *zCommit;              /* How to commit changes */
     FILE *in;                   /* The input file */
     int lineno = 0;             /* Line number of input file */
 
@@ -3025,11 +3025,11 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     open_db(p);
     sqlite3_busy_timeout(p->db, atoi(azArg[1]));
   }else
-    
+
   if( HAS_TIMER && c=='t' && n>=5 && strncmp(azArg[0], "timer", n)==0 && nArg==2 ){
     enableTimer = booleanValue(azArg[1]);
   }else
-  
+
   if( c=='w' && strncmp(azArg[0], "width", n)==0 && nArg>1 ){
     int j;
     assert( nArg<=ArraySize(azArg) );
@@ -3193,7 +3193,7 @@ static int process_input(struct callback_data *p, FILE *in){
       if( rc || zErrMsg ){
         char zPrefix[100];
         if( in!=0 || !stdin_is_interactive ){
-          sqlite3_snprintf(sizeof(zPrefix), zPrefix, 
+          sqlite3_snprintf(sizeof(zPrefix), zPrefix,
                            "Error: near line %d:", startline);
         }else{
           sqlite3_snprintf(sizeof(zPrefix), zPrefix, "Error:");
@@ -3332,7 +3332,7 @@ static int process_sqliterc(
 /*
 ** Show available command line options
 */
-static const char zOptions[] = 
+static const char zOptions[] =
   "   -help                show this message\n"
   "   -init filename       read/process named file\n"
   "   -echo                print commands before execution\n"
@@ -3351,7 +3351,7 @@ static const char zOptions[] =
 ;
 static void usage(int showDetail){
   fprintf(stderr,
-      "Usage: %s [OPTIONS] FILENAME [SQL]\n"  
+      "Usage: %s [OPTIONS] FILENAME [SQL]\n"
       "FILENAME is the name of an SQLite database. A new database is created\n"
       "if the file does not previously exist.\n", Argv0);
   if( showDetail ){
@@ -3409,7 +3409,7 @@ int main(int argc, char **argv){
       i++;
       zInitFile = argv[i];
     /* Need to check for batch mode here to so we can avoid printing
-    ** informational messages (like from process_sqliterc) before 
+    ** informational messages (like from process_sqliterc) before
     ** we do the actual processing of arguments later in a second pass.
     */
     }else if( strcmp(argv[i],"-batch")==0 ){
