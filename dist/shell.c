@@ -24,7 +24,6 @@
 #include "sqlite3.h"
 #include <ctype.h>
 #include <stdarg.h>
-
 // Begin Android Add
 #ifndef NO_ANDROID_FUNCS
 #include <sqlite3_android.h>
