@@ -15,6 +15,8 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_MODULE:= libsqlite3_android
 
+LOCAL_DISABLED_CFLAGS := -ffast-math -FFAST-MATH
+
 include $(BUILD_STATIC_LIBRARY)
 
 # Test for PhoneticStringUtils
