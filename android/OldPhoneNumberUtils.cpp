@@ -173,7 +173,7 @@ static int minPositive(int a, int b)
  * is no such character in a.
  */
 static int indexOf(const char *a, char b) {
-    char *ix = strchr(a, b);
+    const char *ix = strchr(a, b);
 
     if (ix == NULL)
         return -1;
