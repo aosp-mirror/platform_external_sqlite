@@ -143,8 +143,15 @@ int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out
 
   UChar c = out[0];
 
-  // We are only interested in letters
   if (!u_isalpha(c)) {
+    // Digits go into a # section. Everything else goes into the empty section
+    // The unicode function u_isdigit would also identify other characters as digits (arabic),
+    // but if we caught them here we'd risk having the same section before and after alpha-letters
+    // which might break the assumption that each section exists only once
+    if (c >= '0' && c <= '9') {
+      out[0] = '#';
+      return 1;
+    }
     return 0;
   }
 
