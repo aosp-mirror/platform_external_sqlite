@@ -405,6 +405,9 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_FORMAT      24   /* Auxiliary database format error */
 #define SQLITE_RANGE       25   /* 2nd parameter to sqlite3_bind out of range */
 #define SQLITE_NOTADB      26   /* File opened that is not a database file */
+// Begin Android Add
+#define SQLITE_UNCLOSED    27   /* db can't be closed due unfinalized stmts */
+// End Android Add
 #define SQLITE_ROW         100  /* sqlite3_step() has another row ready */
 #define SQLITE_DONE        101  /* sqlite3_step() has finished executing */
 /* end-of-error-codes */

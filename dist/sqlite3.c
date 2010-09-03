@@ -945,6 +945,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_FORMAT      24   /* Auxiliary database format error */
 #define SQLITE_RANGE       25   /* 2nd parameter to sqlite3_bind out of range */
 #define SQLITE_NOTADB      26   /* File opened that is not a database file */
+#define SQLITE_UNCLOSED    27   /* db can't be closed due unfinalized stmts */
 #define SQLITE_ROW         100  /* sqlite3_step() has another row ready */
 #define SQLITE_DONE        101  /* sqlite3_step() has finished executing */
 /* end-of-error-codes */
@@ -102731,18 +102732,13 @@ SQLITE_API int sqlite3_close(sqlite3 *db){
     // Begin Android Change
     // print the first unfinalized statement in the error message, to help the developer
     // figure out what the unfinalized statement is.
-    char *msgPrefix = "unable to close due to unfinalised statements: ";
-    int len = strlen(msgPrefix) + strlen(db->pVdbe->zSql) + 1;
-    char *buff =(char*)sqlite3_malloc(len);
-    strncat(buff, msgPrefix, strlen(msgPrefix));
-    strncat(buff, db->pVdbe->zSql, strlen(db->pVdbe->zSql));
-    buff[len-1] = NULL; // null terminate the string, just in case. paranoid, eh? :)
-    sqlite3Error(db, SQLITE_BUSY, buff);
-    sqlite3_free(buff);
+    char buff[120];
+    snprintf(buff, sizeof(buff), "%d,%s", (int)db->pVdbe, db->pVdbe->zSql);
+    sqlite3Error(db, SQLITE_UNCLOSED, buff);
     // End Android Change
 
     sqlite3_mutex_leave(db->mutex);
-    return SQLITE_BUSY;
+    return SQLITE_UNCLOSED;
   }
   assert( sqlite3SafetyCheckSickOrOk(db) );
 
