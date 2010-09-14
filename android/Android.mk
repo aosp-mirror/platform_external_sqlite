@@ -1,21 +1,30 @@
 LOCAL_PATH:= $(call my-dir)
-include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES:= \
+libsqlite3_android_local_src_files := \
 	PhoneNumberUtils.cpp \
 	PhoneticStringUtils.cpp \
 	OldPhoneNumberUtils.cpp \
 	PhonebookIndex.cpp \
 	sqlite3_android.cpp
 
-LOCAL_C_INCLUDES := \
+libsqlite3_android_c_includes := \
         external/sqlite/dist \
         external/icu4c/i18n \
         external/icu4c/common
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
+LOCAL_C_INCLUDES := $(libsqlite3_android_c_includes)
 LOCAL_MODULE:= libsqlite3_android
-
 include $(BUILD_STATIC_LIBRARY)
+
+ifeq ($(WITH_HOST_DALVIK),true)
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
+    LOCAL_C_INCLUDES := $(libsqlite3_android_c_includes)
+    LOCAL_MODULE:= libsqlite3_android
+    include $(BUILD_HOST_STATIC_LIBRARY)
+endif
 
 # Test for PhoneticStringUtils
 include $(CLEAR_VARS)
