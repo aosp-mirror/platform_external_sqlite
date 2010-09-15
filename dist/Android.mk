@@ -6,6 +6,10 @@
 
 LOCAL_PATH:= $(call my-dir)
 
+# NOTE the following flags,
+#   SQLITE_TEMP_STORE=3 causes all TEMP files to go into RAM. and thats the behavior we want
+#   SQLITE_ENABLE_FTS3   enables usage of FTS3 - NOT FTS1 or 2.
+#   SQLITE_DEFAULT_AUTOVACUUM=1  causes the databases to be subject to auto-vacuum
 common_sqlite_flags := -DHAVE_USLEEP=1 -DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576 -DSQLITE_THREADSAFE=1 -DNDEBUG=1 -DSQLITE_ENABLE_MEMORY_MANAGEMENT=1 -DSQLITE_DEFAULT_AUTOVACUUM=1 -DSQLITE_TEMP_STORE=3 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_BACKWARDS -DSQLITE_DEFAULT_FILE_FORMAT=4
 
 common_src_files := sqlite3.c
@@ -19,10 +23,6 @@ ifneq ($(TARGET_ARCH),arm)
 LOCAL_LDLIBS += -lpthread -ldl
 endif
 
-# NOTE the following flags,
-#   SQLITE_TEMP_STORE=3 causes all TEMP files to go into RAM. and thats the behavior we want
-#   SQLITE_ENABLE_FTS3   enables usage of FTS3 - NOT FTS1 or 2.
-#   SQLITE_DEFAULT_AUTOVACUUM=1  causes the databases to be subject to auto-vacuum
 LOCAL_CFLAGS += $(common_sqlite_flags)
 
 ifneq ($(TARGET_SIMULATOR),true)
@@ -46,6 +46,21 @@ LOCAL_WHOLE_STATIC_LIBRARIES := libsqlite3_android
 
 
 include $(BUILD_SHARED_LIBRARY)
+
+
+ifeq ($(WITH_HOST_DALVIK),true)
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := $(common_src_files)
+    LOCAL_LDLIBS += -lpthread -ldl
+    LOCAL_CFLAGS += $(common_sqlite_flags)
+    LOCAL_MODULE:= libsqlite
+    LOCAL_SHARED_LIBRARIES += libicuuc libicui18n
+    LOCAL_STATIC_LIBRARIES := liblog libutils libcutils
+
+    # include android specific methods
+    LOCAL_WHOLE_STATIC_LIBRARIES := libsqlite3_android
+    include $(BUILD_HOST_SHARED_LIBRARY)
+endif
 
 ##
 ##
