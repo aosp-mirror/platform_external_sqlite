@@ -34,7 +34,8 @@ LOCAL_C_INCLUDES += $(call include-path-for, system-core)/cutils
 LOCAL_SHARED_LIBRARIES += liblog \
             libicuuc \
             libicui18n \
-            libutils
+            libutils \
+            libcutils
 
 # include android specific methods
 LOCAL_WHOLE_STATIC_LIBRARIES := libsqlite3_android
