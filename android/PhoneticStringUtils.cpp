@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include "PhoneticStringUtils.h"
-#include <utils/String8.h>
+#include <utils/Unicode.h>
 
 // We'd like 0 length string last of sorted list. So when input string is NULL
 // or 0 length string, we use these instead.
@@ -223,21 +223,22 @@ static bool GetExpectedString(
 
     char32_t codepoints[MAX_CODEPOINTS]; // if array size is changed the for loop needs to be changed
 
-    size_t src_len = utf8_length(src);
-    if (src_len == 0) {
+    ssize_t src_len = utf8_length(src);
+    if (src_len <= 0) {
         return false;
     }
+
     bool next_is_consumed;
     size_t j = 0;
-    for (size_t i = 0; i < src_len && j < MAX_CODEPOINTS;) {
-        int32_t ret = utf32_at(src, src_len, i, &i);
+    for (size_t i = 0; i < (size_t)src_len && j < MAX_CODEPOINTS;) {
+        int32_t ret = utf32_from_utf8_at(src, src_len, i, &i);
         if (ret < 0) {
             // failed to parse UTF-8
             return false;
         }
         ret = get_codepoint_function(
                 static_cast<char32_t>(ret),
-                i + 1 < src_len ? src[i + 1] : 0,
+                i + 1 < (size_t)src_len ? src[i + 1] : 0,
                 &next_is_consumed);
         if (ret > 0) {
             codepoints[j] = static_cast<char32_t>(ret);
@@ -256,17 +257,17 @@ static bool GetExpectedString(
         length = 1;
     }
 
-    size_t new_len = utf8_length_from_utf32(codepoints, length);
+    ssize_t new_len = utf32_to_utf8_length(codepoints, length);
+    if (new_len < 0) {
+        return false;
+    }
+
     *dst = static_cast<char *>(malloc(new_len + 1));
     if (*dst == NULL) {
         return false;
     }
 
-    if (utf32_to_utf8(codepoints, length, *dst, new_len + 1) != new_len) {
-        free(*dst);
-        *dst = NULL;
-        return false;
-    }
+    utf32_to_utf8(codepoints, length, *dst);
 
     *dst_len = new_len;
     return true;

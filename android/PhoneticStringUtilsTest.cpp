@@ -89,7 +89,7 @@ void TestExecutor::DoOneTest(void (TestExecutor::*test)()) {
 #define TEST_GET_UTF32AT(src, index, expected_next, expected_value)     \
   ({                                                                    \
     size_t next;                                                        \
-    int32_t ret = utf32_at(src, strlen(src), index, &next);   \
+    int32_t ret = utf32_from_utf8_at(src, strlen(src), index, &next);   \
     if (ret < 0) {                                                      \
       printf("getUtf32At() returned negative value (src: %s, index: %d)\n", \
              (src), (index));                                           \
