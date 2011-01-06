@@ -34,6 +34,7 @@
 
 #define ENABLE_ANDROID_LOG 0
 #define SMALL_BUFFER_SIZE 10
+#define PHONE_NUMBER_BUFFER_SIZE 40
 
 static int collate16(void *p, int n1, const void *v1, int n2, const void *v2)
 {
@@ -152,6 +153,27 @@ static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_val
         sqlite3_result_int(context, 0);
     }
 }
+
+static void phone_number_stripped_reversed(sqlite3_context * context, int argc,
+      sqlite3_value ** argv)
+{
+    if (argc != 1) {
+        sqlite3_result_int(context, 0);
+        return;
+    }
+
+    char const * number = (char const *)sqlite3_value_text(argv[0]);
+    if (number == NULL) {
+        sqlite3_result_null(context);
+        return;
+    }
+
+    char out[PHONE_NUMBER_BUFFER_SIZE];
+    int outlen = 0;
+    android::phone_number_stripped_reversed_inter(number, out, PHONE_NUMBER_BUFFER_SIZE, &outlen);
+    sqlite3_result_text(context, (const char*)out, outlen, SQLITE_TRANSIENT);
+}
+
 
 #if ENABLE_ANDROID_LOG
 static void android_log(sqlite3_context * context, int argc, sqlite3_value ** argv)
@@ -577,6 +599,18 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
         "GET_PHONEBOOK_INDEX",
         2, SQLITE_UTF8, NULL,
         get_phonebook_index,
+        NULL, NULL);
+    if (err != SQLITE_OK) {
+        return err;
+    }
+
+    // Register the _PHONE_NUMBER_STRIPPED_REVERSED function, which imitates
+    // PhoneNumberUtils.getStrippedReversed.  This function is not public API,
+    // it is only used for compatibility with Android 1.6 and earlier.
+    err = sqlite3_create_function(handle,
+        "_PHONE_NUMBER_STRIPPED_REVERSED",
+        1, SQLITE_UTF8, NULL,
+        phone_number_stripped_reversed,
         NULL, NULL);
     if (err != SQLITE_OK) {
         return err;

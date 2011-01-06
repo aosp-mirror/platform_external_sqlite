@@ -433,4 +433,40 @@ bool phone_number_compare_strict(const char* a, const char* b)
     return phone_number_compare_inter(a, b, true);
 }
 
+/**
+ * Imitates the Java method PhoneNumberUtils.getStrippedReversed.
+ * Used for API compatibility with Android 1.6 and earlier.
+ */
+bool phone_number_stripped_reversed_inter(const char* in, char* out, const int len, int *outlen) {
+    int in_len = strlen(in);
+    int out_len = 0;
+    bool have_seen_plus = false;
+    for (int i = in_len; --i >= 0;) {
+        char c = in[i];
+        if ((c >= '0' && c <= '9') || c == '*' || c == '#' || c == 'N') {
+            if (out_len < len) {
+                out[out_len++] = c;
+            }
+        } else {
+            switch (c) {
+              case '+':
+                  if (!have_seen_plus) {
+                      if (out_len < len) {
+                          out[out_len++] = c;
+                      }
+                      have_seen_plus = true;
+                  }
+                  break;
+              case ',':
+              case ';':
+                  out_len = 0;
+                  break;
+          }
+        }
+    }
+
+    *outlen = out_len;
+    return true;
+}
+
 }  // namespace android

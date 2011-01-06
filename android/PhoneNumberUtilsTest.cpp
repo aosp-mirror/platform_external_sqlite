@@ -29,6 +29,8 @@
 
 using namespace android;
 
+#define PHONE_NUMBER_BUFFER_SIZE 6
+
 #define EXPECT(function, input1, input2, expected, total, error)        \
     ({                                                                  \
         const char *i1_cache = input1;                                  \
@@ -47,13 +49,29 @@ using namespace android;
     })
 
 #define EXPECT_EQ(input1, input2)                                       \
-    EXPECT(phone_number_compare_strict, (input1), (input2), true,              \
+    EXPECT(phone_number_compare_strict, (input1), (input2), true,       \
            (total), (error))
 
 
 #define EXPECT_NE(input1, input2)                                       \
-    EXPECT(phone_number_compare_strict, (input1), (input2), false,             \
+    EXPECT(phone_number_compare_strict, (input1), (input2), false,      \
            (total), (error))
+
+#define ASSERT_STRIPPED_REVERSE(input, expected)                        \
+    ({                                                                  \
+        char out[PHONE_NUMBER_BUFFER_SIZE];                             \
+        int outlen;                                                     \
+        (total)++;                                                      \
+        phone_number_stripped_reversed_inter((input),                   \
+            out,                                                        \
+            PHONE_NUMBER_BUFFER_SIZE,                                   \
+            &outlen);                                                   \
+        out[outlen] = 0;                                                \
+        if (strcmp((expected), (out)) != 0) {                           \
+            printf("Expected: %s actual: %s\n", (expected), (out));     \
+            (error)++;                                                  \
+        }                                                               \
+     })
 
 int main() {
     int total = 0;
@@ -151,6 +169,22 @@ int main() {
     // Currently we cannot get this test through (Japanese trunk prefix is 0,
     // but there is no sensible way to know it now (as of 2009-6-12)...
     // EXPECT_NE("290-1234-5678", "+819012345678");
+
+    ASSERT_STRIPPED_REVERSE("", "");
+    ASSERT_STRIPPED_REVERSE("123", "321");
+    ASSERT_STRIPPED_REVERSE("123*N#", "#N*321");
+
+    // Buffer overflow
+    ASSERT_STRIPPED_REVERSE("1234567890", "098765");
+
+    // Only one plus is copied
+    ASSERT_STRIPPED_REVERSE("1+2+", "+21");
+
+    // Pause/wait in the phone number
+    ASSERT_STRIPPED_REVERSE("12;34", "21");
+
+    // Ignoring non-dialable
+    ASSERT_STRIPPED_REVERSE("1A2 3?4", "4321");
 
     printf("total: %d, error: %d\n\n", total, error);
     if (error == 0) {
