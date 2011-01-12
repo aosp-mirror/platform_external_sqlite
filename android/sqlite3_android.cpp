@@ -26,7 +26,6 @@
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 #include <cutils/log.h>
-#include <cutils/properties.h>
 
 #include "sqlite3_android.h"
 #include "PhoneNumberUtils.h"
@@ -213,17 +212,13 @@ static void delete_file(sqlite3_context * context, int argc, sqlite3_value ** ar
     }
 
     char const * path = (char const *)sqlite3_value_text(argv[0]);
-    char media_storage[PROPERTY_VALUE_MAX];
     char const * external_storage = getenv("EXTERNAL_STORAGE");
-    if (path == NULL) {
+    if (path == NULL || external_storage == NULL) {
         sqlite3_result_null(context);
         return;
     }
 
-    property_get("ro.media.storage", media_storage, "");
-    // path must match either ro.media.storage or EXTERNAL_STORAGE directory
-    if ( !(media_storage[0] && strncmp(media_storage, path, strlen(media_storage)) == 0) &&
-         !(external_storage && strncmp(external_storage, path, strlen(external_storage)) == 0)) {
+    if (strncmp(external_storage, path, strlen(external_storage)) != 0) {
         sqlite3_result_null(context);
         return;
     }
