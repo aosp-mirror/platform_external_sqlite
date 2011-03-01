@@ -112,25 +112,11 @@ LOCAL_CFLAGS += $(common_sqlite_flags) -DNO_ANDROID_FUNCS=1
 # sqlite3MemsysAlarm uses LOG()
 LOCAL_STATIC_LIBRARIES += liblog
 
-
-have_readline := $(wildcard /usr/include/readline/readline.h)
-have_history := $(wildcard /usr/lib/libhistory*)
-ifneq ($(strip $(have_readline)),)
-LOCAL_CFLAGS += -DHAVE_READLINE=1
-endif
-
 ifeq ($(strip $(USE_MINGW)),)
 LOCAL_LDLIBS += -lpthread
 ifneq ($(HOST_OS),freebsd)
 LOCAL_LDLIBS += -ldl
 endif
-endif
-
-ifneq ($(strip $(have_readline)),)
-LOCAL_LDLIBS += -lreadline -lncurses
-endif
-ifneq ($(strip $(have_history)),)
-LOCAL_LDLIBS += -lhistory
 endif
 
 LOCAL_MODULE := sqlite3
