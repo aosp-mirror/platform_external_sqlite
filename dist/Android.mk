@@ -113,8 +113,14 @@ LOCAL_CFLAGS += $(common_sqlite_flags) -DNO_ANDROID_FUNCS=1
 LOCAL_STATIC_LIBRARIES += liblog
 
 
+ifeq ($(TARGET_PRODUCT),sdk)
+have_readline :=
+have_history :=
+else
 have_readline := $(wildcard /usr/include/readline/readline.h)
 have_history := $(wildcard /usr/lib/libhistory*)
+endif
+
 ifneq ($(strip $(have_readline)),)
 LOCAL_CFLAGS += -DHAVE_READLINE=1
 endif
