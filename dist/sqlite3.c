@@ -26457,7 +26457,6 @@ end_takeconch:
                      pCtx->lockProxyPath;
         }
       }
->>>>>>> BEGIN MERGE CONFLICT
       
       /* if the conch isn't writable and doesn't match, we can't take it */
       if( (conchFile->openFlags&O_RDWR) == 0 ){
@@ -26594,13 +26593,6 @@ end_takeconch:
       OSTRACE3("TAKECONCH  %d %s\n", conchFile->h, rc==SQLITE_OK?"ok":"failed");
       return rc;
     } while (1); /* in case we need to retry the :auto: lock file - we should never get here except via the 'continue' call. */
-============================
-    } else {
-      conchFile->pMethod->xUnlock((sqlite3_file*)conchFile, NO_LOCK);
-    }
-    OSTRACE3("TAKECONCH  %d %s\n", conchFile->h, rc==SQLITE_OK?"ok":"failed");
-    return rc;
-<<<<<<< END MERGE CONFLICT
   }
 }
 
