@@ -1,0 +1,6 @@
+Change-Id: Ibe0e8aea4a8441676921135784c4e37b19172df3
+Code-Review+2: Jeff Hamilton <jham@google.com>
+Verified+1: Jeff Hamilton <jham@google.com>
+Reviewed-on: https://review.source.android.com/2896
+Project: platform/external/sqlite
+Branch: refs/heads/master

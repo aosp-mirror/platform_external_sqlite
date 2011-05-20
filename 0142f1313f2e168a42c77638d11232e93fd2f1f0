@@ -1,0 +1,8 @@
+Change-Id: I0142f1313f2e168a42c77638d11232e93fd2f1f0
+Code-Review+2: Jean-Baptiste Queru <jbq@google.com>
+Verified+1: Jean-Baptiste Queru <jbq@google.com>
+Submitted-by: Jean-Baptiste Queru <jbq@google.com>
+Submitted-at: Wed, 18 Mar 2009 13:52:38 -0700
+Reviewed-on: https://review.source.android.com/9168
+Project: platform/external/sqlite
+Branch: refs/heads/master
