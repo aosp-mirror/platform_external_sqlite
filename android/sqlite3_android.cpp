@@ -212,17 +212,33 @@ static void delete_file(sqlite3_context * context, int argc, sqlite3_value ** ar
     }
 
     char const * path = (char const *)sqlite3_value_text(argv[0]);
-    char const * external_storage = getenv("EXTERNAL_STORAGE");
-    if (path == NULL || external_storage == NULL) {
+    // Don't allow ".." in paths
+    if (path == NULL || strstr(path, "/../") != NULL) {
         sqlite3_result_null(context);
         return;
     }
 
-    if (strncmp(external_storage, path, strlen(external_storage)) != 0) {
-        sqlite3_result_null(context);
-        return;
+    // We only allow deleting files in the EXTERNAL_STORAGE path, or one of the
+    // SECONDARY_STORAGE paths
+    bool good_path = false;
+    char const * external_storage = getenv("EXTERNAL_STORAGE");
+    if (external_storage && strncmp(external_storage, path, strlen(external_storage)) == 0) {
+        good_path = true;
+    } else {
+        // check SECONDARY_STORAGE, which should be a colon separated list of paths
+        char const * secondary_paths = getenv("SECONDARY_STORAGE");
+        while (secondary_paths && secondary_paths[0]) {
+            const char* colon = strchr(secondary_paths, ':');
+            int length = (colon ? colon - secondary_paths : strlen(secondary_paths));
+            if (strncmp(secondary_paths, path, length) == 0) {
+                good_path = true;
+            }
+            secondary_paths += length;
+            while (*secondary_paths == ':') secondary_paths++;
+        }
     }
-    if (strstr(path, "/../") != NULL) {
+
+    if (!good_path) {
         sqlite3_result_null(context);
         return;
     }
