@@ -25,9 +25,7 @@ endif
 
 LOCAL_CFLAGS += $(common_sqlite_flags)
 
-ifneq ($(TARGET_SIMULATOR),true)
 LOCAL_SHARED_LIBRARIES := libdl
-endif
 
 LOCAL_MODULE:= libsqlite
 LOCAL_C_INCLUDES += $(call include-path-for, system-core)/cutils
