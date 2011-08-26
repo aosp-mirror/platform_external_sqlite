@@ -23,7 +23,7 @@ ifneq ($(TARGET_ARCH),arm)
 LOCAL_LDLIBS += -lpthread -ldl
 endif
 
-LOCAL_CFLAGS += $(common_sqlite_flags)
+LOCAL_CFLAGS += $(common_sqlite_flags) -DUSE_PREAD64
 
 LOCAL_SHARED_LIBRARIES := libdl
 
@@ -82,7 +82,7 @@ ifneq ($(TARGET_ARCH),arm)
 LOCAL_LDLIBS += -lpthread -ldl
 endif
 
-LOCAL_CFLAGS += $(common_sqlite_flags)
+LOCAL_CFLAGS += $(common_sqlite_flags) -DUSE_PREAD64
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
 
