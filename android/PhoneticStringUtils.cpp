@@ -153,12 +153,45 @@ static int GetNormalizedHiragana(int codepoint) {
         case 0x3045:
         case 0x3047:
         case 0x3049:
+        case 0x3063:
+        case 0x3083:
+        case 0x3085:
+        case 0x3087:
         case 0x308E: // xwa
             return codepoint + 1;
         case 0x3095: // xka
             return 0x304B;
-        case 0x3096: // xku
+        case 0x3096: // xke
+            return 0x3051;
+        case 0x31F0: // xku
             return 0x304F;
+        case 0x31F1: // xsi
+            return 0x3057;
+        case 0x31F2: // xsu
+            return 0x3059;
+        case 0x31F3: // xto
+            return 0x3068;
+        case 0x31F4: // xnu
+            return 0x306C;
+        case 0x31F5: // xha
+            return 0x306F;
+        case 0x31F6: // xhi
+            return 0x3072;
+        case 0x31F7: // xhu
+            return 0x3075;
+        case 0x31F8: // xhe
+            return 0x3078;
+        case 0x31F9: // xho
+            return 0x307B;
+        case 0x31FA: // xmu
+            return 0x3080;
+        case 0x31FB: // xra
+        case 0x31FC: // xri
+        case 0x31FD: // xru
+        case 0x31FE: // xre
+        case 0x31FF: // xro
+            // ra: 0x3089
+            return 0x3089 + (codepoint - 0x31FB);
         default:
             return codepoint;
     }
@@ -172,6 +205,12 @@ static int GetNormalizedKana(char32_t codepoint,
         // Make fullwidth katakana same as hiragana.
         // 96 == 0x30A1 - 0x3041c
         codepoint = codepoint - 96;
+    } else if (codepoint == 0x309F) {
+        // Digraph YORI; Yo
+        codepoint = 0x3088;
+    } else if (codepoint == 0x30FF) {
+        // Digraph KOTO; Ko
+        codepoint = 0x3053;
     } else {
         codepoint = GetHiraganaFromHalfwidthKatakana(
                 codepoint, next_codepoint, next_is_consumed);
