@@ -305,7 +305,7 @@ struct SqliteUserData {
  */
 static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
-    //LOGD("enter tokenize");
+    //ALOGD("enter tokenize");
     int err;
     int useTokenIndex = 0;
     int useDataTag = 0;
