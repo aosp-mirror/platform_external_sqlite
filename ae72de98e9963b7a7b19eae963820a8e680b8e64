@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAADUn///+0\u003d",
+        "filename": "android/PhoneticStringUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1003302
+      },
+      "writtenOn": "2012-02-28T22:11:58Z",
+      "side": 1,
+      "message": "I\u0027m not familiar with this exact conversion, but 0x31F1 looks katakana\u0027s xsi, while 0x3057 looks hiragana\u0027s si. Why not using 0x30B7 (katakana\u0027s si)?\n\n\nSame below.",
+      "revId": "ae72de98e9963b7a7b19eae963820a8e680b8e64",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
