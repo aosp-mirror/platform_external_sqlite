@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAADUn///98\u003d",
+        "filename": "android/PhonebookIndex.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000660
+      },
+      "writtenOn": "2012-02-28T22:57:56Z",
+      "side": 1,
+      "message": "Please use spaces instead of tabs, so that the indentation works reliably on everyone\u0027s machines.",
+      "revId": "877ad9e45dcf42e7a0165854d6218002a88c3aeb",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
