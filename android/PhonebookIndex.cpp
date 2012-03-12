@@ -29,6 +29,17 @@
 
 namespace android {
 
+#define CP_JAPANESE_A  0x3042
+#define CP_JAPANESE_KA 0x304B
+#define CP_JAPANESE_SA 0x3055
+#define CP_JAPANESE_TA 0x305F
+#define CP_JAPANESE_NA 0x306A
+#define CP_JAPANESE_HA 0x306F
+#define CP_JAPANESE_MA 0x307E
+#define CP_JAPANESE_YA 0x3084
+#define CP_JAPANESE_RA 0x3089
+#define CP_JAPANESE_WA 0x308F
+
 // IMPORTANT!  Keep the codes below SORTED. We are doing a binary search on the array
 static UChar DEFAULT_CHAR_MAP[] = {
     0x00C6,    'A',       // AE
@@ -118,6 +129,15 @@ static bool is_CJK(UChar c) {
     || (0xf900 <= c && c <= 0xfaff);    // CJK_COMPATIBILITY_IDEOGRAPHS
 }
 
+/**
+ * Returns TRUE if the character is collated as a letter.
+ */
+static bool is_letterlike_symbol(UChar c) {
+  return
+       (0x3208 <= c && c <= 0x32FE)     // Katakana, Circled
+    || (0x3300 <= c && c <= 0x3357);    // Squared Japanese Katakana Words
+}
+
 int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out, int32_t size,
         UBool * isError)
 {
@@ -151,8 +171,40 @@ int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out
     if (c >= '0' && c <= '9') {
       out[0] = '#';
       return 1;
+    } else if (is_letterlike_symbol(c)) {
+      if (0x3208 <= c && c <= 0x32FE) {
+        // Katakana, Circled
+        if (c < 0x32D5)      c = CP_JAPANESE_A;
+        else if (c < 0x32DA) c = CP_JAPANESE_KA;
+        else if (c < 0x32DF) c = CP_JAPANESE_SA;
+        else if (c < 0x32E4) c = CP_JAPANESE_TA;
+        else if (c < 0x32E9) c = CP_JAPANESE_NA;
+        else if (c < 0x32EE) c = CP_JAPANESE_HA;
+        else if (c < 0x32F3) c = CP_JAPANESE_MA;
+        else if (c < 0x32F6) c = CP_JAPANESE_YA;
+        else if (c < 0x32FB) c = CP_JAPANESE_RA;
+        else                 c = CP_JAPANESE_WA;
+        out[0] = c;
+        return 1;
+      } else if (0x3300 <= c && c <= 0x3357) {
+        // Squared Japanese Katakana Words
+        if (c < 0x330B)      c = CP_JAPANESE_A;
+        else if (c < 0x331F) c = CP_JAPANESE_KA;
+        else if (c < 0x3324) c = CP_JAPANESE_SA;
+        else if (c < 0x3328) c = CP_JAPANESE_TA;
+        else if (c < 0x332A) c = CP_JAPANESE_NA;
+        else if (c < 0x3343) c = CP_JAPANESE_HA;
+        else if (c < 0x334E) c = CP_JAPANESE_MA;
+        else if (c < 0x3351) c = CP_JAPANESE_YA;
+        else if (c < 0x3357) c = CP_JAPANESE_RA;
+        else                 c = CP_JAPANESE_WA;
+        out[0] = c;
+        return 1;
+      }
+      // Expect unprocessed chars are caught at DEFAULT_CHAR_MAP...
+    } else {
+      return 0;
     }
-    return 0;
   }
 
   c = u_toupper(c);
@@ -170,17 +222,17 @@ int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out
 
   // Traditional grouping of Hiragana characters
   if (0x3041 <= c && c <= 0x309F) {
-    if (c < 0x304B) c = 0x3042;         // a
-    else if (c < 0x3055) c = 0x304B;    // ka
-    else if (c < 0x305F) c = 0x3055;    // sa
-    else if (c < 0x306A) c = 0x305F;    // ta
-    else if (c < 0x306F) c = 0x306A;    // na
-    else if (c < 0x307E) c = 0x306F;    // ha
-    else if (c < 0x3083) c = 0x307E;    // ma
-    else if (c < 0x3089) c = 0x3084;    // ya
-    else if (c < 0x308E) c = 0x3089;    // ra
-    else if (c < 0x3094) c = 0x308F;    // wa
-    else return 0;                      // Others are not readable
+    if (c < 0x304B)      c = CP_JAPANESE_A;
+    else if (c < 0x3055) c = CP_JAPANESE_KA;
+    else if (c < 0x305F) c = CP_JAPANESE_SA;
+    else if (c < 0x306A) c = CP_JAPANESE_TA;
+    else if (c < 0x306F) c = CP_JAPANESE_NA;
+    else if (c < 0x307E) c = CP_JAPANESE_HA;
+    else if (c < 0x3083) c = CP_JAPANESE_MA;
+    else if (c < 0x3089) c = CP_JAPANESE_YA;
+    else if (c < 0x308E) c = CP_JAPANESE_RA;
+    else if (c < 0x3094) c = CP_JAPANESE_WA;
+    else return 0;       // Others are not readable
     out[0] = c;
     return 1;
   } else if (0x30A0 <= c && c <= 0x30FF) {
