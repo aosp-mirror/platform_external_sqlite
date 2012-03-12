@@ -173,33 +173,33 @@ int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out
       return 1;
     } else if (is_letterlike_symbol(c)) {
       if (0x3208 <= c && c <= 0x32FE) {
-	// Katakana, Circled
-	if (c < 0x32D5)      c = CP_JAPANESE_A;
-	else if (c < 0x32DA) c = CP_JAPANESE_KA;
-	else if (c < 0x32DF) c = CP_JAPANESE_SA;
-	else if (c < 0x32E4) c = CP_JAPANESE_TA;
-	else if (c < 0x32E9) c = CP_JAPANESE_NA;
-	else if (c < 0x32EE) c = CP_JAPANESE_HA;
-	else if (c < 0x32F3) c = CP_JAPANESE_MA;
-	else if (c < 0x32F6) c = CP_JAPANESE_YA;
-	else if (c < 0x32FB) c = CP_JAPANESE_RA;
-	else                 c = CP_JAPANESE_WA;
-	out[0] = c;
-	return 1;
+        // Katakana, Circled
+        if (c < 0x32D5)      c = CP_JAPANESE_A;
+        else if (c < 0x32DA) c = CP_JAPANESE_KA;
+        else if (c < 0x32DF) c = CP_JAPANESE_SA;
+        else if (c < 0x32E4) c = CP_JAPANESE_TA;
+        else if (c < 0x32E9) c = CP_JAPANESE_NA;
+        else if (c < 0x32EE) c = CP_JAPANESE_HA;
+        else if (c < 0x32F3) c = CP_JAPANESE_MA;
+        else if (c < 0x32F6) c = CP_JAPANESE_YA;
+        else if (c < 0x32FB) c = CP_JAPANESE_RA;
+        else                 c = CP_JAPANESE_WA;
+        out[0] = c;
+        return 1;
       } else if (0x3300 <= c && c <= 0x3357) {
-	// Squared Japanese Katakana Words
-	if (c < 0x330B)      c = CP_JAPANESE_A;
-	else if (c < 0x331F) c = CP_JAPANESE_KA;
-	else if (c < 0x3324) c = CP_JAPANESE_SA;
-	else if (c < 0x3328) c = CP_JAPANESE_TA;
-	else if (c < 0x332A) c = CP_JAPANESE_NA;
-	else if (c < 0x3343) c = CP_JAPANESE_HA;
-	else if (c < 0x334E) c = CP_JAPANESE_MA;
-	else if (c < 0x3351) c = CP_JAPANESE_YA;
-	else if (c < 0x3357) c = CP_JAPANESE_RA;
-	else                 c = CP_JAPANESE_WA;
-	out[0] = c;
-	return 1;
+        // Squared Japanese Katakana Words
+        if (c < 0x330B)      c = CP_JAPANESE_A;
+        else if (c < 0x331F) c = CP_JAPANESE_KA;
+        else if (c < 0x3324) c = CP_JAPANESE_SA;
+        else if (c < 0x3328) c = CP_JAPANESE_TA;
+        else if (c < 0x332A) c = CP_JAPANESE_NA;
+        else if (c < 0x3343) c = CP_JAPANESE_HA;
+        else if (c < 0x334E) c = CP_JAPANESE_MA;
+        else if (c < 0x3351) c = CP_JAPANESE_YA;
+        else if (c < 0x3357) c = CP_JAPANESE_RA;
+        else                 c = CP_JAPANESE_WA;
+        out[0] = c;
+        return 1;
       }
       // Expect unprocessed chars are caught at DEFAULT_CHAR_MAP...
     } else {
