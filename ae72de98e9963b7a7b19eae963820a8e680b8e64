@@ -1,0 +1,9 @@
+Change-Id: Iae72de98e9963b7a7b19eae963820a8e680b8e64
+Verified+1: Jean-Baptiste Queru <jbq@google.com>
+Code-Review+2: Daisuké Miyakawa <dmiyakawa@google.com>
+Code-Review+2: Jeff Brown <jeffbrown@android.com>
+Submitted-by: Jean-Baptiste Queru <jbq@google.com>
+Submitted-at: Tue, 01 May 2012 06:43:40 -0700
+Reviewed-on: https://android-review.googlesource.com/31390
+Project: platform/external/sqlite
+Branch: refs/heads/master
