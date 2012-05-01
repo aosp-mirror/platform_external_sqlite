@@ -169,19 +169,23 @@ int32_t GetPhonebookIndex(UCharIterator * iter, const char * locale, UChar * out
   c = android::GetNormalizedCodePoint(c, next, NULL);
 
   // Traditional grouping of Hiragana characters
-  if (0x3042 <= c && c <= 0x309F) {
+  if (0x3041 <= c && c <= 0x309F) {
     if (c < 0x304B) c = 0x3042;         // a
     else if (c < 0x3055) c = 0x304B;    // ka
     else if (c < 0x305F) c = 0x3055;    // sa
     else if (c < 0x306A) c = 0x305F;    // ta
     else if (c < 0x306F) c = 0x306A;    // na
     else if (c < 0x307E) c = 0x306F;    // ha
-    else if (c < 0x3084) c = 0x307E;    // ma
+    else if (c < 0x3083) c = 0x307E;    // ma
     else if (c < 0x3089) c = 0x3084;    // ya
-    else if (c < 0x308F) c = 0x3089;    // ra
-    else c = 0x308F;                    // wa
+    else if (c < 0x308E) c = 0x3089;    // ra
+    else if (c < 0x3094) c = 0x308F;    // wa
+    else return 0;                      // Others are not readable
     out[0] = c;
     return 1;
+  } else if (0x30A0 <= c && c <= 0x30FF) {
+    // Dot, onbiki, iteration marks are not readable
+    return 0;
   }
 
   if (is_CJK(c)) {
