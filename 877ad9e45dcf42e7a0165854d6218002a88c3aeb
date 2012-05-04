@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "AAAFTX///+s\u003d",
+        "filename": "android/PhonebookIndex.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1003302
+      },
+      "writtenOn": "2012-05-04T22:22:51Z",
+      "side": 1,
+      "message": "I\u0027m not good enough at handling circled katakana characters, so let me ask some basic questions here.\n\nhttp://www.unicode.org/charts/PDF/U3200.pdf\n\nAccording to my understanding, this 0x3208 is just pointing to some of Hangul characters while the comments say they are all Katakana, which seems confusing to me.\n\nI kind of think 0x32D0 should be the correct start.",
+      "revId": "877ad9e45dcf42e7a0165854d6218002a88c3aeb",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAFTX///+o\u003d",
+        "filename": "android/PhonebookIndex.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1003302
+      },
+      "writtenOn": "2012-05-04T22:22:51Z",
+      "side": 1,
+      "message": "This seems correct, while I\u0027m not quite sure if we really want to support them as real Japanese characters.\n\nhttp://www.unicode.org/charts/PDF/U3300.pdf",
+      "revId": "877ad9e45dcf42e7a0165854d6218002a88c3aeb",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAADUn///98\u003d",
         "filename": "android/PhonebookIndex.cpp",
         "patchSetId": 1
