@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAFw3///7Y\u003d",
+        "filename": "android/PhonebookIndex.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1000660
+      },
+      "writtenOn": "2012-05-24T18:12:36Z",
+      "side": 1,
+      "message": "Note to reviewers: this isn\u0027t the standard Android style, but it matches the surrounding code.",
+      "revId": "3fbe64a44a4c0aba35314ad2a10a76879ed8ea54",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
