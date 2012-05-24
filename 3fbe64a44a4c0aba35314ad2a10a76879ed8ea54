@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "AAAFyn///40\u003d",
+        "filename": "android/PhonebookIndex.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1003302
+      },
+      "writtenOn": "2012-05-24T21:59:35Z",
+      "side": 1,
+      "message": "The function name is misleading now. This is all about Japanese collation.\n\nMy suggestion would be either\n1. use 0x3208 as before while check 0x32D0 after the function (L175), or\n2. rename this to something more appropriate\n\nComments for this function should also reflect the content.",
+      "revId": "3fbe64a44a4c0aba35314ad2a10a76879ed8ea54",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAFw3///7Y\u003d",
         "filename": "android/PhonebookIndex.cpp",
         "patchSetId": 2
@@ -13,6 +30,23 @@
       "writtenOn": "2012-05-24T18:12:36Z",
       "side": 1,
       "message": "Note to reviewers: this isn\u0027t the standard Android style, but it matches the surrounding code.",
+      "revId": "3fbe64a44a4c0aba35314ad2a10a76879ed8ea54",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAFyn///44\u003d",
+        "filename": "android/PhonebookIndex.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1003302
+      },
+      "writtenOn": "2012-05-24T21:59:35Z",
+      "side": 1,
+      "message": "0x3208 is still not right, though it is checked by is_letterlike_symbol() now.\n\nMy suggestion here would be to have constant for 0x32D0 and use it for this range check. CP_CIRCLED_KATAKANA_A might be ok for it.",
       "revId": "3fbe64a44a4c0aba35314ad2a10a76879ed8ea54",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
