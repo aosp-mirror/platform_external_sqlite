@@ -1,0 +1,17 @@
+###################################################
+#
+# Makefile for libsqlite3.a
+#
+###################################################
+
+C_SRCS=sqlite3.c
+C_OPTIONS=-DOS_UNIX=1 -DHAVE_USLEEP=1 -DNO_TCL -DTHREADSAFE=1 -DSQLITE_THREAD_OVERRIDE_LOCK=-1 -DSQLITE_OMIT_CURSOR -DSQLITE_CORE -DSQLITE_OMIT_AUTHORIZATION -DSQLITE_OMIT_COMPLETE -DSQLITE_OMIT_GET_TABLE -DSQLITE_OMIT_LOAD_EXTENSION -DTEMP_STORE=3 -DNO_TPN_TRACE -DSQLITE_DEFAULT_FILE_PERMISSIONS=0600
+
+CPP_SRCS=
+CPP_OPTIONS=
+
+INCLUDE= .
+
+LIBRARY=libsqlite3.a
+
+include ../../source/common.mak
