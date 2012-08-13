@@ -14,4 +14,4 @@ INCLUDE= .
 
 LIBRARY=libsqlite3.a
 
-include ../../source/common.mak
+include ../../jumper/source/common.mak
