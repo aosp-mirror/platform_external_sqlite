@@ -2,7 +2,6 @@ LOCAL_PATH:= $(call my-dir)
 
 libsqlite3_android_local_src_files := \
 	PhoneNumberUtils.cpp \
-	PhoneticStringUtils.cpp \
 	OldPhoneNumberUtils.cpp \
 	PhonebookIndex.cpp \
 	sqlite3_android.cpp
@@ -10,7 +9,8 @@ libsqlite3_android_local_src_files := \
 libsqlite3_android_c_includes := \
         external/sqlite/dist \
         external/icu4c/i18n \
-        external/icu4c/common
+        external/icu4c/common \
+        frameworks/native/include
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
@@ -25,24 +25,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE:= libsqlite3_android
     include $(BUILD_HOST_STATIC_LIBRARY)
 endif
-
-# Test for PhoneticStringUtils
-include $(CLEAR_VARS)
-
-LOCAL_MODULE:= libsqlite3_phonetic_string_utils_test
-
-LOCAL_CFLAGS += -Wall -Werror
-
-LOCAL_SRC_FILES := \
-	PhoneticStringUtils.cpp \
-	PhoneticStringUtilsTest.cpp
-
-LOCAL_MODULE_TAGS := optional
-
-LOCAL_SHARED_LIBRARIES := \
-	libutils
-
-include $(BUILD_EXECUTABLE)
 
 # Test for PhoneNumberUtils
 #
@@ -71,3 +53,28 @@ LOCAL_SRC_FILES := \
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_EXECUTABLE)
+
+ifeq ($(WITH_HOST_DALVIK),true)
+  include $(CLEAR_VARS)
+
+  LOCAL_MODULE:= libsqlite3_phone_book_index_test
+
+  LOCAL_SRC_FILES := \
+	PhonebookIndex.cpp \
+	PhonebookIndexTest.cpp
+
+  LOCAL_C_INCLUDES := \
+        external/icu4c/i18n \
+        external/icu4c/common \
+        frameworks/native/include
+
+  LOCAL_MODULE_TAGS := optional
+
+  LOCAL_SHARED_LIBRARIES := \
+	libicui18n libicuuc
+
+  LOCAL_STATIC_LIBRARIES := \
+	libutils libcutils
+
+  include $(BUILD_HOST_EXECUTABLE)
+endif

@@ -509,14 +509,8 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
 
 
     //// PHONEBOOK_COLLATOR
-    // The collator may be removed in the near future. Do not depend on it.
-    // TODO: it might be better to have another function for registering phonebook collator.
     status = U_ZERO_ERROR;
-    if (strcmp(systemLocale, "ja") == 0 || strcmp(systemLocale, "ja_JP") == 0) {
-        collator = ucol_open("ja@collation=phonebook", &status);
-    } else {
-        collator = ucol_open(systemLocale, &status);
-    }
+    collator = ucol_open(systemLocale, &status);
     if (U_FAILURE(status)) {
         return -1;
     }
