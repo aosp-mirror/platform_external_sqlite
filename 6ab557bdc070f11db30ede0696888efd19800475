@@ -1,0 +1,9 @@
+Code-Review+2: Jeffrey Brown <jeffbrown@android.com>
+Verified+1: Deckard Autoverifier <deckard@android.com>
+Code-Review+1: yongil jang <yi.jang@lge.com>
+Code-Review+1: LG Database <lg-database@lge.com>
+Submitted-by: Jeffrey Brown <jeffbrown@android.com>
+Submitted-at: Thu, 07 Feb 2013 03:44:58 +0000
+Reviewed-on: https://android-review.googlesource.com/48676
+Project: platform/external/sqlite
+Branch: refs/heads/master

@@ -1,0 +1,7 @@
+Code-Review+2: Jeffrey Brown <jeffbrown@android.com>
+Verified+1: Deckard Autoverifier <deckard@android.com>
+Submitted-by: Jeffrey Brown <jeffbrown@android.com>
+Submitted-at: Thu, 07 Feb 2013 03:45:18 +0000
+Reviewed-on: https://android-review.googlesource.com/47970
+Project: platform/external/sqlite
+Branch: refs/heads/master
