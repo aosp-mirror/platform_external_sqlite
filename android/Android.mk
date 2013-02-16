@@ -3,14 +3,12 @@ LOCAL_PATH:= $(call my-dir)
 libsqlite3_android_local_src_files := \
 	PhoneNumberUtils.cpp \
 	OldPhoneNumberUtils.cpp \
-	PhonebookIndex.cpp \
 	sqlite3_android.cpp
 
 libsqlite3_android_c_includes := \
         external/sqlite/dist \
         external/icu4c/i18n \
-        external/icu4c/common \
-        frameworks/native/include
+        external/icu4c/common
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
@@ -53,28 +51,3 @@ LOCAL_SRC_FILES := \
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_EXECUTABLE)
-
-ifeq ($(WITH_HOST_DALVIK),true)
-  include $(CLEAR_VARS)
-
-  LOCAL_MODULE:= libsqlite3_phone_book_index_test
-
-  LOCAL_SRC_FILES := \
-	PhonebookIndex.cpp \
-	PhonebookIndexTest.cpp
-
-  LOCAL_C_INCLUDES := \
-        external/icu4c/i18n \
-        external/icu4c/common \
-        frameworks/native/include
-
-  LOCAL_MODULE_TAGS := optional
-
-  LOCAL_SHARED_LIBRARIES := \
-	libicui18n libicuuc
-
-  LOCAL_STATIC_LIBRARIES := \
-	libutils libcutils
-
-  include $(BUILD_HOST_EXECUTABLE)
-endif

@@ -29,7 +29,6 @@
 
 #include "sqlite3_android.h"
 #include "PhoneNumberUtils.h"
-#include "PhonebookIndex.h"
 
 #define ENABLE_ANDROID_LOG 0
 #define SMALL_BUFFER_SIZE 10
@@ -72,53 +71,6 @@ static int collate8(void *p, int n1, const void *v1, int n2, const void *v2)
     } else {
         return 0;
     }
-}
-
-/**
- * Obtains the first UNICODE letter from the supplied string, normalizes and returns it.
- */
-static void get_phonebook_index(
-    sqlite3_context * context, int argc, sqlite3_value ** argv)
-{
-    if (argc != 2) {
-      sqlite3_result_null(context);
-      return;
-    }
-
-    char const * src = (char const *)sqlite3_value_text(argv[0]);
-    char const * locale = (char const *)sqlite3_value_text(argv[1]);
-    if (src == NULL || src[0] == 0 || locale == NULL) {
-      sqlite3_result_null(context);
-      return;
-    }
-
-    UCharIterator iter;
-    uiter_setUTF8(&iter, src, -1);
-
-    UBool isError = FALSE;
-    UChar index[SMALL_BUFFER_SIZE];
-    uint32_t len = android::GetPhonebookIndex(&iter, locale, index, sizeof(index), &isError);
-    if (isError) {
-      sqlite3_result_null(context);
-      return;
-    }
-
-    uint32_t outlen = 0;
-    uint8_t out[SMALL_BUFFER_SIZE];
-    for (uint32_t i = 0; i < len; i++) {
-      U8_APPEND(out, outlen, sizeof(out), index[i], isError);
-      if (isError) {
-        sqlite3_result_null(context);
-        return;
-      }
-    }
-
-    if (outlen == 0) {
-      sqlite3_result_null(context);
-      return;
-    }
-
-    sqlite3_result_text(context, (const char*)out, outlen, SQLITE_TRANSIENT);
 }
 
 static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_value ** argv)
@@ -598,16 +550,6 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
         return err;
     }
 #endif
-
-    // Register the GET_PHONEBOOK_INDEX function
-    err = sqlite3_create_function(handle,
-        "GET_PHONEBOOK_INDEX",
-        2, SQLITE_UTF8, NULL,
-        get_phonebook_index,
-        NULL, NULL);
-    if (err != SQLITE_OK) {
-        return err;
-    }
 
     // Register the _PHONE_NUMBER_STRIPPED_REVERSED function, which imitates
     // PhoneNumberUtils.getStrippedReversed.  This function is not public API,
