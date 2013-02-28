@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "QXi3MdQ4",
+        "filename": "android/sqlite3_android.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2013-02-28T19:07:24Z",
+      "side": 1,
+      "message": "you don\u0027t need the \\n.",
+      "revId": "783d1ffd7c7270082dcc46eadf2c55bf43d560a4",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
