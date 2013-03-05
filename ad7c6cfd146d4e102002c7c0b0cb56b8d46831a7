@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "Q5zsAtww",
+        "filename": "android/sqlite3_android.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2013-03-05T20:16:59Z",
+      "side": 1,
+      "message": "actually, sorry; i wasn\u0027t paying enough attention earlier. i see that this code is trying to dynamically change its log tag. so i think the right fix is\n\n  ALOG(LOG_INFO, tag, \"%s\", msg);",
+      "revId": "ad7c6cfd146d4e102002c7c0b0cb56b8d46831a7",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
