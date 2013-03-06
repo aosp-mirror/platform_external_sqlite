@@ -193,7 +193,7 @@ static void android_log(sqlite3_context * context, int argc, sqlite3_value ** ar
             if (msg == NULL) {
                 msg = "";
             }
-            LOG(LOG_INFO, tag, msg);
+            ALOG(LOG_INFO, tag, "%s", msg);
             sqlite3_result_int(context, 1);
             return;
 
