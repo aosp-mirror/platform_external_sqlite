@@ -16,6 +16,24 @@
       "revId": "ad7c6cfd146d4e102002c7c0b0cb56b8d46831a7",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "Q9K75170",
+        "filename": "android/sqlite3_android.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1019634
+      },
+      "writtenOn": "2013-03-06T07:43:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "Q5zsAtww",
+      "revId": "ad7c6cfd146d4e102002c7c0b0cb56b8d46831a7",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
