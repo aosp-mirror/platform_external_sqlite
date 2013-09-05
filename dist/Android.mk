@@ -27,8 +27,7 @@ common_sqlite_flags := \
 	-DSQLITE_OMIT_BUILTIN_TEST \
 	-DSQLITE_OMIT_COMPILEOPTION_DIAGS \
 	-DSQLITE_OMIT_LOAD_EXTENSION \
-	-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600 \
-	-DHAVE_MALLOC_USABLE_SIZE
+	-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600
 
 common_src_files := sqlite3.c
 
@@ -41,7 +40,8 @@ ifneq ($(TARGET_ARCH),arm)
 LOCAL_LDLIBS += -lpthread -ldl
 endif
 
-LOCAL_CFLAGS += $(common_sqlite_flags) -DUSE_PREAD64 -Dfdatasync=fdatasync
+LOCAL_CFLAGS += $(common_sqlite_flags) -DUSE_PREAD64 -Dfdatasync=fdatasync \
+				-DHAVE_MALLOC_USABLE_SIZE
 
 LOCAL_SHARED_LIBRARIES := libdl
 
