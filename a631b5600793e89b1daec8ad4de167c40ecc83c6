@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f8a499e_a2b580d6",
+        "filename": "android/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1014443
+      },
+      "writtenOn": "2014-02-20T18:42:59Z",
+      "side": 1,
+      "message": "Looks like you\u0027ve included this rule only for the unit test (line 45: LOCAL_MODULE:\u003d libsqlite3_phone....) . Won\u0027t you need this for libsqlite shared library as well ? (see external/sqlite/dist/Android.mk.)\n\nI\u0027ll patch and verify this and your larger import tomorrow.",
+      "revId": "a631b5600793e89b1daec8ad4de167c40ecc83c6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
