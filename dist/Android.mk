@@ -133,4 +133,7 @@ endif
 
 LOCAL_MODULE := sqlite3
 
+# Add to support build with ICU4C, specifically for <string>
+include external/stlport/libstlport.mk
+
 include $(BUILD_HOST_EXECUTABLE)

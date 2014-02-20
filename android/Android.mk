@@ -52,4 +52,7 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE_TAGS := optional
 
+# Add to support build with ICU4C, specifically for <string>
+include external/stlport/libstlport.mk
+
 include $(BUILD_EXECUTABLE)
