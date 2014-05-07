@@ -36,10 +36,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(common_src_files)
 
-ifneq ($(TARGET_ARCH),arm)
-LOCAL_LDLIBS += -lpthread -ldl
-endif
-
 LOCAL_CFLAGS += $(common_sqlite_flags) -DUSE_PREAD64 -Dfdatasync=fdatasync \
 				-DHAVE_MALLOC_USABLE_SIZE
 
@@ -91,10 +87,6 @@ LOCAL_SHARED_LIBRARIES := libsqlite \
             libicuuc \
             libicui18n \
             libutils
-
-ifneq ($(TARGET_ARCH),arm)
-LOCAL_LDLIBS += -lpthread -ldl
-endif
 
 LOCAL_CFLAGS += $(common_sqlite_flags) -DUSE_PREAD64
 
