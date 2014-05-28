@@ -1,0 +1,7 @@
+Code-Review+2: Brian Carlstrom <bdc@google.com>
+Verified+1: Ian Rogers <irogers@google.com>
+Submitted-by: Ian Rogers <irogers@google.com>
+Submitted-at: Wed, 28 May 2014 22:01:30 +0000
+Reviewed-on: https://android-review.googlesource.com/95653
+Project: platform/external/sqlite
+Branch: refs/heads/master
