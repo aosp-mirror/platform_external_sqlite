@@ -56,19 +56,17 @@ LOCAL_WHOLE_STATIC_LIBRARIES := libsqlite3_android
 include $(BUILD_SHARED_LIBRARY)
 
 
-ifeq ($(WITH_HOST_DALVIK),true)
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(common_src_files)
-    LOCAL_LDLIBS += -lpthread -ldl
-    LOCAL_CFLAGS += $(common_sqlite_flags)
-    LOCAL_MODULE:= libsqlite
-    LOCAL_SHARED_LIBRARIES += libicuuc-host libicui18n-host
-    LOCAL_STATIC_LIBRARIES := liblog libutils libcutils
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(common_src_files)
+LOCAL_LDLIBS += -lpthread -ldl
+LOCAL_CFLAGS += $(common_sqlite_flags)
+LOCAL_MODULE:= libsqlite
+LOCAL_SHARED_LIBRARIES += libicuuc-host libicui18n-host
+LOCAL_STATIC_LIBRARIES := liblog libutils libcutils
 
-    # include android specific methods
-    LOCAL_WHOLE_STATIC_LIBRARIES := libsqlite3_android
-    include $(BUILD_HOST_SHARED_LIBRARY)
-endif
+# include android specific methods
+LOCAL_WHOLE_STATIC_LIBRARIES := libsqlite3_android
+include $(BUILD_HOST_SHARED_LIBRARY)
 
 ##
 ##
