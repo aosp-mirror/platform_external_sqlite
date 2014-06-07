@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2014-05-29 15:56:39.987943673 -0700
-+++ ./shell.c	2014-05-29 15:57:14.178097969 -0700
+--- orig/shell.c	2014-06-06 19:38:15.429111362 -0700
++++ ./shell.c	2014-06-06 19:38:49.789261069 -0700
 @@ -35,6 +35,11 @@
  #include "sqlite3.h"
  #include <ctype.h>
@@ -13,7 +13,7 @@ diff -r -u -d orig/shell.c ./shell.c
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -1654,6 +1659,20 @@
+@@ -1658,6 +1663,20 @@
  #ifndef SQLITE_OMIT_LOAD_EXTENSION
      sqlite3_enable_load_extension(p->db, 1);
  #endif
@@ -35,9 +35,9 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2014-05-29 15:56:39.997943720 -0700
-+++ ./sqlite3.c	2014-05-29 16:47:37.661653323 -0700
-@@ -23527,6 +23527,13 @@
+--- orig/sqlite3.c	2014-06-06 19:38:15.999113846 -0700
++++ ./sqlite3.c	2014-06-06 19:38:49.829261244 -0700
+@@ -23766,6 +23766,13 @@
  */
  #if SQLITE_OS_UNIX              /* This file is used on unix only */
  
@@ -51,7 +51,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  /*
  ** There are various methods for file locking used for concurrency
  ** control:
-@@ -24074,7 +24081,12 @@
+@@ -24314,7 +24321,12 @@
  #else
    { "pread64",      (sqlite3_syscall_ptr)0,          0  },
  #endif
@@ -64,7 +64,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
    { "write",        (sqlite3_syscall_ptr)write,      0  },
  #define osWrite     ((ssize_t(*)(int,const void*,size_t))aSyscall[11].pCurrent)
-@@ -24092,8 +24104,14 @@
+@@ -24332,8 +24344,14 @@
  #else
    { "pwrite64",     (sqlite3_syscall_ptr)0,          0  },
  #endif
@@ -79,7 +79,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
    { "fchmod",       (sqlite3_syscall_ptr)fchmod,     0  },
  #define osFchmod    ((int(*)(int,mode_t))aSyscall[14].pCurrent)
-@@ -27321,7 +27339,7 @@
+@@ -27564,7 +27582,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      ((unixFile*)id)->lastErrno = errno;
@@ -88,7 +88,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -27356,7 +27374,9 @@
+@@ -27599,7 +27617,9 @@
      i64 nSize;                    /* Required file size */
      struct stat buf;              /* Used to hold return values of fstat() */
     
@@ -99,7 +99,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
      if( nSize>(i64)buf.st_size ){
-@@ -27888,7 +27908,7 @@
+@@ -28162,7 +28182,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) && pInode->bProcessLock==0 ){
@@ -108,7 +108,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -29225,7 +29245,7 @@
+@@ -29500,7 +29520,7 @@
        *pUid = sStat.st_uid;
        *pGid = sStat.st_gid;
      }else{
@@ -117,7 +117,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
    }else if( flags & SQLITE_OPEN_DELETEONCLOSE ){
      *pMode = 0600;
-@@ -99461,7 +99481,7 @@
+@@ -100013,7 +100033,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -126,7 +126,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -122643,9 +122663,9 @@
+@@ -123686,9 +123706,9 @@
  #endif
  
  #ifdef SQLITE_ENABLE_FTS3
@@ -139,7 +139,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  #endif
  
  #ifdef SQLITE_ENABLE_ICU
-@@ -128450,16 +128470,28 @@
+@@ -129566,16 +129586,28 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
