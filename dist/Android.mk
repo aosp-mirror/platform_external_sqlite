@@ -94,6 +94,11 @@ LOCAL_MODULE_TAGS := debug
 
 LOCAL_MODULE := sqlite3
 
+ifeq (true,$(TARGET_PREFER_32_BIT_EXECUTABLES))
+# We are doing a 32p build, force recovery to be 64bit
+LOCAL_MULTILIB := 64
+endif
+
 include $(BUILD_EXECUTABLE)
 
 endif # !SDK_ONLY
