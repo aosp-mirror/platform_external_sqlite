@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2014-10-03 12:18:31.191186450 +0100
-+++ ./shell.c	2014-10-03 12:18:31.227186226 +0100
+--- orig/shell.c	2014-11-19 17:01:58.261501350 +0900
++++ ./shell.c	2014-11-20 08:32:06.450930318 +0900
 @@ -35,6 +35,11 @@
  #include "sqlite3.h"
  #include <ctype.h>
@@ -13,46 +13,31 @@ diff -r -u -d orig/shell.c ./shell.c
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -1737,6 +1742,21 @@
+@@ -1737,6 +1742,20 @@
                              readfileFunc, 0, 0);
      sqlite3_create_function(db, "writefile", 2, SQLITE_UTF8, 0,
                              writefileFunc, 0, 0);
-+
-+    // Begin Android Add
-+    #ifndef NO_ANDROID_FUNCS
-+        int err = register_localized_collators(db, "en_US", 0);
-+        if (err != SQLITE_OK) {
-+          fprintf(stderr, "register_localized_collators() failed\n");
-+          exit(1);
-+        }
-+        err = register_android_functions(db, 0);
-+        if (err != SQLITE_OK) {
-+          fprintf(stderr, "register_android_functions() failed\n");
-+          exit(1);
-+        }
-+    #endif
-+    // End Android Add
++// Begin Android Add
++#ifndef NO_ANDROID_FUNCS
++    int err = register_localized_collators(db, "en_US", 0);
++    if (err != SQLITE_OK) {
++      fprintf(stderr, "register_localized_collators() failed\n");
++      exit(1);
++    }
++    err = register_android_functions(db, 0);
++    if (err != SQLITE_OK) {
++      fprintf(stderr, "register_android_functions() failed\n");
++      exit(1);
++    }
++#endif
++// End Android Add
    }
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2014-10-03 12:18:31.223186251 +0100
-+++ ./sqlite3.c	2014-11-19 14:12:49.785181208 +0000
-@@ -24109,6 +24109,13 @@
- */
- #if SQLITE_OS_UNIX              /* This file is used on unix only */
- 
-+/* Use posix_fallocate() if it is available
-+*/
-+#if !defined(HAVE_POSIX_FALLOCATE) \
-+      && (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
-+# define HAVE_POSIX_FALLOCATE 1
-+#endif
-+
- /*
- ** There are various methods for file locking used for concurrency
- ** control:
-@@ -24660,7 +24667,12 @@
+--- orig/sqlite3.c	2014-11-19 17:01:58.437501355 +0900
++++ ./sqlite3.c	2014-11-20 08:33:15.326932082 +0900
+@@ -24660,7 +24660,12 @@
  #else
    { "pread64",      (sqlite3_syscall_ptr)0,          0  },
  #endif
@@ -65,7 +50,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
    { "write",        (sqlite3_syscall_ptr)write,      0  },
  #define osWrite     ((ssize_t(*)(int,const void*,size_t))aSyscall[11].pCurrent)
-@@ -24678,8 +24690,14 @@
+@@ -24678,8 +24683,14 @@
  #else
    { "pwrite64",     (sqlite3_syscall_ptr)0,          0  },
  #endif
@@ -80,23 +65,23 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
    { "fchmod",       (sqlite3_syscall_ptr)fchmod,     0  },
  #define osFchmod    ((int(*)(int,mode_t))aSyscall[14].pCurrent)
-@@ -25301,7 +25319,14 @@
+@@ -25301,8 +25312,15 @@
  #if OS_VXWORKS
    struct vxworksFileId *pId;  /* Unique file ID for vxworks. */
  #else
--  ino_t ino;                  /* Inode number */
 +#ifdef ANDROID
 +  // Bionic's struct stat has a 64 bit st_ino on both 32 and
 +  // 64 bit architectures. ino_t remains 32 bits wide on 32 bit
 +  // architectures and can lead to inode truncation.
 +  unsigned long long ino;     /* Inode number */
 +#else
-+  ino_t ino;     /* Inode number */
-+#endif
+   ino_t ino;                  /* Inode number */
  #endif
++#endif
  };
  
-@@ -27909,7 +27934,7 @@
+ /*
+@@ -27909,7 +27927,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      ((unixFile*)id)->lastErrno = errno;
@@ -105,7 +90,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -27944,7 +27969,9 @@
+@@ -27944,7 +27962,9 @@
      i64 nSize;                    /* Required file size */
      struct stat buf;              /* Used to hold return values of fstat() */
     
@@ -116,7 +101,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
      if( nSize>(i64)buf.st_size ){
-@@ -28510,7 +28537,7 @@
+@@ -28510,7 +28530,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) && pInode->bProcessLock==0 ){
@@ -125,7 +110,16 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -29848,7 +29875,7 @@
+@@ -29070,7 +29090,7 @@
+     struct stat statbuf;          /* Low-level file information */
+     rc = osFstat(pFd->h, &statbuf);
+     if( rc!=SQLITE_OK ){
+-      return SQLITE_IOERR_FSTAT;
++      return unixLogError(SQLITE_IOERR_FSTAT, "fstat", pFd->zPath);
+     }
+     nMap = statbuf.st_size;
+   }
+@@ -29848,7 +29868,7 @@
        *pUid = sStat.st_uid;
        *pGid = sStat.st_gid;
      }else{
@@ -134,7 +128,19 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
    }else if( flags & SQLITE_OPEN_DELETEONCLOSE ){
      *pMode = 0600;
-@@ -100867,7 +100894,7 @@
+@@ -39366,9 +39386,9 @@
+   ** attempt to allocate a new one. 
+   */
+   if( !pPage ){
+-    if( createFlag==1 ) sqlite3BeginBenignMalloc();
++    if( createFlag==1 ) { sqlite3BeginBenignMalloc(); } // Remove compile warning
+     pPage = pcache1AllocPage(pCache);
+-    if( createFlag==1 ) sqlite3EndBenignMalloc();
++    if( createFlag==1 ) { sqlite3EndBenignMalloc(); } // Remove compile warning
+   }
+ 
+   if( pPage ){
+@@ -100867,7 +100887,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -143,20 +149,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -124770,9 +124797,9 @@
- #endif
- 
- #ifdef SQLITE_ENABLE_FTS3
--  if( !db->mallocFailed && rc==SQLITE_OK ){
--    rc = sqlite3Fts3Init(db);
--  }
-+    if( !db->mallocFailed && rc==SQLITE_OK ){
-+      rc = sqlite3Fts3Init(db);
-+    }
- #endif
- 
- #ifdef SQLITE_ENABLE_ICU
-@@ -130660,16 +130687,28 @@
+@@ -130660,13 +130680,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
@@ -181,8 +174,4 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
 +#endif
      rc = sqlite3_create_module_v2(
          db, "fts3", &fts3Module, (void *)pHash, hashDestroy
--    );
-+        );
-     if( rc==SQLITE_OK ){
-       rc = sqlite3_create_module_v2(
-           db, "fts4", &fts3Module, (void *)pHash, 0
+     );

@@ -1742,21 +1742,20 @@ static void open_db(struct callback_data *p, int keepAlive){
                             readfileFunc, 0, 0);
     sqlite3_create_function(db, "writefile", 2, SQLITE_UTF8, 0,
                             writefileFunc, 0, 0);
-
-    // Begin Android Add
-    #ifndef NO_ANDROID_FUNCS
-        int err = register_localized_collators(db, "en_US", 0);
-        if (err != SQLITE_OK) {
-          fprintf(stderr, "register_localized_collators() failed\n");
-          exit(1);
-        }
-        err = register_android_functions(db, 0);
-        if (err != SQLITE_OK) {
-          fprintf(stderr, "register_android_functions() failed\n");
-          exit(1);
-        }
-    #endif
-    // End Android Add
+// Begin Android Add
+#ifndef NO_ANDROID_FUNCS
+    int err = register_localized_collators(db, "en_US", 0);
+    if (err != SQLITE_OK) {
+      fprintf(stderr, "register_localized_collators() failed\n");
+      exit(1);
+    }
+    err = register_android_functions(db, 0);
+    if (err != SQLITE_OK) {
+      fprintf(stderr, "register_android_functions() failed\n");
+      exit(1);
+    }
+#endif
+// End Android Add
   }
 }
 
