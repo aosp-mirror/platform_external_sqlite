@@ -80,6 +80,15 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
    { "fchmod",       (sqlite3_syscall_ptr)fchmod,     0  },
  #define osFchmod    ((int(*)(int,mode_t))aSyscall[14].pCurrent)
+@@ -25572,7 +25590,7 @@
+ #else
+   struct stat buf;
+   return pFile->pInode!=0 &&
+-      (osStat(pFile->zPath, &buf)!=0 || buf.st_ino!=pFile->pInode->fileId.ino);
++      (osStat(pFile->zPath, &buf)!=0 || (ino_t)buf.st_ino!=pFile->pInode->fileId.ino);
+ #endif
+ }
+ 
 @@ -27909,7 +27927,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
