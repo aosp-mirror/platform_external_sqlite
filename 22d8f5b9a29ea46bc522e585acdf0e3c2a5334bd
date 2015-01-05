@@ -16,6 +16,24 @@
       "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a185ac8b_af172570",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1014443
+      },
+      "writtenOn": "2015-01-05T19:26:44Z",
+      "side": 1,
+      "message": "yes, but isn\u0027t it best to leave this here until libcutils exports C headers ? (note, i didn\u0027t add this - it was already here)",
+      "parentUuid": "4e217d94_f8a26d37",
+      "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
