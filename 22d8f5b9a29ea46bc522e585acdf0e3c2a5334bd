@@ -34,6 +34,24 @@
       "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6126549e_f5e72266",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2015-01-05T19:58:29Z",
+      "side": 1,
+      "message": "no, i don\u0027t think it is, because this is already in build/. leaving this around invites more copy and paste (of a very bizarre -- and not necessarily for cutils -- idiom) which means that if/when cutils is switched over to exporting its headers we\u0027ll have to edit makefiles. right now, if no makefile manually adds the cutils headers, we can turn on the exporting and remove the build hack without needing to chase up all the including makefiles. (and this one is hard to find because it doesn\u0027t even mention system/core/include.)\n\ni\u0027ve raised a bug for cleaning up all the automatically-included paths, but the system/core mess might be interesting. i don\u0027t know how well the export system copes with overlapping exports like this (where a whole bunch of projects all have their headers in system/core/include).",
+      "parentUuid": "a185ac8b_af172570",
+      "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
