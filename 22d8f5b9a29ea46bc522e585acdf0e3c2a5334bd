@@ -52,6 +52,24 @@
       "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c180e07b_30161642",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1014443
+      },
+      "writtenOn": "2015-01-05T20:11:12Z",
+      "side": 1,
+      "message": "To me the right sequence of steps to do this is :\n\n(1) Start exporting dirs for system/core\n(2) Remove from build/ *and* pathmap.mk (which is where this comes from)\n(3) Remove manual inclusions so you\u0027ll be able to make the link between removal of this mapping from pathmap.mk and the change that removes the pathmap call.\n\nI guess i\u0027m saying it\u0027ll be cleaner to do this in a separate change.\n\nFYI - as an aside : based on the comments in pathmap.mk, include-path-for seems to have been a legitimate way of doing this at some point.",
+      "parentUuid": "6126549e_f5e72266",
+      "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
