@@ -5,22 +5,21 @@ libsqlite3_android_local_src_files := \
 	OldPhoneNumberUtils.cpp \
 	sqlite3_android.cpp
 
-libsqlite3_android_c_includes := \
-        external/sqlite/dist \
-        external/icu/icu4c/source/i18n \
-        external/icu/icu4c/source/common
+libsqlite3_android_c_includes := external/sqlite/dist
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
-LOCAL_C_INCLUDES := $(libsqlite3_android_c_includes)
+LOCAL_C_INCLUDES += $(libsqlite3_android_c_includes)
 LOCAL_STATIC_LIBRARIES := liblog
+LOCAL_SHARED_LIBRARIES := libicuuc libicui18n
 LOCAL_MODULE:= libsqlite3_android
 include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
-LOCAL_C_INCLUDES := $(libsqlite3_android_c_includes)
+LOCAL_C_INCLUDES += $(libsqlite3_android_c_includes)
 LOCAL_STATIC_LIBRARIES := liblog
+LOCAL_SHARED_LIBRARIES := libicuuc-host libicui18n-host
 LOCAL_MODULE:= libsqlite3_android
 include $(BUILD_HOST_STATIC_LIBRARY)
 
