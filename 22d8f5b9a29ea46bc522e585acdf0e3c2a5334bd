@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e217d94_f8a26d37",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2015-01-05T19:06:17Z",
+      "side": 1,
+      "message": "that\u0027s just system/core/include, which everyone gets for free from build/core/config.mk anyway. (which is a bad thing, but we should fix it in the same way we\u0027ve fixed icu4c, not like this.)",
+      "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
