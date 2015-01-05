@@ -52,3 +52,6 @@ $(call add-clean-step, rm -rf $(PRODUCT_OUT)/obj/SHARED_LIBRARIES/libsqlite_inte
 $(call add-clean-step, rm -rf $(PRODUCT_OUT)/obj/STATIC_LIBRARIES/libsqlite3_android_intermediates/import_includes)
 $(call add-clean-step, rm -rf $(HOST_OUT)/obj/STATIC_LIBRARIES/libsqlite3_android_intermediates/import_includes)
 $(call add-clean-step, rm -rf $(PRODUCT_OUT)/obj/SHARED_LIBRARIES/libsqlite_intermediates)
+
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/obj/STATIC_LIBRARIES/libsqlite3_android_intermediates/import_includes)
+$(call add-clean-step, rm -rf $(HOST_OUT)/obj/STATIC_LIBRARIES/libsqlite3_android_intermediates/import_includes)

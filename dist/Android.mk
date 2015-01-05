@@ -50,10 +50,7 @@ LOCAL_SHARED_LIBRARIES := libdl
 
 LOCAL_MODULE:= libsqlite
 
-LOCAL_C_INCLUDES += \
-    $(call include-path-for, system-core)/cutils \
-    external/icu/icu4c/source/i18n \
-    external/icu/icu4c/source/common
+LOCAL_C_INCLUDES += $(call include-path-for, system-core)/cutils
 
 LOCAL_SHARED_LIBRARIES += liblog \
             libicuuc \
@@ -92,9 +89,7 @@ LOCAL_SRC_FILES := shell.c
 
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/../android \
-    $(call include-path-for, system-core)/cutils \
-    external/icu4c/i18n \
-    external/icu4c/common
+    $(call include-path-for, system-core)/cutils
 
 LOCAL_SHARED_LIBRARIES := libsqlite \
             libicuuc \
@@ -123,7 +118,6 @@ endif # !SDK_ONLY
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(common_src_files) shell.c
-
 LOCAL_CFLAGS += $(host_sqlite_flags) \
     -DNO_ANDROID_FUNCS=1
 
