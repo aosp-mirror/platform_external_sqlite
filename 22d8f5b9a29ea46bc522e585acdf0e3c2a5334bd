@@ -70,6 +70,24 @@
       "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e1b056c_f3b850b8",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2015-01-05T20:13:35Z",
+      "side": 1,
+      "message": "\"I guess i\u0027m saying it\u0027ll be cleaner to do this in a separate change.\"\n\noh, definitely. i\u0027m just lazy and would have snuck this in with the previous change.\n\ni just think we should get rid of this right away because we\u0027ll never find it again.",
+      "parentUuid": "c180e07b_30161642",
+      "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
