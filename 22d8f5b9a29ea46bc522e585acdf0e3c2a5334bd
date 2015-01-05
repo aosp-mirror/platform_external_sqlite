@@ -88,6 +88,24 @@
       "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0144b839_b46126a8",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1014443
+      },
+      "writtenOn": "2015-01-05T20:15:14Z",
+      "side": 1,
+      "message": "one more thing that was hidden in the previous message : the existence of pathmap.mk, you should look at that file. it\u0027s another backdoor (or previous incarnation of) exported dirs.",
+      "parentUuid": "0e1b056c_f3b850b8",
+      "revId": "22d8f5b9a29ea46bc522e585acdf0e3c2a5334bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
