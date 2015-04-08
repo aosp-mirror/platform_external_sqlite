@@ -34,6 +34,24 @@
       "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3d33a94_27a09a9e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1010056
+      },
+      "writtenOn": "2015-04-08T21:58:59Z",
+      "side": 1,
+      "message": "If something is not defined, the preprocessor should see the symbol as having value 0 or false. I guess I don\u0027t see why this is failing to compile (and what it has to do with AndroidConfig.h, although that file is problematic for me for other reasons).",
+      "parentUuid": "83c43ed3_4d2691b1",
+      "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
