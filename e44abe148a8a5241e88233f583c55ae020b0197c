@@ -16,6 +16,24 @@
       "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83c43ed3_4d2691b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2015-04-08T21:52:00Z",
+      "side": 1,
+      "message": "Yes, the values in AndroidConfig.h are processed after the command line, so I can\u0027t use any command lines to override this.",
+      "parentUuid": "237f124e_15b58431",
+      "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
