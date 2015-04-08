@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "237f124e_6a7c2bb2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2015-04-08T21:02:39Z",
+      "side": 1,
+      "message": "On second thought, this doesn\u0027t appear correct...",
+      "revId": "c55f11e93aadcacd2c3bdbe6ff2e621c2b65f5cc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
