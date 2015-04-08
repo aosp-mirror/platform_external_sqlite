@@ -70,6 +70,24 @@
       "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83c43ed3_cda3a123",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2015-04-08T22:05:34Z",
+      "side": 1,
+      "message": "the problem is that it _is_ defined, but not with a value. this is the same problem you have in external/llvm with HAVE_MALLOC_H.",
+      "parentUuid": "e3d33a94_27a09a9e",
+      "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
