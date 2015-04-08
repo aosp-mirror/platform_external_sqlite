@@ -51,6 +51,24 @@
       "revId": "3fcd43a0f1ef02756029e12af3cb9ba9faa13364",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03868e96_d5b076f6",
+        "filename": "dist/Android.mk",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2015-04-08T23:37:16Z",
+      "side": 1,
+      "message": "ouch. that\u0027s pretty insane, given that \"#define X\" and \"#define X 1\" are completely different.",
+      "parentUuid": "83c43ed3_f824592e",
+      "revId": "3fcd43a0f1ef02756029e12af3cb9ba9faa13364",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
