@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03868e96_49c139ad",
+        "filename": "dist/Android.mk",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2015-04-08T22:08:22Z",
+      "side": 1,
+      "message": "Added this, so it\u0027s safe for Elliott to remove HAVE_MALLOC_H from AndroidConfig.h",
+      "revId": "3fcd43a0f1ef02756029e12af3cb9ba9faa13364",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
