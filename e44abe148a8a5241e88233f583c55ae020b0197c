@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "237f124e_15b58431",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2015-04-08T21:49:58Z",
+      "side": 1,
+      "message": "oh, does AndroidConfig.h prevent you from fixing this in the Android.mk because you can\u0027t -D because that\u0027s a redefinition, and you can\u0027t -U because the -include hasn\u0027t been processed yet? (this is the kind of bullshit that\u0027s motivated to slowly kill AndroidConfig.h.)\n\nif it helps you do the right thing here, let\u0027s submit the build/ patch anyway. given what i think you\u0027re saying here, i think that gets both of us closer to our goal of sanity throughout the tree.\n\n(llvm has the exact same problem.)",
+      "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
