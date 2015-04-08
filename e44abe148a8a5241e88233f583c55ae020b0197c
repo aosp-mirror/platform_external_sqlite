@@ -52,6 +52,24 @@
       "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83c43ed3_ed213d56",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2015-04-08T22:00:09Z",
+      "side": 1,
+      "message": "The exact preprocessor error is:\n\n  external/sqlite/dist/sqlite3.c:17006:19: error: invalid token at start of a preprocessor expression\n  #if HAVE_MALLOC_H \u0026\u0026 HAVE_MALLOC_USABLE_SIZE\n                  ^",
+      "parentUuid": "e3d33a94_27a09a9e",
+      "revId": "e44abe148a8a5241e88233f583c55ae020b0197c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
