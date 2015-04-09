@@ -33,6 +33,7 @@ device_sqlite_flags := $(common_sqlite_flags) \
     -DSQLITE_ENABLE_ICU \
     -DUSE_PREAD64 \
     -Dfdatasync=fdatasync \
+    -DHAVE_MALLOC_H=1 \
     -DHAVE_MALLOC_USABLE_SIZE
 
 host_sqlite_flags := $(common_sqlite_flags)
