@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d5fd527_87977947",
+        "filename": "dist/Android.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2015-05-08T18:33:42Z",
+      "side": 1,
+      "message": "Android specific change updated here.",
+      "revId": "3d169392f9f40c9a3a1571aa4be8da49ad3c0f8e",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed5b293d_316c4b02",
+        "filename": "dist/Android.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2015-05-08T18:33:42Z",
+      "side": 1,
+      "message": "and here",
+      "revId": "3d169392f9f40c9a3a1571aa4be8da49ad3c0f8e",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
