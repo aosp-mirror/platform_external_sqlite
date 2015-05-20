@@ -29,6 +29,8 @@ common_sqlite_flags := \
 	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600
 
+common_sqlite_flags += -fno-strict-aliasing
+
 device_sqlite_flags := $(common_sqlite_flags) \
     -DSQLITE_ENABLE_ICU \
     -DUSE_PREAD64 \
