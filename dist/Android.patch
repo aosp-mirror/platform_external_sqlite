@@ -1,25 +1,27 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2015-05-08 11:10:06.525393270 -0700
-+++ ./shell.c	2015-05-08 11:17:28.275228469 -0700
-@@ -52,6 +52,11 @@
+--- orig/shell.c	2015-05-09 10:39:54.003128489 -0700
++++ ./shell.c	2015-06-11 21:10:04.904360472 -0700
+@@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
  #include <stdarg.h>
 +// Begin Android Add
 +#ifndef NO_ANDROID_FUNCS
++#include "IcuUtils.h"
 +#include <sqlite3_android.h>
 +#endif
 +// End Android Add
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -1938,6 +1943,21 @@
+@@ -1938,6 +1944,22 @@
                              readfileFunc, 0, 0);
      sqlite3_create_function(p->db, "writefile", 2, SQLITE_UTF8, 0,
                              writefileFunc, 0, 0);
 +
 +    // Begin Android Add
 +    #ifndef NO_ANDROID_FUNCS
++        InitializeIcuOrDie();
 +        int err = register_localized_collators(p->db, "en_US", 0);
 +        if (err != SQLITE_OK) {
 +          fprintf(stderr, "register_localized_collators() failed\n");
@@ -36,8 +38,8 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2015-05-08 11:10:07.173395986 -0700
-+++ ./sqlite3.c	2015-05-08 11:11:18.625694907 -0700
+--- orig/sqlite3.c	2015-05-09 10:39:54.039128619 -0700
++++ ./sqlite3.c	2015-05-09 10:39:54.075128751 -0700
 @@ -25289,6 +25289,13 @@
  */
  #if SQLITE_OS_UNIX              /* This file is used on unix only */
