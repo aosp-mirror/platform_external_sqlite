@@ -128,12 +128,10 @@ LOCAL_CFLAGS += $(host_sqlite_flags) \
 # sqlite3MemsysAlarm uses LOG()
 LOCAL_STATIC_LIBRARIES += liblog
 
-ifeq ($(strip $(USE_MINGW)),)
-LOCAL_LDLIBS += -lpthread
-ifneq ($(HOST_OS),freebsd)
-LOCAL_LDLIBS += -ldl
-endif
-endif
+LOCAL_LDLIBS_darwin += -lpthread -ldl
+LOCAL_LDLIBS_linux += -lpthread -ldl
+
+LOCAL_MODULE_HOST_OS := darwin linux windows
 
 LOCAL_MODULE := sqlite3
 
