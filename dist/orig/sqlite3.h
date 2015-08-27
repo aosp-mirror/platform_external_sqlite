@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.8.6"
+#define SQLITE_VERSION        "3.8.6.1"
 #define SQLITE_VERSION_NUMBER 3008006
-#define SQLITE_SOURCE_ID      "2014-08-15 11:46:33 9491ba7d738528f168657adb43a198238abde19e"
+#define SQLITE_SOURCE_ID      "2015-05-21 17:24:32 b3bb660af9472e2c511d1fe87b5193256f74c0db"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5503,7 +5503,7 @@ SQLITE_API int sqlite3_create_module_v2(
 */
 struct sqlite3_vtab {
   const sqlite3_module *pModule;  /* The module for this virtual table */
-  int nRef;                       /* NO LONGER USED */
+  int nRef;                       /* Number of open cursors */
   char *zErrMsg;                  /* Error message from sqlite3_mprintf() */
   /* Virtual table implementations will typically add additional fields */
 };
