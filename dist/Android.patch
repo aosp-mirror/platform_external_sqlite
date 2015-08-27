@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2012-04-19 19:18:38.000000000 -0700
-+++ ./shell.c	2012-04-19 19:26:02.000000000 -0700
+--- orig/shell.c	2015-08-26 20:02:12.904405871 -0400
++++ ./shell.c	2015-08-26 20:04:05.975485109 -0400
 @@ -35,6 +35,11 @@
  #include "sqlite3.h"
  #include <ctype.h>
@@ -13,7 +13,7 @@ diff -r -u -d orig/shell.c ./shell.c
  
  #if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__)
  # include <signal.h>
-@@ -1463,6 +1468,20 @@
+@@ -1466,6 +1471,20 @@
  #ifndef SQLITE_OMIT_LOAD_EXTENSION
      sqlite3_enable_load_extension(p->db, 1);
  #endif
@@ -35,8 +35,8 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2012-04-19 19:18:38.000000000 -0700
-+++ ./sqlite3.c	2012-04-19 19:26:02.000000000 -0700
+--- orig/sqlite3.c	2015-08-26 20:02:12.912405806 -0400
++++ ./sqlite3.c	2015-08-26 20:04:05.975485109 -0400
 @@ -25387,7 +25387,12 @@
  #else
    { "pread64",      (sqlite3_syscall_ptr)0,          0  },
@@ -65,7 +65,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
  #if SQLITE_ENABLE_LOCKING_STYLE
    { "fchmod",       (sqlite3_syscall_ptr)fchmod,     0  },
-@@ -93937,7 +93948,7 @@
+@@ -93936,7 +93947,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -74,7 +74,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -112387,7 +112398,7 @@
+@@ -112404,7 +112415,7 @@
  extern "C" {
  #endif  /* __cplusplus */
  
@@ -83,7 +83,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  
  #if 0
  }  /* extern "C" */
-@@ -114717,9 +114728,24 @@
+@@ -114734,9 +114745,24 @@
  #endif
  
  #ifdef SQLITE_ENABLE_FTS3
@@ -111,7 +111,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
  #endif
  
  #ifdef SQLITE_ENABLE_ICU
-@@ -120143,7 +120169,7 @@
+@@ -120169,7 +120195,7 @@
  ** SQLite. If fts3 is built as a dynamically loadable extension, this
  ** function is called by the sqlite3_extension_init() entry point.
  */
@@ -120,7 +120,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    int rc = SQLITE_OK;
    Fts3Hash *pHash = 0;
    const sqlite3_tokenizer_module *pSimple = 0;
-@@ -120204,7 +120230,10 @@
+@@ -120230,7 +120256,10 @@
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "optimize", 1))
    ){
      rc = sqlite3_create_module_v2(
