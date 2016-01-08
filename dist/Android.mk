@@ -36,7 +36,7 @@ device_sqlite_flags := $(common_sqlite_flags) \
     -DHAVE_MALLOC_H=1 \
     -DHAVE_MALLOC_USABLE_SIZE
 
-host_sqlite_flags := $(common_sqlite_flags)
+minimal_sqlite_flags := $(common_sqlite_flags)
 
 common_src_files := sqlite3.c
 
@@ -68,7 +68,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_LDLIBS += -lpthread -ldl
-LOCAL_CFLAGS += $(host_sqlite_flags)
+LOCAL_CFLAGS += $(minimal_sqlite_flags)
 LOCAL_MODULE:= libsqlite
 LOCAL_SHARED_LIBRARIES += libicuuc-host libicui18n-host
 LOCAL_STATIC_LIBRARIES := liblog libutils libcutils
@@ -122,7 +122,7 @@ endif # !SDK_ONLY
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(common_src_files) shell.c
-LOCAL_CFLAGS += $(host_sqlite_flags) \
+LOCAL_CFLAGS += $(minimal_sqlite_flags) \
     -DNO_ANDROID_FUNCS=1
 
 # sqlite3MemsysAlarm uses LOG()
@@ -136,3 +136,20 @@ LOCAL_MODULE_HOST_OS := darwin linux windows
 LOCAL_MODULE := sqlite3
 
 include $(BUILD_HOST_EXECUTABLE)
+
+# Build a minimal version of sqlite3 without any android specific
+# features against the NDK. This is used by libcore's JDBC related
+# unit tests.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(common_src_files)
+LOCAL_CFLAGS += $(minimal_sqlite_flags)
+LOCAL_MODULE:= libsqlite_static_minimal
+LOCAL_SDK_VERSION := 23
+include $(BUILD_STATIC_LIBRARY)
+
+# Same as libsqlite_static_minimal, except that this is for the host.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(common_src_files)
+LOCAL_CFLAGS += $(minimal_sqlite_flags)
+LOCAL_MODULE:= libsqlite_static_minimal
+include $(BUILD_HOST_STATIC_LIBRARY)
