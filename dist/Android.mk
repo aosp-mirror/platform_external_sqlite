@@ -12,7 +12,6 @@ LOCAL_PATH:= $(call my-dir)
 #   SQLITE_DEFAULT_AUTOVACUUM=1  causes the databases to be subject to auto-vacuum
 minimal_sqlite_flags := \
 	-DNDEBUG=1 \
-	-DHAVE_POSIX_FALLOCATE=1 \
 	-DHAVE_USLEEP=1 \
 	-DSQLITE_HAVE_ISNAN \
 	-DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576 \
@@ -31,6 +30,9 @@ minimal_sqlite_flags := \
 	-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600 \
 	-DSQLITE_SECURE_DELETE
 
+minimal_linux_flags := \
+    -DHAVE_POSIX_FALLOCATE=1 \
+
 device_sqlite_flags := $(minimal_sqlite_flags) \
     -DSQLITE_ENABLE_ICU \
     -DUSE_PREAD64 \
@@ -46,6 +48,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(common_src_files)
 
 LOCAL_CFLAGS += $(device_sqlite_flags)
+LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 
 LOCAL_SHARED_LIBRARIES := libdl
 
@@ -69,6 +72,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_LDLIBS += -lpthread -ldl
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
+LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 LOCAL_MODULE:= libsqlite
 LOCAL_SHARED_LIBRARIES += libicuuc-host libicui18n-host
 LOCAL_STATIC_LIBRARIES := liblog libutils libcutils
@@ -101,6 +105,7 @@ LOCAL_SHARED_LIBRARIES := libsqlite \
 LOCAL_STATIC_LIBRARIES := libicuandroid_utils
 
 LOCAL_CFLAGS += $(device_sqlite_flags)
+LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
 
@@ -124,6 +129,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(common_src_files) shell.c
 LOCAL_CFLAGS += $(minimal_sqlite_flags) \
     -DNO_ANDROID_FUNCS=1
+LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 
 # sqlite3MemsysAlarm uses LOG()
 LOCAL_STATIC_LIBRARIES += liblog
@@ -143,6 +149,7 @@ include $(BUILD_HOST_EXECUTABLE)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
+LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 LOCAL_MODULE:= libsqlite_static_minimal
 LOCAL_SDK_VERSION := 23
 include $(BUILD_STATIC_LIBRARY)
@@ -151,5 +158,6 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
+LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 LOCAL_MODULE:= libsqlite_static_minimal
 include $(BUILD_HOST_STATIC_LIBRARY)
