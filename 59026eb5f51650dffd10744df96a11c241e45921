@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8859e447_bc9bb99b",
+        "filename": "dist/Android.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2016-04-18T01:48:22Z",
+      "side": 1,
+      "message": "if you define _FILE_OFFSET_BITS\u003d64 you might be able to lose these too.\n\nthe only gotcha though is that if sqlite has any API with an off_t in it, you\u0027ll have to make sure that all callers are also built with _FILE_OFFSET_BITS\u003d64.",
+      "revId": "59026eb5f51650dffd10744df96a11c241e45921",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
