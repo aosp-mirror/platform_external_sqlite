@@ -12,6 +12,7 @@ LOCAL_PATH:= $(call my-dir)
 #   SQLITE_DEFAULT_AUTOVACUUM=1  causes the databases to be subject to auto-vacuum
 minimal_sqlite_flags := \
 	-DNDEBUG=1 \
+	-DHAVE_POSIX_FALLOCATE=1 \
 	-DHAVE_USLEEP=1 \
 	-DSQLITE_HAVE_ISNAN \
 	-DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576 \
