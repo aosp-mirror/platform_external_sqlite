@@ -138,9 +138,9 @@
 #endif
 
 /* ctype macros that work with signed characters */
-#define IsSpace(X)  isspace((unsigned char)X)
-#define IsDigit(X)  isdigit((unsigned char)X)
-#define ToLower(X)  (char)tolower((unsigned char)X)
+#define IsSpace(X)  isspace((unsigned char)(X))
+#define IsDigit(X)  isdigit((unsigned char)(X))
+#define ToLower(X)  (char)tolower((unsigned char)(X))
 
 /* On Windows, we normally run with output mode of TEXT so that \n characters
 ** are automatically translated into \r\n.  However, this behavior needs
@@ -610,7 +610,7 @@ static const char *modeDescr[] = {
 /*
 ** Number of elements in an array
 */
-#define ArraySize(X)  (int)(sizeof(X)/sizeof(X[0]))
+#define ArraySize(X)  (int)(sizeof(X)/sizeof((X)[0]))
 
 /*
 ** Compute a string length that is limited to what can be stored in
