@@ -138,9 +138,9 @@
 #endif
 
 /* ctype macros that work with signed characters */
-#define IsSpace(X)  isspace((unsigned char)X)
-#define IsDigit(X)  isdigit((unsigned char)X)
-#define ToLower(X)  (char)tolower((unsigned char)X)
+#define IsSpace(X)  isspace((unsigned char)(X))
+#define IsDigit(X)  isdigit((unsigned char)(X))
+#define ToLower(X)  (char)tolower((unsigned char)(X))
 
 #if defined(_WIN32) || defined(WIN32)
 #include <windows.h>
@@ -707,7 +707,7 @@ static const char *modeDescr[] = {
 /*
 ** Number of elements in an array
 */
-#define ArraySize(X)  (int)(sizeof(X)/sizeof(X[0]))
+#define ArraySize(X)  (int)(sizeof(X)/sizeof((X)[0]))
 
 /*
 ** A callback for the sqlite3_log() interface.
