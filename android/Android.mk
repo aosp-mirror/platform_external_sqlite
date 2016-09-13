@@ -19,7 +19,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= $(libsqlite3_android_local_src_files)
 LOCAL_C_INCLUDES += $(libsqlite3_android_c_includes)
 LOCAL_STATIC_LIBRARIES := liblog
-LOCAL_SHARED_LIBRARIES := libicuuc-host libicui18n-host
+LOCAL_SHARED_LIBRARIES := libicuuc libicui18n
 LOCAL_MODULE:= libsqlite3_android
 include $(BUILD_HOST_STATIC_LIBRARY)
 
