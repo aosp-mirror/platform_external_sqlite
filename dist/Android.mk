@@ -74,7 +74,7 @@ LOCAL_LDLIBS += -lpthread -ldl
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
 LOCAL_CFLAGS_linux += $(minimal_linux_flags)
 LOCAL_MODULE:= libsqlite
-LOCAL_SHARED_LIBRARIES += libicuuc-host libicui18n-host
+LOCAL_SHARED_LIBRARIES += libicuuc libicui18n
 LOCAL_STATIC_LIBRARIES := liblog libutils libcutils
 
 # include android specific methods
