@@ -34,6 +34,24 @@
       "revId": "7c1115ac9aca9441104dcf66194aa51cef2be4d0",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6be6865b_d0c6aa3f",
+        "filename": "android/sqlite3_android.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2016-09-14T00:36:54Z",
+      "side": 1,
+      "message": "ah, so it is. i still can\u0027t find any reference to _PHONE_NUMBERS_EQUAL though.\n\ni\u0027ll update the comment here...",
+      "parentUuid": "6be6865b_b0a04698",
+      "revId": "7c1115ac9aca9441104dcf66194aa51cef2be4d0",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
