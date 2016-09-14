@@ -16,6 +16,24 @@
       "revId": "7c1115ac9aca9441104dcf66194aa51cef2be4d0",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6be6865b_b0a04698",
+        "filename": "android/sqlite3_android.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 1003801
+      },
+      "writtenOn": "2016-09-14T00:34:04Z",
+      "side": 1,
+      "message": "This still seems be used to support the CP1 API in packages/providers/ContactsProvider/src/com/android/providers/contacts/LegacyApiSupport.java...",
+      "parentUuid": "6be6865b_15cac46b",
+      "revId": "7c1115ac9aca9441104dcf66194aa51cef2be4d0",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
