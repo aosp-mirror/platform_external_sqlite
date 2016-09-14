@@ -52,6 +52,24 @@
       "revId": "7c1115ac9aca9441104dcf66194aa51cef2be4d0",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6be6865b_30b8b6c1",
+        "filename": "android/sqlite3_android.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 1003801
+      },
+      "writtenOn": "2016-09-14T00:39:26Z",
+      "side": 1,
+      "message": "\"PHONE_NUMBERS_EQUAL\" (no prefix underscore) is used in packages/providers/ContactsProvider/src/com/android/providers/contacts/ContactsDatabaseHelper.java",
+      "parentUuid": "6be6865b_d0c6aa3f",
+      "revId": "7c1115ac9aca9441104dcf66194aa51cef2be4d0",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
