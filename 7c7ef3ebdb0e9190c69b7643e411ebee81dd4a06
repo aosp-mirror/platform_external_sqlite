@@ -1,0 +1,9 @@
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Verified+1: Alexey Polyudov <apolyudov@google.com>
+Code-Review+1: Mark Salyzyn <salyzyn@google.com>
+Code-Review+2: Elliott Hughes <enh@google.com>
+Submitted-by: Alexey Polyudov <apolyudov@google.com>
+Submitted-at: Tue, 27 Sep 2016 20:03:08 +0000
+Reviewed-on: https://android-review.googlesource.com/279733
+Project: platform/external/sqlite
+Branch: refs/heads/master
