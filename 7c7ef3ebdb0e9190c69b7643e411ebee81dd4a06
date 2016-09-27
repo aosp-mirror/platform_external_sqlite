@@ -22,6 +22,30 @@
       "revId": "7c7ef3ebdb0e9190c69b7643e411ebee81dd4a06",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5e0e714_062d4eb2",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1074628
+      },
+      "writtenOn": "2016-09-27T18:26:16Z",
+      "side": 1,
+      "message": "(symlinks are cleaner than #include)",
+      "parentUuid": "e5e0e714_2684cab9",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "7c7ef3ebdb0e9190c69b7643e411ebee81dd4a06",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
