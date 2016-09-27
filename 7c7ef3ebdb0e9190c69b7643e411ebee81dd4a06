@@ -118,6 +118,30 @@
       "revId": "7c7ef3ebdb0e9190c69b7643e411ebee81dd4a06",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5e0e714_665c12f0",
+        "filename": "dist/Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1003224
+      },
+      "writtenOn": "2016-09-27T18:50:22Z",
+      "side": 1,
+      "message": "for projects that have a mix of public and private headers, i\u0027ve checked in an include directory with just the public headers symlinked before, but sqlite3ext.h seems like it\u0027s meant to be public anyway.",
+      "parentUuid": "e5e0e714_a6443a6f",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "7c7ef3ebdb0e9190c69b7643e411ebee81dd4a06",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
