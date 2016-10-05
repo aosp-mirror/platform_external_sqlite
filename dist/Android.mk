@@ -42,9 +42,13 @@ device_sqlite_flags := $(minimal_sqlite_flags) \
 
 common_src_files := sqlite3.c
 
+# b/31938382, disable most clang-tidy checks to avoid segmentation fault.
+common_local_tidy_checks := -*,google-*,-google-readability-*
+
 # the device library
 include $(CLEAR_VARS)
 
+LOCAL_TIDY_CHECKS := $(common_local_tidy_checks)
 LOCAL_SRC_FILES := $(common_src_files)
 
 LOCAL_CFLAGS += $(device_sqlite_flags)
@@ -70,6 +74,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_TIDY_CHECKS := $(common_local_tidy_checks)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_LDLIBS += -lpthread -ldl
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
@@ -129,6 +134,7 @@ endif # !SDK_ONLY
 
 include $(CLEAR_VARS)
 
+LOCAL_TIDY_CHECKS := $(common_local_tidy_checks)
 LOCAL_SRC_FILES := $(common_src_files) shell.c
 LOCAL_CFLAGS += $(minimal_sqlite_flags) \
     -DNO_ANDROID_FUNCS=1
@@ -150,6 +156,7 @@ include $(BUILD_HOST_EXECUTABLE)
 # features against the NDK. This is used by libcore's JDBC related
 # unit tests.
 include $(CLEAR_VARS)
+LOCAL_TIDY_CHECKS := $(common_local_tidy_checks)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
 LOCAL_CFLAGS_linux += $(minimal_linux_flags)
@@ -161,6 +168,7 @@ include $(BUILD_STATIC_LIBRARY)
 
 # Same as libsqlite_static_minimal, except that this is for the host.
 include $(CLEAR_VARS)
+LOCAL_TIDY_CHECKS := $(common_local_tidy_checks)
 LOCAL_SRC_FILES := $(common_src_files)
 LOCAL_CFLAGS += $(minimal_sqlite_flags)
 LOCAL_CFLAGS_linux += $(minimal_linux_flags)
