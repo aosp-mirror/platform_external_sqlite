@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2016-08-12 02:17:06.000000000 +0200
-+++ ./shell.c	2016-08-15 16:55:13.427468671 +0200
+--- orig/shell.c	2016-10-14 16:15:24.955224267 +0200
++++ ./shell.c	2016-10-14 16:15:25.071222519 +0200
 @@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
@@ -14,7 +14,7 @@ diff -r -u -d orig/shell.c ./shell.c
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -2368,6 +2374,22 @@
+@@ -2395,6 +2401,22 @@
                              readfileFunc, 0, 0);
      sqlite3_create_function(p->db, "writefile", 2, SQLITE_UTF8, 0,
                              writefileFunc, 0, 0);
@@ -38,9 +38,9 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2016-08-12 02:17:06.000000000 +0200
-+++ ./sqlite3.c	2016-08-15 16:55:13.463467951 +0200
-@@ -32976,7 +32976,7 @@
+--- orig/sqlite3.c	2016-10-14 16:15:25.063222639 +0200
++++ ./sqlite3.c	2016-10-14 18:42:38.285079971 +0200
+@@ -33025,7 +33025,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -49,7 +49,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -33012,7 +33012,7 @@
+@@ -33061,7 +33061,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -58,7 +58,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -33586,7 +33586,7 @@
+@@ -33635,7 +33635,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -67,16 +67,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -34925,7 +34925,7 @@
-       *pUid = sStat.st_uid;
-       *pGid = sStat.st_gid;
-     }else{
--      rc = SQLITE_IOERR_FSTAT;
-+      rc = unixLogError(SQLITE_IOERR_FSTAT, "stat", zDb);
-     }
-   }else if( flags & SQLITE_OPEN_DELETEONCLOSE ){
-     *pMode = 0600;
-@@ -112895,7 +112895,7 @@
+@@ -113764,7 +113764,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -85,7 +76,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -145686,13 +145686,25 @@
+@@ -147014,13 +147014,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
