@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc7ca22f_c16070d4",
+        "filename": "dist/Android.patch",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2016-10-14T15:56:47Z",
+      "side": 1,
+      "message": "external/sqlite/dist/sqlite3.c:34922:51: error: use of undeclared identifier \u0027zDb\u0027\n    rc \u003d unixLogError(SQLITE_IOERR_FSTAT, \"stat\", zDb);\n                                                  ^\n1 error generated.",
+      "revId": "543f3ed31d46d5706869f2942b49ad95d793227d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc7ca22f_a15be427",
+        "filename": "dist/sqlite3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 34922,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2016-10-14T15:56:47Z",
+      "side": 1,
+      "message": "external/sqlite/dist/sqlite3.c:34922:51: error: use of undeclared identifier \u0027zDb\u0027\n    rc \u003d unixLogError(SQLITE_IOERR_FSTAT, \"stat\", zDb);\n                                                  ^\n1 error generated.",
+      "revId": "543f3ed31d46d5706869f2942b49ad95d793227d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
