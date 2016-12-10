@@ -1,0 +1,10 @@
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Code-Review+1: Alex Naidis <alex.naidis@linux.com>
+Code-Review+2: Nick Kralevich <nnk@google.com>
+Verified+1: Nick Kralevich <nnk@google.com>
+Autosubmit+1: Nick Kralevich <nnk@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Sat, 10 Dec 2016 06:30:43 +0000
+Reviewed-on: https://android-review.googlesource.com/312504
+Project: platform/external/sqlite
+Branch: refs/heads/master
