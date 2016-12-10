@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2016-11-04 19:21:18.000000000 +0100
-+++ ./shell.c	2016-11-05 15:37:30.041914978 +0100
+--- orig/shell.c	2016-11-29 04:29:24.000000000 +0900
++++ ./shell.c	2016-12-06 00:58:36.768702411 +0900
 @@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
@@ -38,8 +38,8 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2016-11-04 19:21:18.000000000 +0100
-+++ ./sqlite3.c	2016-11-05 15:37:30.071914348 +0100
+--- orig/sqlite3.c	2016-11-29 04:29:24.000000000 +0900
++++ ./sqlite3.c	2016-12-06 00:58:36.787701965 +0900
 @@ -33035,7 +33035,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
@@ -67,7 +67,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -113786,7 +113786,7 @@
+@@ -113802,7 +113802,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -76,7 +76,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -147039,13 +147039,25 @@
+@@ -147060,13 +147060,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
