@@ -1,0 +1,167 @@
+//
+//
+// Build the library
+//
+//
+
+cc_defaults {
+    name: "sqlite-minimal-defaults",
+    host_supported: true,
+
+    // b/31938382, disable most clang-tidy checks to avoid segmentation fault.
+    tidy_checks: [
+        "-*",
+        "google-*",
+        "-google-readability-*",
+    ],
+
+    // NOTE the following flags,
+    //   SQLITE_TEMP_STORE=3 causes all TEMP files to go into RAM. and thats the behavior we want
+    //   SQLITE_ENABLE_FTS3   enables usage of FTS3 - NOT FTS1 or 2.
+    //   SQLITE_DEFAULT_AUTOVACUUM=1  causes the databases to be subject to auto-vacuum
+    cflags: [
+        "-DNDEBUG=1",
+        "-DHAVE_USLEEP=1",
+        "-DSQLITE_HAVE_ISNAN",
+        "-DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576",
+        "-DSQLITE_THREADSAFE=2",
+        "-DSQLITE_TEMP_STORE=3",
+        "-DSQLITE_POWERSAFE_OVERWRITE=1",
+        "-DSQLITE_DEFAULT_FILE_FORMAT=4",
+        "-DSQLITE_DEFAULT_AUTOVACUUM=1",
+        "-DSQLITE_ENABLE_MEMORY_MANAGEMENT=1",
+        "-DSQLITE_ENABLE_FTS3",
+        "-DSQLITE_ENABLE_FTS3_BACKWARDS",
+        "-DSQLITE_ENABLE_FTS4",
+        "-DSQLITE_OMIT_BUILTIN_TEST",
+        "-DSQLITE_OMIT_COMPILEOPTION_DIAGS",
+        "-DSQLITE_OMIT_LOAD_EXTENSION",
+        "-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600",
+        "-DSQLITE_SECURE_DELETE",
+        "-Wno-unused-parameter",
+        "-Werror",
+    ],
+
+    target: {
+        linux: {
+            cflags: ["-DHAVE_POSIX_FALLOCATE=1"],
+        },
+    },
+}
+
+cc_defaults {
+    name: "sqlite-defaults",
+    defaults: ["sqlite-minimal-defaults"],
+    target: {
+        android: {
+            cflags: [
+                "-DSQLITE_ENABLE_ICU",
+                "-DUSE_PREAD64",
+                "-Dfdatasync=fdatasync",
+                "-DHAVE_MALLOC_H=1",
+                "-DHAVE_MALLOC_USABLE_SIZE",
+            ],
+        },
+    },
+}
+
+cc_library {
+    name: "libsqlite",
+    defaults: ["sqlite-defaults"],
+
+    srcs: ["sqlite3.c"],
+
+    target: {
+        android: {
+            shared_libs: [
+                "libdl",
+                "liblog",
+                "libutils",
+                "libicuuc",
+                "libicui18n",
+            ],
+
+            // include android specific methods
+            whole_static_libs: ["libsqlite3_android"],
+        },
+        host: {
+            static_libs: [
+                "liblog",
+                "libutils",
+            ],
+        },
+        not_windows: {
+            shared_libs: [
+                "libicuuc",
+                "libicui18n",
+            ],
+
+            // include android specific methods
+            whole_static_libs: ["libsqlite3_android"],
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+
+    export_include_dirs: ["."],
+}
+
+//
+//
+// Build the device command line tool sqlite3
+//
+//
+
+cc_binary {
+    name: "sqlite3",
+    defaults: ["sqlite-defaults"],
+
+    srcs: ["shell.c"],
+
+    tags: ["debug"],
+
+    target: {
+        android: {
+            shared_libs: [
+                "libsqlite",
+                "libicuuc",
+                "libicui18n",
+                "liblog",
+                "libutils",
+            ],
+            static_libs: [
+                "libicuandroid_utils",
+            ],
+        },
+        host: {
+            cflags: ["-DNO_ANDROID_FUNCS=1"],
+            static_libs: [
+                "libsqlite",
+                // sqlite3MemsysAlarm uses LOG()
+                "liblog",
+            ],
+        },
+        not_windows: {
+            host_ldlibs: [
+                "-lpthread",
+                "-ldl",
+            ],
+        },
+
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+// Build a minimal version of sqlite3 without any android specific
+// features against the NDK. This is used by libcore's JDBC related
+// unit tests.
+cc_library_static {
+    name: "libsqlite_static_minimal",
+    defaults: ["sqlite-minimal-defaults"],
+    srcs: ["sqlite3.c"],
+    sdk_version: "23",
+    export_include_dirs: ["."],
+}
