@@ -25,7 +25,7 @@
 #include <unicode/uiter.h>
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
-#include <cutils/log.h>
+#include <log/log.h>
 
 #include "sqlite3_android.h"
 #include "PhoneNumberUtils.h"
