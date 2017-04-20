@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3dcdd2e6_79f7cf19",
+        "filename": "dist/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1074628
+      },
+      "writtenOn": "2017-04-20T00:50:01Z",
+      "side": 1,
+      "message": "This didn\u0027t seem to be enabled before, though it seems reasonable",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 10
+      },
+      "revId": "1163ef7e8c25939aace505cf632f861c38f53c1a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e9c5222_8377feee",
+        "filename": "dist/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1074628
+      },
+      "writtenOn": "2017-04-20T00:50:01Z",
+      "side": 1,
+      "message": "not_windows?",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 162,
+        "endChar": 10
+      },
+      "revId": "1163ef7e8c25939aace505cf632f861c38f53c1a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
