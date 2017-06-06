@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309bfd52_c289082d",
+        "filename": "OWNERS",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1003801
+      },
+      "writtenOn": "2017-06-06T15:11:17Z",
+      "side": 1,
+      "message": "Could you add fkupolov@ too?  He\u0027s the official owner of SQLite related code from the framework side.",
+      "revId": "f38229167760c8f7c338491a81a8572442650b84",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
