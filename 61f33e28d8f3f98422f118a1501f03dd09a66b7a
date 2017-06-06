@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eea55f3c_b5c0cf3c",
+        "filename": "OWNERS",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2017-06-06T15:56:00Z",
+      "side": 1,
+      "message": "please add a newline to the end of this file.",
+      "revId": "61f33e28d8f3f98422f118a1501f03dd09a66b7a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
