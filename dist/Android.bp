@@ -8,11 +8,9 @@ cc_defaults {
     name: "sqlite-minimal-defaults",
     host_supported: true,
 
-    // b/31938382, disable most clang-tidy checks to avoid segmentation fault.
+    // static analysis is too slow on these huge files.
     tidy_checks: [
-        "-*",
-        "google-*",
-        "-google-readability-*",
+        "-clang-analyzer-*",
     ],
 
     // NOTE the following flags,
