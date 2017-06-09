@@ -1,0 +1,9 @@
+Verified+1: Chih-hung Hsieh <chh@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Code-Review+1: Yan Wang <yawanng@google.com>
+Code-Review+2: Chih-hung Hsieh <chh@google.com>
+Submitted-by: Chih-hung Hsieh <chh@google.com>
+Submitted-at: Fri, 09 Jun 2017 21:59:08 +0000
+Reviewed-on: https://android-review.googlesource.com/393513
+Project: platform/external/sqlite
+Branch: refs/heads/master
