@@ -66,6 +66,7 @@ cc_defaults {
 cc_library {
     name: "libsqlite",
     defaults: ["sqlite-defaults"],
+    vendor_available: true,
 
     srcs: ["sqlite3.c"],
 
