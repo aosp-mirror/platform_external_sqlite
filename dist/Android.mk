@@ -28,9 +28,7 @@ minimal_sqlite_flags := \
 	-DSQLITE_OMIT_COMPILEOPTION_DIAGS \
 	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600 \
-	-DSQLITE_SECURE_DELETE \
-	-Wno-unused-parameter \
-	-Werror
+	-DSQLITE_SECURE_DELETE
 
 minimal_linux_flags := \
     -DHAVE_POSIX_FALLOCATE=1 \
