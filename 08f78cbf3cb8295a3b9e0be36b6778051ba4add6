@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2241e97_e9bdfdf9",
+        "filename": "dist/shell.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 1084139
+      },
+      "writtenOn": "2017-08-01T20:12:13Z",
+      "side": 1,
+      "message": "handle leak if pBuf is null: fclose(in) is needed",
+      "revId": "08f78cbf3cb8295a3b9e0be36b6778051ba4add6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
