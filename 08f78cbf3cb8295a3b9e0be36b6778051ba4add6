@@ -16,6 +16,24 @@
       "revId": "08f78cbf3cb8295a3b9e0be36b6778051ba4add6",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1824541_33352cea",
+        "filename": "dist/shell.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 1092708
+      },
+      "writtenOn": "2017-08-01T20:15:30Z",
+      "side": 1,
+      "message": "You are right.\nWe are using 3.18 currently and will probably update to 3.20 soon (for master), I will check whether the issue is still there in these newer releases.\nThanks!",
+      "parentUuid": "b2241e97_e9bdfdf9",
+      "revId": "08f78cbf3cb8295a3b9e0be36b6778051ba4add6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
