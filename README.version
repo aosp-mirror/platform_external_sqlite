@@ -1,4 +1,4 @@
-URL: https://sqlite.org/src/tarball/SQLite-def55027.tar.gz
-Version: 3.19.3 def55027b1f1db
+URL: https://sqlite.org/src/tarball/SQLite-2dd0c77d.tar.gz
+Version: 3.19.4 2dd0c77d54b333be
 Branch: batch-atomic-write-3.19
 BugComponent: 24950
