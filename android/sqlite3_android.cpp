@@ -21,10 +21,19 @@
 #include <string.h>
 #include <unistd.h>
 
+// ICU is turned off when sqlite is built for VNDK
+#ifndef __ANDROID_VNDK__
+#define SQLITE_ENABLE_ICU
+#else
+#undef SQLITE_ENABLE_ICU
+#endif
+
+#ifdef SQLITE_ENABLE_ICU
 #include <unicode/ucol.h>
 #include <unicode/uiter.h>
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
+#endif //SQLITE_ENABLE_ICU
 #include <log/log.h>
 
 #include "sqlite3_android.h"
@@ -34,6 +43,7 @@
 #define SMALL_BUFFER_SIZE 10
 #define PHONE_NUMBER_BUFFER_SIZE 40
 
+#ifdef SQLITE_ENABLE_ICU
 static int collate16(void *p, int n1, const void *v1, int n2, const void *v2)
 {
     UCollator *coll = (UCollator *) p;
@@ -72,6 +82,7 @@ static int collate8(void *p, int n1, const void *v1, int n2, const void *v2)
         return 0;
     }
 }
+#endif // SQLITE_ENABLE_ICU
 
 static void phone_numbers_equal(sqlite3_context * context, int argc, sqlite3_value ** argv)
 {
@@ -205,6 +216,7 @@ static void delete_file(sqlite3_context * context, int argc, sqlite3_value ** ar
     }
 }
 
+#ifdef SQLITE_ENABLE_ICU
 static void tokenize_auxdata_delete(void * data)
 {
     sqlite3_stmt * statement = (sqlite3_stmt *)data;
@@ -413,8 +425,15 @@ static void localized_collator_dtor(UCollator* collator)
 // This collator may be removed in the near future, so you MUST not use now.
 #define PHONEBOOK_COLLATOR_NAME "PHONEBOOK"
 
-extern "C" int register_localized_collators(sqlite3* handle, const char* systemLocale, int utf16Storage)
+#endif // SQLITE_ENABLE_ICU
+
+extern "C" int register_localized_collators(sqlite3* handle __attribute((unused)),
+                                            const char* systemLocale __attribute((unused)),
+                                            int utf16Storage __attribute((unused)))
 {
+// This function is no-op for the VNDK, but should exist in case when some vendor
+// module has a reference to this function.
+#ifdef SQLITE_ENABLE_ICU
     UErrorCode status = U_ZERO_ERROR;
     UCollator* collator = ucol_open(systemLocale, &status);
     if (U_FAILURE(status)) {
@@ -478,14 +497,16 @@ extern "C" int register_localized_collators(sqlite3* handle, const char* systemL
         return err;
     }
     //// PHONEBOOK_COLLATOR
+#endif //SQLITE_ENABLE_ICU
 
     return SQLITE_OK;
 }
 
 
-extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
+extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage __attribute((unused)))
 {
     int err;
+#ifdef SQLITE_ENABLE_ICU
     UErrorCode status = U_ZERO_ERROR;
 
     UCollator * collator = ucol_open(NULL, &status);
@@ -511,6 +532,7 @@ extern "C" int register_android_functions(sqlite3 * handle, int utf16Storage)
     if (err != SQLITE_OK) {
         return err;
     }
+#endif // SQLITE_ENABLE_ICU
 
     // Register the PHONE_NUM_EQUALS function
     err = sqlite3_create_function(

@@ -66,6 +66,10 @@ cc_defaults {
 cc_library {
     name: "libsqlite",
     defaults: ["sqlite-defaults"],
+    vendor_available: true,
+    vndk: {
+        enabled: true,
+    },
 
     srcs: ["sqlite3.c"],
 
@@ -99,6 +103,9 @@ cc_library {
         },
         windows: {
             enabled: true,
+        },
+        vendor: {
+            exclude_shared_libs: ["libicuuc", "libicui18n"],
         },
     },
 
