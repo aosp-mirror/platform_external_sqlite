@@ -13,6 +13,11 @@ cc_library_static {
         "libicuuc",
         "libicui18n",
     ],
+    target: {
+        vendor: {
+            exclude_shared_libs: ["libicuuc", "libicui18n"],
+        },
+    },
     export_include_dirs: ["."],
 }
 
