@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2017-06-09 18:50:55.552361036 +0900
-+++ ./shell.c	2017-06-09 18:50:55.636359925 +0900
+--- orig/shell.c	2017-07-24 11:46:21.256572726 +0900
++++ ./shell.c	2017-07-24 11:46:21.336572354 +0900
 @@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
@@ -38,25 +38,9 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2017-06-26 14:41:48.608892557 +0900
-+++ ./sqlite3.c	2017-08-10 10:30:27.105711381 +0900
-@@ -84,6 +84,15 @@
- #endif
- 
- /*
-+** When sqlite is built for the VNDK, ICU is disabled because
-+** libicuuc.so and libicui18n.so aren't available then.
-+** TODO(b/64514237): move this to Android.bp
-+*/
-+#ifdef __ANDROID_VNDK__
-+#undef SQLITE_ENABLE_ICU
-+#endif
-+
-+/*
- ** Include the header file used to customize the compiler options for MSVC.
- ** This should be done first so that it can successfully prevent spurious
- ** compiler warnings due to subsequent content in this file and other files
-@@ -33542,7 +33551,7 @@
+--- orig/sqlite3.c	2017-07-24 11:46:21.332572372 +0900
++++ ./sqlite3.c	2017-09-07 15:23:58.115384654 +0900
+@@ -33542,7 +33542,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -65,7 +49,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -33578,7 +33587,7 @@
+@@ -33578,7 +33578,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -74,7 +58,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -34152,7 +34161,7 @@
+@@ -34152,7 +34152,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -83,7 +67,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -115928,7 +115937,7 @@
+@@ -115928,7 +115928,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -92,7 +76,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -149763,13 +149772,25 @@
+@@ -149763,13 +149763,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
