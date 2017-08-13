@@ -21,13 +21,6 @@
 #include <string.h>
 #include <unistd.h>
 
-// ICU is turned off when sqlite is built for VNDK
-#ifndef __ANDROID_VNDK__
-#define SQLITE_ENABLE_ICU
-#else
-#undef SQLITE_ENABLE_ICU
-#endif
-
 #ifdef SQLITE_ENABLE_ICU
 #include <unicode/ucol.h>
 #include <unicode/uiter.h>
