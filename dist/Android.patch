@@ -1,7 +1,7 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2017-05-24 17:13:50.000000000 +0200
-+++ ./shell.c	2017-05-24 19:24:05.290434785 +0200
-@@ -52,6 +52,12 @@
+--- orig/shell.c	2017-08-15 19:43:31.639009767 +0200
++++ ./shell.c	2017-08-15 20:09:02.991256197 +0200
+@@ -84,6 +84,12 @@
  #endif
  #include <ctype.h>
  #include <stdarg.h>
@@ -14,10 +14,10 @@ diff -r -u -d orig/shell.c ./shell.c
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -3509,6 +3515,22 @@
-                             sha3QueryFunc, 0, 0);
-     sqlite3_create_function(p->db, "sha3_query", 2, SQLITE_UTF8, 0,
-                             sha3QueryFunc, 0, 0);
+@@ -4254,6 +4260,22 @@
+     sqlite3_completion_init(p->db, 0, 0);
+     sqlite3_create_function(p->db, "shell_add_schema", 2, SQLITE_UTF8, 0,
+                             shellAddSchemaName, 0, 0);
 +
 +    // Begin Android Add
 +    #ifndef NO_ANDROID_FUNCS
@@ -38,9 +38,9 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2017-05-24 17:13:50.000000000 +0200
-+++ ./sqlite3.c	2017-05-24 19:24:05.339433935 +0200
-@@ -33542,7 +33542,7 @@
+--- orig/sqlite3.c	2017-08-15 19:43:31.642343076 +0200
++++ ./sqlite3.c	2017-08-15 19:44:07.442080832 +0200
+@@ -34076,7 +34076,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -49,7 +49,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -33578,7 +33578,7 @@
+@@ -34112,7 +34112,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -58,7 +58,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -34152,7 +34152,7 @@
+@@ -34686,7 +34686,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -67,7 +67,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -115926,7 +115926,7 @@
+@@ -116795,7 +116795,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -76,7 +76,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -149753,13 +149753,25 @@
+@@ -150980,13 +150980,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
