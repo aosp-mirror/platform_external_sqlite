@@ -1,0 +1,10 @@
+Code-Review+2: Andrew Hsieh <andrewhsieh@google.com>
+Code-Review+2: Narayan Kamath <narayan@google.com>
+Verified+1: Jiyong Park <jiyong@google.com>
+Autosubmit+1: Jiyong Park <jiyong@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Fri, 18 Aug 2017 08:32:55 +0000
+Reviewed-on: https://android-review.googlesource.com/455678
+Project: platform/external/sqlite
+Branch: refs/heads/master
