@@ -51,7 +51,6 @@ cc_defaults {
     target: {
         android: {
             cflags: [
-                "-DSQLITE_ENABLE_ICU",
                 "-DUSE_PREAD64",
                 "-Dfdatasync=fdatasync",
                 "-DHAVE_MALLOC_H=1",
@@ -80,6 +79,7 @@ cc_library {
                 "libicuuc",
                 "libicui18n",
             ],
+            cflags: ["-DSQLITE_ENABLE_ICU"],
 
             // include android specific methods
             whole_static_libs: ["libsqlite3_android"],
@@ -103,6 +103,7 @@ cc_library {
             enabled: true,
         },
         vendor: {
+            cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libicuuc", "libicui18n"],
         },
     },
