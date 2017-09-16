@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2017-06-17 03:16:30.000000000 -0700
-+++ ./shell.c	2017-06-19 09:45:58.799840492 -0700
+--- orig/shell.c	2017-07-21 01:33:39.680803539 -0700
++++ ./shell.c	2017-07-21 01:33:54.068697869 -0700
 @@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
@@ -38,9 +38,9 @@ diff -r -u -d orig/shell.c ./shell.c
  }
  
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2017-06-17 03:16:30.000000000 -0700
-+++ ./sqlite3.c	2017-06-19 09:45:58.859839260 -0700
-@@ -33497,7 +33497,7 @@
+--- orig/sqlite3.c	2017-07-21 01:33:39.908801867 -0700
++++ ./sqlite3.c	2017-07-21 01:33:54.116697517 -0700
+@@ -33501,7 +33501,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -49,7 +49,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -33533,7 +33533,7 @@
+@@ -33537,7 +33537,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -58,7 +58,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -34107,7 +34107,7 @@
+@@ -34111,7 +34111,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -67,7 +67,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -115663,7 +115663,7 @@
+@@ -115679,7 +115679,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -76,7 +76,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -149204,13 +149204,25 @@
+@@ -149217,13 +149217,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
