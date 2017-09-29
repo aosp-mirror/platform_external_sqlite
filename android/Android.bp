@@ -2,7 +2,13 @@ cc_library_static {
     name: "libsqlite3_android",
     vendor_available: true,
     host_supported: true,
-    cflags: ["-DSQLITE_ENABLE_ICU"],
+    cflags: [
+        "-DSQLITE_ENABLE_ICU",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-function",
+        "-Wno-unused-variable",
+    ],
     srcs: [
         "PhoneNumberUtils.cpp",
         "OldPhoneNumberUtils.cpp",
