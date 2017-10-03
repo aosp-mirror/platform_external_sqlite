@@ -41,7 +41,7 @@ cc_defaults {
     ],
 
     target: {
-        linux: {
+        linux_glibc: {
             cflags: ["-DHAVE_POSIX_FALLOCATE=1"],
         },
     },
