@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54dc206c_fc56b598",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002751
+      },
+      "writtenOn": "2017-10-25T22:46:31Z",
+      "side": 1,
+      "message": "Same as the other patch, DO NOT MERGE is almost never what you want, you need to merge through various *-plus-aosp branches or the change will be undone when the next *-plus-aosp branch is pushed to AOSP.",
+      "revId": "7a026de4314cbc61195b5e4ed8462049ab8b4ab2",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
