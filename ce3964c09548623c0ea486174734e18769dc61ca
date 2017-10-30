@@ -22,6 +22,30 @@
       "revId": "ce3964c09548623c0ea486174734e18769dc61ca",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0b601b0_4b2f6316",
+        "filename": "dist/Android.bp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010056
+      },
+      "writtenOn": "2017-10-30T19:56:26Z",
+      "side": 1,
+      "message": "We are trying to get \"-Wall -Werror\" enabled cleanly, and external/ projects are a huge burden. Suppressing is our only solution in many of these cases. Ignoring unused functions/parameters is pretty tame (and google3 also ignores these). Fixing this in upstream would be great, but it is probably something that could be better handled by the OWNERS of the project rather than the toolchain team. In the meantime, I would really like to get our builds quiet enough to spot/resolve actual issues.\n\nIf there aren\u0027t a crazy amount of these, then perhaps they belong in the log message, but very often, there are 100s of these messages, which don\u0027t really add much (since undoing this part of the CL is quite easy).",
+      "parentUuid": "744ae639_1a547c8a",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 32
+      },
+      "revId": "ce3964c09548623c0ea486174734e18769dc61ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
