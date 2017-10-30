@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "744ae639_1a547c8a",
+        "filename": "dist/Android.bp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1003966
+      },
+      "writtenOn": "2017-10-30T19:33:27Z",
+      "side": 1,
+      "message": "if these are happening, shouldn\u0027t we ask the SQLite maintainer to fix it?\n\nAlso, can you add more details of what exactly we\u0027re suppressing? Adding this to the commit message would be very helpful.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 32
+      },
+      "revId": "ce3964c09548623c0ea486174734e18769dc61ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
