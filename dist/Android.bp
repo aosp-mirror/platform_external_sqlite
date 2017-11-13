@@ -36,6 +36,9 @@ cc_defaults {
         "-DSQLITE_OMIT_LOAD_EXTENSION",
         "-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600",
         "-DSQLITE_SECURE_DELETE",
+        "-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE",
+        "-Wno-unused-parameter",
+        "-Werror",
     ],
 
     target: {
