@@ -15,7 +15,7 @@ cc_library_static {
         "sqlite3_android.cpp",
     ],
     include_dirs: ["external/sqlite/dist"],
-    shared_libs: [
+    static_libs: [
         "liblog",
         "libicuuc",
         "libicui18n",
