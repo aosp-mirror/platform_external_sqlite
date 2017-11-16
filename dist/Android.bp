@@ -76,15 +76,16 @@ cc_library {
 
     target: {
         android: {
-            shared_libs: [
+            cflags: ["-DSQLITE_ENABLE_ICU"],
+
+            static_libs: [
                 "libdl",
                 "liblog",
                 "libutils",
-                "libicuuc",
-                "libicui18n",
+                "libicuuc_stubdata",
+                "libicuuc_static",
+                "libicui18n_static",
             ],
-            cflags: ["-DSQLITE_ENABLE_ICU"],
-
             // include android specific methods
             whole_static_libs: ["libsqlite3_android"],
         },
