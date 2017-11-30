@@ -105,6 +105,7 @@ cc_library {
         },
         windows: {
             enabled: true,
+            cflags: ["-Wno-error=missing-field-initializers"],
         },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
