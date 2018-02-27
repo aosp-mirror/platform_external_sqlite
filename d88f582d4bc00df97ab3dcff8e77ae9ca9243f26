@@ -1,0 +1,11 @@
+Verified+1: Nick Kralevich <nnk@google.com>
+Autosubmit+1: Nick Kralevich <nnk@google.com>
+Code-Review+2: Jeffrey Vander Stoep <jeffv@google.com>
+Code-Review+2: Daniel Cashman <dcashman@google.com>
+Code-Review+2: Fyodor Kupolov <fkupolov@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Tue, 27 Feb 2018 18:57:28 +0000
+Reviewed-on: https://android-review.googlesource.com/628548
+Project: platform/external/sqlite
+Branch: refs/heads/master
