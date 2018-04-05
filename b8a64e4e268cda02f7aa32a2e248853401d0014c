@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "088157d2_8ec12122",
+        "filename": "dist/Android.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1059418
+      },
+      "writtenOn": "2018-04-05T23:03:17Z",
+      "side": 0,
+      "message": "Why these changes were dropped?",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 70
+      },
+      "revId": "b8a64e4e268cda02f7aa32a2e248853401d0014c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
