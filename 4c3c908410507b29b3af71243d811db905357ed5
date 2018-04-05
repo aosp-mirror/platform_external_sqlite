@@ -22,6 +22,30 @@
       "revId": "4c3c908410507b29b3af71243d811db905357ed5",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1b6235a2_e6b0e98e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1072971
+      },
+      "writtenOn": "2018-04-05T23:53:56Z",
+      "side": 1,
+      "message": "Ran test. Commit message updated.",
+      "parentUuid": "46993933_df87850d",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 18
+      },
+      "revId": "4c3c908410507b29b3af71243d811db905357ed5",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
