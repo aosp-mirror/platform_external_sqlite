@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ab1af2f_cfaf54f3",
+        "filename": "README.version",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1059418
+      },
+      "writtenOn": "2018-04-06T00:39:28Z",
+      "side": 1,
+      "message": "This is the unique identifier of the release - first of 8 bytes of SHA3. Should be 736b53f57f70b231",
+      "range": {
+        "startLine": 2,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 32
+      },
+      "revId": "b9390e667f199015a2434c42214a8218b556e33e",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
