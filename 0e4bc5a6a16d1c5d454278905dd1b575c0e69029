@@ -22,6 +22,30 @@
       "revId": "0e4bc5a6a16d1c5d454278905dd1b575c0e69029",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "daa49a3a_39ee38e6",
+        "filename": "dist/Android.patch",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1072971
+      },
+      "writtenOn": "2018-04-06T00:25:54Z",
+      "side": 1,
+      "message": "Opps. Fixed.",
+      "parentUuid": "fd43da30_ada30ce2",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 77
+      },
+      "revId": "0e4bc5a6a16d1c5d454278905dd1b575c0e69029",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
