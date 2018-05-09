@@ -1,0 +1,8 @@
+Verified+1: Dan Willemsen <dwillemsen@google.com>
+Presubmit-Verified+1: android-build-prod (mdb) <android-build-team-robot@google.com>
+Code-Review+2: Colin Cross <ccross@android.com>
+Submitted-by: Dan Willemsen <dwillemsen@google.com>
+Submitted-at: Wed, 09 May 2018 05:59:02 +0000
+Reviewed-on: https://android-review.googlesource.com/681268
+Project: platform/external/sqlite
+Branch: refs/heads/master
