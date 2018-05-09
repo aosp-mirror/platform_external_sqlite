@@ -127,8 +127,6 @@ cc_binary {
 
     srcs: ["shell.c"],
 
-    tags: ["debug"],
-
     target: {
         android: {
             shared_libs: [
