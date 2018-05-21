@@ -37,6 +37,7 @@ cc_defaults {
         "-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600",
         "-DSQLITE_SECURE_DELETE",
         "-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE",
+        "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-Wno-unused-parameter",
         "-Werror",
     ],
@@ -125,8 +126,6 @@ cc_binary {
     defaults: ["sqlite-defaults"],
 
     srcs: ["shell.c"],
-
-    tags: ["debug"],
 
     target: {
         android: {
