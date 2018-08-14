@@ -231,8 +231,8 @@ static int tryGetCountryCallingCode(const char *str, size_t len,
 
 /**
  * Return true if the prefix of "ch" is "ignorable". Here, "ignorable" means
- * that "ch" has only one digit and separater characters. The one digit is
- * assumed to be trunk prefix.
+ * that "ch" has only one digit and separator characters. The one digit is
+ * assumed to be the trunk prefix.
  */
 static bool checkPrefixIsIgnorable(const char* ch, int i) {
     bool trunk_prefix_was_read = false;
@@ -304,7 +304,7 @@ static bool phone_number_compare_inter(const char* const org_a, const char* cons
     int ccc_a = tryGetCountryCallingCode(a, len_a, &tmp_a, &tmp_len_a, accept_thailand_case);
     int ccc_b = tryGetCountryCallingCode(b, len_b, &tmp_b, &tmp_len_b, accept_thailand_case);
     bool both_have_ccc = false;
-    bool ok_to_ignore_prefix = true;
+    bool may_ignore_prefix = true;
     bool trunk_prefix_is_omitted_a = false;
     bool trunk_prefix_is_omitted_b = false;
     if (ccc_a >= 0 && ccc_b >= 0) {
@@ -314,12 +314,12 @@ static bool phone_number_compare_inter(const char* const org_a, const char* cons
         }
         // When both have ccc, do not ignore trunk prefix. Without this,
         // "+81123123" becomes same as "+810123123" (+81 == Japan)
-        ok_to_ignore_prefix = false;
+        may_ignore_prefix = false;
         both_have_ccc = true;
     } else if (ccc_a < 0 && ccc_b < 0) {
         // When both do not have ccc, do not ignore trunk prefix. Without this,
         // "123123" becomes same as "0123123"
-        ok_to_ignore_prefix = false;
+        may_ignore_prefix = false;
     } else {
         if (ccc_a < 0) {
             tryGetTrunkPrefixOmittedStr(a, len_a, &tmp_a, &tmp_len_a);
@@ -364,9 +364,9 @@ static bool phone_number_compare_inter(const char* const org_a, const char* cons
         }
     }
 
-    if (ok_to_ignore_prefix) {
-        if ((trunk_prefix_is_omitted_a && i_a >= 0) ||
-            !checkPrefixIsIgnorable(a, i_a)) {
+    if (may_ignore_prefix) {
+        bool trunk_prefix_ignorable_a = checkPrefixIsIgnorable(a, i_a);
+        if ((trunk_prefix_is_omitted_a && i_a >= 0) || !trunk_prefix_ignorable_a) {
             if (accept_thailand_case) {
                 // Maybe the code handling the special case for Thailand makes the
                 // result garbled, so disable the code and try again.
@@ -381,18 +381,31 @@ static bool phone_number_compare_inter(const char* const org_a, const char* cons
             } else {
                 return false;
             }
+        } else if (trunk_prefix_ignorable_a && trunk_prefix_is_omitted_b) {
+            bool cmp_prefixes = i_a == 0 && isDialable(a[i_a]);
+            if (cmp_prefixes && org_b[i_a] != a[i_a]) {
+                // Unmatched trunk prefix
+                return false;
+            }
         }
-        if ((trunk_prefix_is_omitted_b && i_b >= 0) ||
-            !checkPrefixIsIgnorable(b, i_b)) {
+
+        bool trunk_prefix_ignorable_b = checkPrefixIsIgnorable(b, i_b);
+        if ((trunk_prefix_is_omitted_b && i_b >= 0) || !trunk_prefix_ignorable_b) {
             if (accept_thailand_case) {
                 return phone_number_compare_inter(org_a, org_b, false);
             } else {
                 return false;
             }
+        } else if (trunk_prefix_ignorable_b && trunk_prefix_is_omitted_a) {
+            bool cmp_prefixes = i_b == 0 && isDialable(b[i_b]);
+            if (cmp_prefixes && org_a[i_b] != b[i_b]) {
+                // Unmatched trunk prefix
+                return false;
+            }
         }
     } else {
         // In the US, 1-650-555-1234 must be equal to 650-555-1234,
-        // while 090-1234-1234 must not be equalt to 90-1234-1234 in Japan.
+        // while 090-1234-1234 must not be equal to 90-1234-1234 in Japan.
         // This request exists just in US (with 1 trunk (NDD) prefix).
         // In addition, "011 11 7005554141" must not equal to "+17005554141",
         // while "011 1 7005554141" must equal to "+17005554141"
