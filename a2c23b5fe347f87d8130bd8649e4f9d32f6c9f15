@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cb75881_eafc37a2",
+        "filename": "OWNERS",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2018-08-24T03:43:52Z",
+      "side": 1,
+      "message": "This person doesn\u0027t write Android code  :)",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 19
+      },
+      "revId": "a2c23b5fe347f87d8130bd8649e4f9d32f6c9f15",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
