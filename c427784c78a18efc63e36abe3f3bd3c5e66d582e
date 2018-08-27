@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45dbf1eb_e2fe5296",
+        "filename": "dist/sqlite3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 30675,
+      "author": {
+        "id": 1003801
+      },
+      "writtenOn": "2018-08-27T18:08:54Z",
+      "side": 1,
+      "message": "Should it also have \"__ANDROID_API__ \u003e\u003d __ANDROID_API_Q__\"?",
+      "revId": "c427784c78a18efc63e36abe3f3bd3c5e66d582e",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
