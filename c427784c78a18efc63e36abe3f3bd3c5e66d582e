@@ -16,6 +16,24 @@
       "revId": "c427784c78a18efc63e36abe3f3bd3c5e66d582e",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9021028e_d3e79482",
+        "filename": "dist/sqlite3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 30675,
+      "author": {
+        "id": 1079148
+      },
+      "writtenOn": "2018-08-27T23:52:43Z",
+      "side": 1,
+      "message": "The header should always be there, the reason for the guards below is that the functions are guarded with their own ifdefs when we compile against the NDK. (if you don\u0027t have a new NDK, you don\u0027t have the header, but you also don\u0027t have a definition of __ANDROID_API_Q__, which will turn into 0 because the C preprocessor hates you)",
+      "parentUuid": "45dbf1eb_e2fe5296",
+      "revId": "c427784c78a18efc63e36abe3f3bd3c5e66d582e",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
     }
   ]
 }
