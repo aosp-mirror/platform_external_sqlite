@@ -1,0 +1,9 @@
+Verified+1: Josh Gao <jmgao@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Code-Review+2: Makoto Onuki <omakoto@google.com>
+Autosubmit+1: Josh Gao <jmgao@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Tue, 28 Aug 2018 00:16:33 +0000
+Reviewed-on: https://android-review.googlesource.com/736098
+Project: platform/external/sqlite
+Branch: refs/heads/master
