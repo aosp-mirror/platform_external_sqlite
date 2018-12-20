@@ -1,6 +1,5 @@
-diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2017-07-21 09:46:53.488326209 +0900
-+++ ./shell.c	2017-07-21 09:46:53.620324492 +0900
+--- orig/shell.c	2019-01-02 14:50:34.332810092 -0800
++++ shell.c	2019-01-02 14:50:34.384809875 -0800
 @@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
@@ -37,10 +36,9 @@ diff -r -u -d orig/shell.c ./shell.c
    }
  }
  
-diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2017-08-04 10:42:31.294648222 +0900
-+++ ./sqlite3.c	2017-08-10 13:27:29.784569745 +0900
-@@ -33618,7 +33618,7 @@
+--- orig/sqlite3.c	2019-01-02 15:26:14.984740997 -0800
++++ sqlite3.c	2019-01-02 15:39:55.689451371 -0800
+@@ -33622,7 +33622,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -49,7 +47,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
    }
    *pSize = buf.st_size;
  
-@@ -33654,7 +33654,7 @@
+@@ -33658,7 +33658,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -58,7 +56,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -34262,7 +34262,7 @@
+@@ -34266,7 +34266,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -67,7 +65,7 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
        goto shm_open_err;
      }
  
-@@ -116120,7 +116120,7 @@
+@@ -116137,7 +116137,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -76,7 +74,15 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -149914,13 +149914,25 @@
+@@ -149535,6 +149535,7 @@
+     char *zErr = sqlite3_mprintf("illegal first argument to %s", zFunc);
+     sqlite3_result_error(pContext, zErr, -1);
+     sqlite3_free(zErr);
++    *ppCsr = pRet;
+     return SQLITE_ERROR;
+   }
+   *ppCsr = pRet;
+@@ -149929,13 +149930,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
