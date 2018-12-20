@@ -1,3 +1,4 @@
-URL: https://sqlite.org/src/tarball/SQLite-69906880.tar.gz?uuid=69906880cee1f246cce494672402e0c7f29bd4ec19c437d26d603870d2bd625d
-Version: 3.9.2
+URL: https://www.sqlite.org/src/info/4cb67252d39fc537
+Version: 3.9.3 4cb67252d39fc537601f75532ec8271994aed8bae4d20ba48a3262b52ed004c0
+This patch fixes Magellan SQLite Security Vulnerability as in b/121156452
 BugComponent: 24950
