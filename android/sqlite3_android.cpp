@@ -267,7 +267,7 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
     int useTokenIndex = 0;
     int useDataTag = 0;
 
-    if (!(argc >= 4 || argc <= 6)) {
+    if (!(argc >= 4 && argc <= 6)) {
         ALOGE("Tokenize requires 4 to 6 arguments");
         sqlite3_result_null(context);
         return;
