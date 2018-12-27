@@ -1,6 +1,6 @@
 diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2018-01-22 10:57:34.000000000 -0800
-+++ ./shell.c	2018-02-13 16:03:40.927106364 -0800
+--- orig/shell.c	2018-04-13 17:25:47.747857988 -0700
++++ ./shell.c	2018-04-13 17:25:47.787857731 -0700
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
@@ -39,8 +39,8 @@ diff -r -u -d orig/shell.c ./shell.c
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
 diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2018-01-22 10:57:34.000000000 -0800
-+++ ./sqlite3.c	2018-02-13 15:48:29.453358014 -0800
+--- orig/sqlite3.c	2018-12-27 15:39:18.784267281 -0800
++++ ./sqlite3.c	2018-12-27 15:39:18.788267250 -0800
 @@ -34428,7 +34428,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
