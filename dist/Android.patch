@@ -1,6 +1,5 @@
-diff -r -u -d orig/shell.c ./shell.c
---- orig/shell.c	2017-07-21 01:33:39.680803539 -0700
-+++ ./shell.c	2017-07-21 01:33:54.068697869 -0700
+--- orig/shell.c	2019-01-02 16:21:31.607029549 -0800
++++ shell.c	2019-01-02 16:21:31.647029386 -0800
 @@ -52,6 +52,12 @@
  #endif
  #include <ctype.h>
@@ -37,9 +36,8 @@ diff -r -u -d orig/shell.c ./shell.c
    }
  }
  
-diff -r -u -d orig/sqlite3.c ./sqlite3.c
---- orig/sqlite3.c	2017-07-21 01:33:39.908801867 -0700
-+++ ./sqlite3.c	2017-07-21 01:33:54.116697517 -0700
+--- orig/sqlite3.c	2019-01-02 17:05:09.420076168 -0800
++++ sqlite3.c	2019-01-02 17:07:08.343583667 -0800
 @@ -33501,7 +33501,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
@@ -76,7 +74,15 @@ diff -r -u -d orig/sqlite3.c ./sqlite3.c
      goto initone_error_out;
    }
  
-@@ -149217,13 +149217,25 @@
+@@ -148823,6 +148823,7 @@
+     char *zErr = sqlite3_mprintf("illegal first argument to %s", zFunc);
+     sqlite3_result_error(pContext, zErr, -1);
+     sqlite3_free(zErr);
++    *ppCsr = pRet;
+     return SQLITE_ERROR;
+   }
+   *ppCsr = pRet;
+@@ -149217,13 +149218,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
