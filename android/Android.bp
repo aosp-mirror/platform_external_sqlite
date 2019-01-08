@@ -17,13 +17,12 @@ cc_library_static {
     include_dirs: ["external/sqlite/dist"],
     shared_libs: [
         "liblog",
-        "libicuuc",
-        "libicui18n",
+        "libandroidicu",
     ],
     target: {
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
-            exclude_shared_libs: ["libicuuc", "libicui18n"],
+            exclude_shared_libs: ["libandroidicu"],
         },
     },
     export_include_dirs: ["."],

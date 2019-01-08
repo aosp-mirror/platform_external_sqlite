@@ -80,8 +80,7 @@ cc_library {
                 "libdl",
                 "liblog",
                 "libutils",
-                "libicuuc",
-                "libicui18n",
+                "libandroidicu",
             ],
             cflags: ["-DSQLITE_ENABLE_ICU"],
 
@@ -96,8 +95,7 @@ cc_library {
         },
         not_windows: {
             shared_libs: [
-                "libicuuc",
-                "libicui18n",
+                "libandroidicu",
             ],
 
             // include android specific methods
@@ -108,7 +106,7 @@ cc_library {
         },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
-            exclude_shared_libs: ["libicuuc", "libicui18n"],
+            exclude_shared_libs: ["libandroidicu"],
         },
     },
 
@@ -131,8 +129,7 @@ cc_binary {
         android: {
             shared_libs: [
                 "libsqlite",
-                "libicuuc",
-                "libicui18n",
+                "libandroidicu",
                 "liblog",
                 "libutils",
             ],
