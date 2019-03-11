@@ -1,5 +1,11 @@
+<<<<<<< HEAD   (d168e3 Merge "Use ICU in libandroidicu")
 --- orig/shell.c	2018-02-18 23:53:25.407627650 -0800
 +++ shell.c	2018-02-18 23:53:25.467627374 -0800
+=======
+diff -r -u -d orig/shell.c ./shell.c
+--- orig/shell.c	2018-04-13 17:25:47.747857988 -0700
++++ ./shell.c	2018-04-13 17:25:47.787857731 -0700
+>>>>>>> BRANCH (a373e1 Snap for 5240760 from 426a19c9b8590a745b71f6e3a8ac8cf6ba7449)
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
@@ -37,6 +43,7 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
+<<<<<<< HEAD   (d168e3 Merge "Use ICU in libandroidicu")
 --- orig/sqlite3.c	2018-02-18 23:53:25.459627411 -0800
 +++ sqlite3.c	2018-08-22 15:28:04.016188846 -0700
 @@ -30672,6 +30672,10 @@
@@ -78,6 +85,12 @@
                         pFile ? pFile->zPath : 0, lineno);
    }
 @@ -34428,7 +34444,7 @@
+=======
+diff -r -u -d orig/sqlite3.c ./sqlite3.c
+--- orig/sqlite3.c	2018-12-27 15:39:18.784267281 -0800
++++ ./sqlite3.c	2018-12-27 15:39:18.788267250 -0800
+@@ -34428,7 +34428,7 @@
+>>>>>>> BRANCH (a373e1 Snap for 5240760 from 426a19c9b8590a745b71f6e3a8ac8cf6ba7449)
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
