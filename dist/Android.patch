@@ -1,12 +1,12 @@
---- orig/shell.c	2019-01-07 14:22:53.308198437 -0800
-+++ shell.c	2019-01-07 14:22:53.356198069 -0800
+--- orig/shell.c	2018-04-17 11:53:05.520972146 +0100
++++ shell.c	2019-03-14 19:26:19.523122555 +0000
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
  #include <stdarg.h>
 +// Begin Android Add
 +#ifndef NO_ANDROID_FUNCS
-+#include "IcuUtils.h"
++#include <aicu/AIcu.h>
 +#include <sqlite3_android.h>
 +#endif
 +// End Android Add
@@ -20,7 +20,7 @@
 +
 +    // Begin Android Add
 +    #ifndef NO_ANDROID_FUNCS
-+        InitializeIcuOrDie();
++        AIcu_initializeIcuOrDie();
 +        int err = register_localized_collators(p->db, "en_US", 0);
 +        if (err != SQLITE_OK) {
 +          fprintf(stderr, "register_localized_collators() failed\n");
@@ -37,8 +37,8 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2019-01-07 14:24:24.503497740 -0800
-+++ sqlite3.c	2019-01-07 14:24:24.871494912 -0800
+--- orig/sqlite3.c	2019-03-11 19:52:44.237549639 +0000
++++ sqlite3.c	2019-03-11 19:52:44.293549396 +0000
 @@ -30672,6 +30672,10 @@
  # include <sys/mount.h>
  #endif
