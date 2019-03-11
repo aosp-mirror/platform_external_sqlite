@@ -133,9 +133,6 @@ cc_binary {
                 "liblog",
                 "libutils",
             ],
-            static_libs: [
-                "libicuandroid_utils",
-            ],
         },
         host: {
             cflags: ["-DNO_ANDROID_FUNCS=1"],
