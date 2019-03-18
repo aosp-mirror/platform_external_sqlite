@@ -1,0 +1,8 @@
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Verified+1: Neil Fuller <nfuller@google.com>
+Code-Review+2: Jeff Sharkey <jsharkey@android.com>
+Submitted-by: Neil Fuller <nfuller@google.com>
+Submitted-at: Mon, 18 Mar 2019 20:58:10 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/external/sqlite/+/926113
+Project: platform/external/sqlite
+Branch: refs/heads/master
