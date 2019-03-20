@@ -1,5 +1,5 @@
---- orig/shell.c	2018-02-20 10:41:05.477047088 +0000
-+++ shell.c	2019-03-15 19:21:22.193972160 +0000
+--- orig/shell.c	2018-04-25 14:33:53.694495979 -0700
++++ shell.c	2019-03-19 17:52:27.233068173 -0700
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
@@ -37,8 +37,8 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2019-01-14 19:10:21.799582821 +0000
-+++ sqlite3.c	2019-01-14 19:10:21.847582627 +0000
+--- orig/sqlite3.c	2019-03-19 17:52:27.229068196 -0700
++++ sqlite3.c	2019-03-20 13:40:08.375193226 -0700
 @@ -30672,6 +30672,10 @@
  # include <sys/mount.h>
  #endif
@@ -104,7 +104,18 @@
        goto shm_open_err;
      }
  
-@@ -118054,7 +118070,7 @@
+@@ -38434,6 +38450,10 @@
+     UNIXVFS("unix",          autolockIoFinder ),
+ #elif OS_VXWORKS
+     UNIXVFS("unix",          vxworksIoFinder ),
++#elif __Fuchsia__
++    /* None of the system calls for other exclusion methods are currently
++    ** implemented on Fuchsia, so use simple dot-file locking for now. */
++    UNIXVFS("unix",          dotlockIoFinder ),
+ #else
+     UNIXVFS("unix",          posixIoFinder ),
+ #endif
+@@ -118054,7 +118074,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -113,7 +124,7 @@
      goto initone_error_out;
    }
  
-@@ -152769,13 +152785,25 @@
+@@ -152769,13 +152789,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
