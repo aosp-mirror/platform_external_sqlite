@@ -61,6 +61,13 @@ cc_defaults {
                 "-DHAVE_MALLOC_USABLE_SIZE",
             ],
         },
+	fuchsia: {
+            cflags: [
+                "-Dfdatasync=fdatasync",
+                "-DHAVE_MALLOC_H=1",
+                "-DHAVE_MALLOC_USABLE_SIZE",
+	    ],
+	},
     },
 }
 
@@ -81,6 +88,18 @@ cc_library {
                 "liblog",
                 "libutils",
                 "libandroidicu",
+            ],
+            cflags: ["-DSQLITE_ENABLE_ICU"],
+
+            // include android specific methods
+            whole_static_libs: ["libsqlite3_android"],
+        },
+        fuchsia: {
+            shared_libs: [
+                "liblog",
+                "libutils",
+                "libicuuc",
+                "libicui18n",
             ],
             cflags: ["-DSQLITE_ENABLE_ICU"],
 
@@ -132,6 +151,18 @@ cc_binary {
                 "libandroidicu",
                 "liblog",
                 "libutils",
+            ],
+        },
+        fuchsia: {
+            shared_libs: [
+                "libsqlite",
+                "libicuuc",
+                "libicui18n",
+                "liblog",
+                "libutils",
+            ],
+            static_libs: [
+                "libicuandroid_utils",
             ],
         },
         host: {
