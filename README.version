@@ -1,3 +1,4 @@
-URL: https://www.sqlite.org/2018/sqlite-autoconf-3220000.tar.gz
-Version: 3.22.0 0c55d179733b46d8
+URL: https://www.sqlite.org/src/info/c255889bd95bd543
+Version: 3.22.0 c255889bd95bd5430dc7ced3317011ae2abb483d6c9af883af3dc7d6c2c2f234
+This patch fixes Magellan SQLite Security Vulnerability as in b/121156452
 BugComponent: 24950
