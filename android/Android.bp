@@ -38,6 +38,8 @@ cc_test {
         "-Werror",
     ],
     srcs: [
+        "OldPhoneNumberUtils.cpp",
+        "OldPhoneNumberUtilsTest.cpp",
         "PhoneNumberUtils.cpp",
         "PhoneNumberUtilsTest.cpp",
     ],
