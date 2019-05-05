@@ -40,6 +40,7 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-Wno-unused-parameter",
         "-Werror",
+        "-fno-experimental-new-pass-manager",
     ],
 
     target: {
