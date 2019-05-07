@@ -100,7 +100,8 @@ cc_library {
         },
         not_windows: {
             shared_libs: [
-                "libandroidicu",
+                "libicui18n",
+                "libicuuc",
             ],
 
             // include android specific methods
