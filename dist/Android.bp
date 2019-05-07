@@ -88,6 +88,10 @@ cc_library {
             whole_static_libs: ["libsqlite3_android"],
         },
         host: {
+            shared_libs: [
+                "libicui18n",
+                "libicuuc",
+            ],
             static_libs: [
                 "liblog",
                 "libutils",
@@ -95,7 +99,8 @@ cc_library {
         },
         not_windows: {
             shared_libs: [
-                "libandroidicu",
+                "libicui18n",
+                "libicuuc",
             ],
 
             // include android specific methods

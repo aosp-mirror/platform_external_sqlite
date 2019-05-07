@@ -17,9 +17,19 @@ cc_library_static {
     include_dirs: ["external/sqlite/dist"],
     shared_libs: [
         "liblog",
-        "libandroidicu",
     ],
     target: {
+        android: {
+            shared_libs: [
+                "libandroidicu",
+            ],
+        },
+        host: {
+            shared_libs: [
+                "libicui18n",
+                "libicuuc",
+            ],
+        },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
