@@ -2,6 +2,7 @@ cc_library_static {
     name: "libsqlite3_android",
     vendor_available: true,
     host_supported: true,
+    native_bridge_supported: true,
     cflags: [
         "-DSQLITE_ENABLE_ICU",
         "-Wall",
