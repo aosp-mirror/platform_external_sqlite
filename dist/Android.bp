@@ -68,6 +68,7 @@ cc_library {
     name: "libsqlite",
     defaults: ["sqlite-defaults"],
     vendor_available: true,
+    native_bridge_supported: true,
     vndk: {
         enabled: true,
     },
