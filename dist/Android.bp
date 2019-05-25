@@ -40,6 +40,10 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-Wno-unused-parameter",
         "-Werror",
+
+        // Turn off the new pass manager due to miscompile.
+        // http://b/131854833
+        "-fno-experimental-new-pass-manager",
     ],
 
     target: {
