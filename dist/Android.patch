@@ -1,6 +1,8 @@
---- orig/shell.c	2018-04-17 11:53:05.520972146 +0100
-+++ shell.c	2019-03-14 19:26:19.523122555 +0000
-@@ -87,6 +87,12 @@
+Index: dist/shell.c
+===================================================================
+--- dist.orig/shell.c
++++ dist/shell.c
+@@ -87,6 +87,12 @@ typedef unsigned char u8;
  #endif
  #include <ctype.h>
  #include <stdarg.h>
@@ -13,33 +15,35 @@
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -10389,6 +10395,23 @@
-                             editFunc, 0, 0);
+@@ -11698,6 +11704,23 @@ static void open_db(ShellState *p, int o
      sqlite3_create_function(p->db, "edit", 2, SQLITE_UTF8, 0,
                              editFunc, 0, 0);
+ #endif
 +
-+    // Begin Android Add
-+    #ifndef NO_ANDROID_FUNCS
-+        AIcu_initializeIcuOrDie();
-+        int err = register_localized_collators(p->db, "en_US", 0);
-+        if (err != SQLITE_OK) {
-+          fprintf(stderr, "register_localized_collators() failed\n");
-+          exit(1);
-+        }
-+        err = register_android_functions(p->db, 0);
-+        if (err != SQLITE_OK) {
-+          fprintf(stderr, "register_android_functions() failed\n");
-+          exit(1);
-+        }
-+    #endif
-+    // End Android Add
++// Begin Android Add
++#ifndef NO_ANDROID_FUNCS
++    AIcu_initializeIcuOrDie();
++    int err = register_localized_collators(p->db, "en_US", 0);
++    if (err != SQLITE_OK) {
++      fprintf(stderr, "register_localized_collators() failed\n");
++      exit(1);
++    }
++    err = register_android_functions(p->db, 0);
++    if (err != SQLITE_OK) {
++      fprintf(stderr, "register_android_functions() failed\n");
++      exit(1);
++    }
++#endif
++// End Android Add
 +
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2019-03-11 19:52:44.237549639 +0000
-+++ sqlite3.c	2019-03-11 19:52:44.293549396 +0000
-@@ -30672,6 +30672,10 @@
+Index: dist/sqlite3.c
+===================================================================
+--- dist.orig/sqlite3.c
++++ dist/sqlite3.c
+@@ -32438,6 +32438,10 @@ SQLITE_PRIVATE const char *sqlite3Opcode
  # include <sys/mount.h>
  #endif
  
@@ -50,7 +54,7 @@
  #ifdef HAVE_UTIME
  # include <utime.h>
  #endif
-@@ -31422,6 +31426,12 @@
+@@ -33197,6 +33201,12 @@ static int robust_open(const char *z, in
  #if defined(FD_CLOEXEC) && (!defined(O_CLOEXEC) || O_CLOEXEC==0)
      osFcntl(fd, F_SETFD, osFcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
  #endif
@@ -63,7 +67,7 @@
    }
    return fd;
  }
-@@ -31954,7 +31964,13 @@
+@@ -33777,7 +33787,13 @@ static int unixLogErrorAtLine(
  ** and move on.
  */
  static void robust_close(unixFile *pFile, int h, int lineno){
@@ -77,7 +81,7 @@
      unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close",
                         pFile ? pFile->zPath : 0, lineno);
    }
-@@ -34428,7 +34444,7 @@
+@@ -36310,7 +36326,7 @@ static int unixFileSize(sqlite3_file *id
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -86,7 +90,7 @@
    }
    *pSize = buf.st_size;
  
-@@ -34464,7 +34480,7 @@
+@@ -36346,7 +36362,7 @@ static int fcntlSizeHint(unixFile *pFile
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -95,7 +99,7 @@
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -35139,7 +35155,7 @@
+@@ -37032,7 +37048,7 @@ static int unixOpenSharedMemory(unixFile
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -104,7 +108,7 @@
        goto shm_open_err;
      }
  
-@@ -118054,7 +118070,7 @@
+@@ -123984,7 +124000,7 @@ SQLITE_PRIVATE int sqlite3InitOne(sqlite
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -113,7 +117,7 @@
      goto initone_error_out;
    }
  
-@@ -152769,13 +152785,25 @@
+@@ -164271,13 +164287,25 @@ SQLITE_PRIVATE int sqlite3Fts3Init(sqlit
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
