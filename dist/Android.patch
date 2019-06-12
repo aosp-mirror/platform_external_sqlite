@@ -1,5 +1,5 @@
---- orig/shell.c	2018-02-20 10:41:05.477047088 +0000
-+++ shell.c	2019-03-15 19:21:22.193972160 +0000
+--- orig/shell.c	2018-04-17 11:53:05.520972146 +0100
++++ shell.c	2019-03-14 19:26:19.523122555 +0000
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
@@ -37,8 +37,8 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2019-01-14 19:10:21.799582821 +0000
-+++ sqlite3.c	2019-01-14 19:10:21.847582627 +0000
+--- orig/sqlite3.c	2019-03-11 19:52:44.237549639 +0000
++++ sqlite3.c	2019-03-11 19:52:44.293549396 +0000
 @@ -30672,6 +30672,10 @@
  # include <sys/mount.h>
  #endif
