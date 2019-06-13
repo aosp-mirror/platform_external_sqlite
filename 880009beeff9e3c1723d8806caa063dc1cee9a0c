@@ -1,0 +1,9 @@
+Code-Review+1: Yi Kong <yikong@google.com>
+Code-Review+2: Makoto Onuki <omakoto@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Autosubmit+1: Makoto Onuki <omakoto@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Thu, 13 Jun 2019 21:12:56 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/external/sqlite/+/979391
+Project: platform/external/sqlite
+Branch: refs/heads/master
