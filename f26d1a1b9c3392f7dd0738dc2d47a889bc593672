@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "637ef80e_adf8ed2a",
+        "filename": "dist/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1038039
+      },
+      "writtenOn": "2019-06-24T09:02:36Z",
+      "side": 0,
+      "message": "I\u0027m mostly guessing here that \"windows\" and \"not_windows\" inherit libs from \"host\".\n\nTherefore I\u0027m excluding the ICU dep because the ICU integration is not turned on for host.",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 19
+      },
+      "revId": "f26d1a1b9c3392f7dd0738dc2d47a889bc593672",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
