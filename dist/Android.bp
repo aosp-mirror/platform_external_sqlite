@@ -98,20 +98,13 @@ cc_library {
                 "libutils",
             ],
         },
-        not_windows: {
-            shared_libs: [
-                "libandroidicu",
-            ],
-
-            // include android specific methods
-            whole_static_libs: ["libsqlite3_android"],
-        },
         windows: {
             enabled: true,
         },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
+            exclude_static_libs: ["libsqlite3_android"],
         },
     },
 
