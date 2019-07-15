@@ -84,7 +84,6 @@ cc_library {
             shared_libs: [
                 "libdl",
                 "liblog",
-                "libutils",
                 "libandroidicu",
             ],
             cflags: ["-DSQLITE_ENABLE_ICU"],
@@ -95,7 +94,6 @@ cc_library {
         host: {
             static_libs: [
                 "liblog",
-                "libutils",
             ],
         },
         windows: {
