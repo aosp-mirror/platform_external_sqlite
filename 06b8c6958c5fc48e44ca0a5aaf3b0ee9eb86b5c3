@@ -22,6 +22,30 @@
       "revId": "06b8c6958c5fc48e44ca0a5aaf3b0ee9eb86b5c3",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e6be5e2_f8f149e1",
+        "filename": "dist/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1038039
+      },
+      "writtenOn": "2019-07-15T13:56:36Z",
+      "side": 1,
+      "message": "FTR: ccross@ said over email: \"Yes, vendor.exclude_static_libs will remove modules listed in android.whole_static_libs.\"",
+      "parentUuid": "7d2b6656_a1c29b19",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 31
+      },
+      "revId": "06b8c6958c5fc48e44ca0a5aaf3b0ee9eb86b5c3",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
