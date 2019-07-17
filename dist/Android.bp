@@ -84,7 +84,6 @@ cc_library {
             shared_libs: [
                 "libdl",
                 "liblog",
-                "libutils",
                 "libandroidicu",
             ],
             cflags: ["-DSQLITE_ENABLE_ICU"],
@@ -95,16 +94,7 @@ cc_library {
         host: {
             static_libs: [
                 "liblog",
-                "libutils",
             ],
-        },
-        not_windows: {
-            shared_libs: [
-                "libandroidicu",
-            ],
-
-            // include android specific methods
-            whole_static_libs: ["libsqlite3_android"],
         },
         windows: {
             enabled: true,
@@ -112,6 +102,7 @@ cc_library {
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
+            exclude_static_libs: ["libsqlite3_android"],
         },
     },
 
