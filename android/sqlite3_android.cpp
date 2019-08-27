@@ -231,6 +231,7 @@ struct SqliteUserData {
     UCollator* collator;
 };
 
+#if 0
 /**
  * This function is invoked as:
  *
@@ -407,6 +408,7 @@ static void tokenize(sqlite3_context * context, int argc, sqlite3_value ** argv)
     } while ((token = u_strtok_r(NULL, delim, &state)) != NULL);
     sqlite3_result_int(context, numTokens);
 }
+#endif
 
 static void localized_collator_dtor(UCollator* collator)
 {
@@ -451,6 +453,7 @@ extern "C" int register_localized_collators(sqlite3* handle __attribute((unused)
         return err;
     }
 
+#if 0
     // Register the _TOKENIZE function
     err = sqlite3_create_function(handle, "_TOKENIZE", 4, SQLITE_UTF16, collator, tokenize, NULL, NULL);
     if (err != SQLITE_OK) {
@@ -464,6 +467,7 @@ extern "C" int register_localized_collators(sqlite3* handle __attribute((unused)
     if (err != SQLITE_OK) {
         return err;
     }
+#endif
 
     //// PHONEBOOK_COLLATOR
     status = U_ZERO_ERROR;
