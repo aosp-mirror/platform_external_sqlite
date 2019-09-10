@@ -87,12 +87,6 @@ typedef unsigned char u8;
 #endif
 #include <ctype.h>
 #include <stdarg.h>
-// Begin Android Add
-#ifndef NO_ANDROID_FUNCS
-#include "IcuUtils.h"
-#include <sqlite3_android.h>
-#endif
-// End Android Add
 
 #if !defined(_WIN32) && !defined(WIN32)
 # include <signal.h>
@@ -10395,23 +10389,6 @@ static void open_db(ShellState *p, int keepAlive){
                             editFunc, 0, 0);
     sqlite3_create_function(p->db, "edit", 2, SQLITE_UTF8, 0,
                             editFunc, 0, 0);
-
-    // Begin Android Add
-    #ifndef NO_ANDROID_FUNCS
-        InitializeIcuOrDie();
-        int err = register_localized_collators(p->db, "en_US", 0);
-        if (err != SQLITE_OK) {
-          fprintf(stderr, "register_localized_collators() failed\n");
-          exit(1);
-        }
-        err = register_android_functions(p->db, 0);
-        if (err != SQLITE_OK) {
-          fprintf(stderr, "register_android_functions() failed\n");
-          exit(1);
-        }
-    #endif
-    // End Android Add
-
     if( p->openMode==SHELL_OPEN_ZIPFILE ){
       char *zSql = sqlite3_mprintf(
          "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
