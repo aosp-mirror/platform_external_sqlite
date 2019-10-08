@@ -33,32 +33,32 @@
 using namespace android;
 
 
-TEST(PhoneNumberUtils, compareLooseNullOrEmpty) {
+TEST(OldPhoneNumberUtils, compareLooseNullOrEmpty) {
     EXPECT_FALSE(phone_number_compare_loose(NULL, NULL));
     EXPECT_FALSE(phone_number_compare_loose("", NULL));
     EXPECT_FALSE(phone_number_compare_loose(NULL, ""));
     EXPECT_FALSE(phone_number_compare_loose("", ""));
 }
 
-TEST(PhoneNumberUtils, compareLooseDigitsSame) {
+TEST(OldPhoneNumberUtils, compareLooseDigitsSame) {
     EXPECT_TRUE(phone_number_compare_loose("999", "999"));
     EXPECT_TRUE(phone_number_compare_loose("119", "119"));
 }
 
-TEST(PhoneNumberUtils, compareLooseDigitsDifferent) {
+TEST(OldPhoneNumberUtils, compareLooseDigitsDifferent) {
     EXPECT_FALSE(phone_number_compare_loose("123456789", "923456789"));
     EXPECT_FALSE(phone_number_compare_loose("123456789", "123456781"));
     EXPECT_FALSE(phone_number_compare_loose("123456789", "1234567890"));
     EXPECT_TRUE(phone_number_compare_loose("123456789", "0123456789"));
 }
 
-TEST(PhoneNumberUtils, compareLooseGoogle) {
+TEST(OldPhoneNumberUtils, compareLooseGoogle) {
     EXPECT_TRUE(phone_number_compare_loose("650-253-0000", "6502530000"));
     EXPECT_TRUE(phone_number_compare_loose("650-253-0000", "650 253 0000"));
     EXPECT_TRUE(phone_number_compare_loose("650 253 0000", "6502530000"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkPrefixUs) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkPrefixUs) {
     // trunk (NDD) prefix must be properly handled in US
     EXPECT_TRUE(phone_number_compare_loose("650-253-0000", "1-650-253-0000"));
     EXPECT_TRUE(phone_number_compare_loose("650-253-0000", "   1-650-253-0000"));
@@ -72,11 +72,11 @@ TEST(PhoneNumberUtils, compareLooseTrunkPrefixUs) {
     EXPECT_TRUE(phone_number_compare_loose("0111 650-253-0000", "6502530000"));
 }
 
-TEST(PhoneNumberUtils, compareLooseDifferentCountryCode) {
+TEST(OldPhoneNumberUtils, compareLooseDifferentCountryCode) {
     EXPECT_FALSE(phone_number_compare_loose("+19012345678", "+819012345678"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkJapan) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkJapan) {
     EXPECT_TRUE(phone_number_compare_loose("+31771234567", "0771234567"));
     EXPECT_TRUE(phone_number_compare_loose("090-1234-5678", "+819012345678"));
     EXPECT_TRUE(phone_number_compare_loose("090(1234)5678", "+819012345678"));
@@ -87,24 +87,24 @@ TEST(PhoneNumberUtils, compareLooseTrunkJapan) {
     EXPECT_TRUE(phone_number_compare_loose("+81-90-1234-5678", "090-1234-5678"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkRussia) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkRussia) {
     EXPECT_TRUE(phone_number_compare_loose("+79161234567", "89161234567"));
 
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkFrance) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkFrance) {
     EXPECT_TRUE(phone_number_compare_loose("+33123456789", "0123456789"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkHungary) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkHungary) {
     EXPECT_TRUE(phone_number_compare_loose("+36 1 234 5678", "06 1234-5678"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkMexico) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkMexico) {
     EXPECT_TRUE(phone_number_compare_loose("+52 55 1234 5678", "01 55 1234 5678"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkMongolia) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkMongolia) {
     EXPECT_TRUE(phone_number_compare_loose("+976 1 123 4567", "01 1 23 4567"));
     EXPECT_TRUE(phone_number_compare_loose("+976 2 234 5678", "02 2 34 5678"));
 }
@@ -113,12 +113,12 @@ TEST(PhoneNumberUtils, compareLooseTrunkNetherlandsCities) {
     EXPECT_TRUE(phone_number_compare_loose("+31771234567", "0771234567"));
 }
 
-TEST(PhoneNumberUtils, compareLooseInternationalJapan) {
+TEST(OldPhoneNumberUtils, compareLooseInternationalJapan) {
     EXPECT_FALSE(phone_number_compare_loose("+818012345678", "+819012345678"));
     EXPECT_TRUE(phone_number_compare_loose("+819012345678", "+819012345678"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTrunkIgnoreJapan) {
+TEST(OldPhoneNumberUtils, compareLooseTrunkIgnoreJapan) {
     // Trunk prefix must not be ignored in Japan
     EXPECT_TRUE(phone_number_compare_loose("090-1234-5678", "90-1234-5678"));
     EXPECT_FALSE(phone_number_compare_loose("090-1234-5678", "080-1234-5678"));
@@ -128,17 +128,17 @@ TEST(PhoneNumberUtils, compareLooseTrunkIgnoreJapan) {
     EXPECT_FALSE(phone_number_compare_loose("+81-90-1234-5678", "+81-090-1234-5678"));
 }
 
-TEST(PhoneNumberUtils, compareLooseInternationalNational) {
+TEST(OldPhoneNumberUtils, compareLooseInternationalNational) {
     EXPECT_TRUE(phone_number_compare_loose("+593(800)123-1234", "8001231234"));
 }
 
-TEST(PhoneNumberUtils, compareLooseTwoContinuousZeros) {
+TEST(OldPhoneNumberUtils, compareLooseTwoContinuousZeros) {
     // Two continuous 0 at the begining of the phone string should be
     // treated as trunk prefix for caller id purposes.
     EXPECT_TRUE(phone_number_compare_loose("008001231234", "8001231234"));
 }
 
-TEST(PhoneNumberUtils, compareLooseCallerIdThailandUs) {
+TEST(OldPhoneNumberUtils, compareLooseCallerIdThailandUs) {
     // Test broken caller ID seen on call from Thailand to the US
     EXPECT_TRUE(phone_number_compare_loose("+66811234567", "166811234567"));
     // Confirm that the bug found before does not re-appear.
@@ -148,7 +148,7 @@ TEST(PhoneNumberUtils, compareLooseCallerIdThailandUs) {
     EXPECT_TRUE(phone_number_compare_loose("+44 207 792 3490", "00 207 792 3490"));
 }
 
-TEST(PhoneNumberUtils, compareLooseNamp1661) {
+TEST(OldPhoneNumberUtils, compareLooseNamp1661) {
     // This is not related to Thailand case. NAMP "1" + region code "661".
     EXPECT_TRUE(phone_number_compare_loose("16610001234", "6610001234"));
 }
@@ -160,7 +160,7 @@ TEST(PhoneNumberUtils, compareLooseAlphaDifferent) {
     EXPECT_TRUE(phone_number_compare_loose("abcd", "bcde"));
 }
 
-TEST(PhoneNumberUtils, compareLooseAlphaNumericDifferent) {
+TEST(OldPhoneNumberUtils, compareLooseAlphaNumericDifferent) {
     EXPECT_FALSE(phone_number_compare_loose("1-800-flowers", "800-flowers"));
     // TODO: "flowers" and "adcdefg" should not match
     //EXPECT_FALSE(phone_number_compare_loose("1-800-flowers", "1-800-abcdefg"));
@@ -168,11 +168,11 @@ TEST(PhoneNumberUtils, compareLooseAlphaNumericDifferent) {
 
 // TODO: we currently do not support this comparison. It maybe nice to support this
 // TODO: in the future.
-//TEST(PhoneNumberUtils, compareLooseLettersToDigits) {
+//TEST(OldPhoneNumberUtils, compareLooseLettersToDigits) {
 //  EXPECT_TRUE(phone_number_compare_loose("1-800-flowers", "1-800-356-9377"));
 //}
 
-TEST(PhoneNumberUtils, compareLooseWrongPrefix) {
+TEST(OldPhoneNumberUtils, compareLooseWrongPrefix) {
     // Japan
     EXPECT_FALSE(phone_number_compare_loose("290-1234-5678", "+819012345678"));
     EXPECT_FALSE(phone_number_compare_loose("+819012345678", "290-1234-5678"));
