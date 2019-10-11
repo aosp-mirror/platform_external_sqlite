@@ -194,7 +194,7 @@ TEST(PhoneNumberUtils, compareStrictWrongPrefix) {
     EXPECT_FALSE(phone_number_compare_strict("+14504503605", "5504503605"));
 }
 
-TEST(PhoneNumberUtils, phone_number_stripped_reversed_inter) {
+TEST(PhoneNumberUtils, compareStrict_phone_number_stripped_reversed_inter) {
     char out[6];
     int outlen;
 
@@ -219,4 +219,10 @@ TEST(PhoneNumberUtils, phone_number_stripped_reversed_inter) {
 
     // Ignoring non-dialable
     ASSERT_STRIPPED_REVERSE("1A2 3?4", "4321");
+}
+
+TEST(PhoneNumberUtils, compareStrictRussianNumbers) {
+    EXPECT_FALSE(phone_number_compare_strict("84951234567", "+84951234567"));
+
+    EXPECT_FALSE(phone_number_compare_strict("88001234567", "+88001234567"));
 }
