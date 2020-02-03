@@ -1,0 +1,6 @@
+Code-Review+2: Automerger Merge Worker <android-build-automerger-merge-worker@system.gserviceaccount.com>
+Submitted-by: Automerger Merge Worker <android-build-automerger-merge-worker@system.gserviceaccount.com>
+Submitted-at: Mon, 03 Feb 2020 19:31:35 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/external/sqlite/+/1225139
+Project: platform/external/sqlite
+Branch: refs/heads/android10-gsi
