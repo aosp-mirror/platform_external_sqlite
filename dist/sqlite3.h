@@ -123,9 +123,15 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
+<<<<<<< HEAD   (7b99e6 Merge "Merge Android10 QPR1 into AOSP master")
 #define SQLITE_VERSION        "3.28.0"
 #define SQLITE_VERSION_NUMBER 3028000
 #define SQLITE_SOURCE_ID      "2019-04-16 19:49:53 884b4b7e502b4e991677b53971277adfaf0a04a284f8e483e2553d0f83156b50"
+=======
+#define SQLITE_VERSION        "3.22.0"
+#define SQLITE_VERSION_NUMBER 3022000
+#define SQLITE_SOURCE_ID      "2019-09-03 18:36:11 68b898381ac2942965a3dbd416a45ddf813d6df7ea160f500ae4978e44a3a050"
+>>>>>>> BRANCH (297998 Merge cherrypicks of [9943992, 9944684, 9944054, 9943993, 99)
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
