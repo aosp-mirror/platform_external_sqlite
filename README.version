@@ -1,3 +1,4 @@
-URL: https://sqlite.org/2019/sqlite-autoconf-3280000.tar.gz
-Version: 3.28.0 884b4b7e
+URL: https://www.sqlite.org/src/tarball/b302b260/SQLite-b302b260.tar.gz
+Version: 3.28.0 b302b260
+This patch fixes CVE-2019-13734，CVE-2019-13751，CVE-2019-13752, CVE-2019-13753 in b/147323008 b/147322738, b/147320136 and b/147320314 respectively
 BugComponent: 24950
