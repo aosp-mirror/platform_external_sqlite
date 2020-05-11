@@ -1,5 +1,5 @@
---- orig/shell.c	2020-04-29 18:24:56.239581819 +0100
-+++ shell.c	2020-04-29 18:25:19.531740101 +0100
+--- orig/shell.c	2020-05-07 10:06:07.883965871 +0100
++++ shell.c	2020-05-07 10:08:55.333081159 +0100
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
@@ -37,8 +37,8 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2020-04-29 18:24:56.211581629 +0100
-+++ sqlite3.c	2020-04-29 18:25:19.531740101 +0100
+--- orig/sqlite3.c	2020-05-07 10:06:07.867965765 +0100
++++ sqlite3.c	2020-05-07 10:08:55.333081159 +0100
 @@ -32446,6 +32446,10 @@
  # include <sys/mount.h>
  #endif
@@ -113,7 +113,7 @@
      goto initone_error_out;
    }
  
-@@ -164415,13 +164431,25 @@
+@@ -164418,13 +164434,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
