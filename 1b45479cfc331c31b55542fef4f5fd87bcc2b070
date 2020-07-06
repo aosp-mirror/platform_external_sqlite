@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ece9ac9_928a606a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003801
+      },
+      "writtenOn": "2020-07-06T19:56:27Z",
+      "side": 1,
+      "message": "It\u0027s just an owner file change. Bypassing TH...",
+      "revId": "1b45479cfc331c31b55542fef4f5fd87bcc2b070",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
