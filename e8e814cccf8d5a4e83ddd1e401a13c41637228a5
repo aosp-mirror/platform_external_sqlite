@@ -1,0 +1,10 @@
+Autosubmit+1: Lalit Maganti <lalitm@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Code-Review+2: Zimuzo Ezeozue <zezeozue@google.com>
+Code-Review+1: Makoto Onuki <omakoto@google.com>
+Code-Review+2: Haibo Huang <hhb@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Tue, 07 Jul 2020 22:11:38 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/external/sqlite/+/1337179
+Project: platform/external/sqlite
+Branch: refs/heads/master
