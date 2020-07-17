@@ -41,6 +41,9 @@ cc_defaults {
         "-Wno-unused-parameter",
         "-Werror",
 
+        // Default value causes sqlite3_open_v2 to return error if DB is missing.
+        "-ftrivial-auto-var-init=pattern",
+
         // Turn off the new pass manager due to miscompile.
         // http://b/131854833
         "-fno-experimental-new-pass-manager",
