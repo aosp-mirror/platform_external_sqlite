@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d93aa703_ab4cbc47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003801
+      },
+      "writtenOn": "2020-07-17T15:40:40Z",
+      "side": 1,
+      "message": "Wait, if it\u0027s broken in rvc-dev, we need to cherry-pick it to rvc too.",
+      "revId": "074db7db3e7da6b852cae3083edbace9a4c47497",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
