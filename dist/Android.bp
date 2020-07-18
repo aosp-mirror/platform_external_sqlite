@@ -40,6 +40,9 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-Wno-unused-parameter",
         "-Werror",
+
+        // Default value causes sqlite3_open_v2 to return error if DB is missing.
+        "-ftrivial-auto-var-init=pattern",
     ],
 
     target: {
