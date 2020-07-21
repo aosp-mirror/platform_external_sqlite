@@ -38,6 +38,7 @@ cc_defaults {
         "-DSQLITE_SECURE_DELETE",
         "-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE",
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
+        "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
         "-Wno-unused-parameter",
         "-Werror",
 
