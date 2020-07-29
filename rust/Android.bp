@@ -1,0 +1,91 @@
+// Generate target dependent binding.rs for Rust.
+
+common_bindgen_flags = " -o $(out) $(in) -- -MD -MF $(depfile)"
+
+// Unless we want to run some unit test code,
+// do not generate those layout-tests.
+sqlite3_bindgen_flags = " --no-layout-tests"
+
+// cflags defined in ../dist/Android.bp
+sqlite3_bindgen_clang_flags = " -I external/sqlite/dist"
+    + " -DNDEBUG=1"
+    + " -DHAVE_USLEEP=1"
+    + " -DSQLITE_HAVE_ISNAN"
+    + " -DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576"
+    + " -DSQLITE_THREADSAFE=2"
+    + " -DSQLITE_TEMP_STORE=3"
+    + " -DSQLITE_POWERSAFE_OVERWRITE=1"
+    + " -DSQLITE_DEFAULT_FILE_FORMAT=4"
+    + " -DSQLITE_DEFAULT_AUTOVACUUM=1"
+    + " -DSQLITE_ENABLE_MEMORY_MANAGEMENT=1"
+    + " -DSQLITE_ENABLE_FTS3"
+    + " -DSQLITE_ENABLE_FTS3_BACKWARDS"
+    + " -DSQLITE_ENABLE_FTS4"
+    + " -DSQLITE_OMIT_BUILTIN_TEST"
+    + " -DSQLITE_OMIT_COMPILEOPTION_DIAGS"
+    + " -DSQLITE_OMIT_LOAD_EXTENSION"
+    + " -DSQLITE_DEFAULT_FILE_PERMISSIONS=0600"
+    + " -DSQLITE_SECURE_DELETE"
+    + " -DSQLITE_ENABLE_BATCH_ATOMIC_WRITE"
+    + " -DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD"
+    + " -DHAVE_POSIX_FALLOCATE=1"
+    // extra -D flags for android targets
+    + " -DUSE_PREAD64"
+    + " -Dfdatasync=fdatasync"
+    + " -DHAVE_MALLOC_H=1"
+    + " -DHAVE_MALLOC_USABLE_SIZE"
+    + " -Wno-unused-parameter"
+    + " -Werror"
+
+genrule_defaults {
+    name: "sqlite3_bindgen_defaults",
+    tools: ["bindgen.sh", "bindgen"],
+    depfile: true,
+    srcs: ["bindgen.h"],
+    out: ["bindings.rs"],
+}
+
+// This is a temporary hack to fix bindgen output files,
+// until a newer bindgen can do it with a flag.
+// The default int type for macros are changed
+// from u32 to i32 to work with other existing Rust.
+// Both u32 and i32 values should work with C libsqlite
+// as those macros have values in both i32 and u32 range.
+bindgen_post_edit_cmd = " sed -i 's/: u32 /: i32 /' $(out) &&"
+
+genrule_default_cmd = "$(location bindgen.sh)"
+    + sqlite3_bindgen_flags
+    + common_bindgen_flags
+    + sqlite3_bindgen_clang_flags
+
+genrule {
+    name: "sqlite3_bindgen_x86",
+    defaults: ["sqlite3_bindgen_defaults"],
+    cmd: genrule_default_cmd + " --target=i386 &&"
+    + bindgen_post_edit_cmd
+    + " diff `dirname $(in)`/x86/bindings.rs $(out)",
+}
+
+genrule {
+    name: "sqlite3_bindgen_x86_64",
+    defaults: ["sqlite3_bindgen_defaults"],
+    cmd: genrule_default_cmd + " --target=x86_64 &&"
+    + bindgen_post_edit_cmd
+    + " diff `dirname $(in)`/x86_64/bindings.rs $(out)",
+}
+
+genrule {
+    name: "sqlite3_bindgen_arm",
+    defaults: ["sqlite3_bindgen_defaults"],
+    cmd: genrule_default_cmd + " --target=arm &&"
+    + bindgen_post_edit_cmd
+    + " diff `dirname $(in)`/arm/bindings.rs $(out)",
+}
+
+genrule {
+    name: "sqlite3_bindgen_arm64",
+    defaults: ["sqlite3_bindgen_defaults"],
+    cmd: genrule_default_cmd + " --target=arm64 &&"
+    + bindgen_post_edit_cmd
+    + " diff `dirname $(in)`/arm64/bindings.rs $(out)",
+}
