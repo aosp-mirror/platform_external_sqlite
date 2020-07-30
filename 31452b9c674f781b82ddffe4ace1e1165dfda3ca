@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "6b20b9a0_ec0a1d4c",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1208973
+      },
+      "writtenOn": "2020-07-30T12:52:31Z",
+      "side": 1,
+      "message": "Yes, aosp/1375011 does not rely on such hardcoded flags.",
+      "parentUuid": "af079b5c_bd371ccc",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5c7a7bd_b9dbc5e2",
         "filename": "rust/Android.bp",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "The plan is to add into bindgen a flag to use i32 for default, then we will use that flag instead of sed. It\u0027s not that fragile to changes in bindgen or sqlite. In any solution, we need to manually verify the generated .rs file. Then, with the checked in version, any change will be caught with the diff between saved version and newly generated version. Without the checked in version, we won\u0027t catch any regression in generated .rs files as easily.\nWe could make a local enhancement to bindgen quickly too, to replace sed.\nLet me know if you rather to wait for that instead of this temporary sed solution.",
       "parentUuid": "c5c7a7bd_b9dbc5e2",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55c35511_5f74fe8d",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1208973
+      },
+      "writtenOn": "2020-07-30T12:52:31Z",
+      "side": 1,
+      "message": "Using sed to search and replace code in automated files is inherently fragile.  Any new type will automatically get converted, which is clearly not guaranteed to be correct.\n\nI do not believe upstream bindgen will or should accept a patch for integers: there is an infinite amount of functionality allowed by the existing API, and that cannot be replicated with command-line options, and they should not add a new option every single time someone uses the API in a new way.",
+      "parentUuid": "84ac9384_a59b93b6",
       "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
@@ -104,6 +140,24 @@
       "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35ab280e_65626e81",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1208973
+      },
+      "writtenOn": "2020-07-30T12:52:31Z",
+      "side": 1,
+      "message": "What did you think of the way I suggested improving the CL?",
+      "parentUuid": "d4d7180f_ba334aab",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
     }
   ]
 }
