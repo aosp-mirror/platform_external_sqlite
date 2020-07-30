@@ -1,0 +1,220 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c837906e_50ff74c1",
+        "filename": "rust/arm/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 126,
+        "startChar": 22,
+        "endLine": 126,
+        "endChar": 28
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "16045395_9b42e242",
+        "filename": "rust/arm/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 343,
+        "startChar": 30,
+        "endLine": 343,
+        "endChar": 36
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "8a1ed59c_593ef1d7",
+        "filename": "rust/arm64/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 126,
+        "startChar": 22,
+        "endLine": 126,
+        "endChar": 28
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c8ed964b_4d567aa6",
+        "filename": "rust/arm64/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 343,
+        "startChar": 30,
+        "endLine": 343,
+        "endChar": 36
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "75c784bd_a096b436",
+        "filename": "rust/x86/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 126,
+        "startChar": 22,
+        "endLine": 126,
+        "endChar": 28
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "d2df4c14_3c357239",
+        "filename": "rust/x86/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 343,
+        "startChar": 30,
+        "endLine": 343,
+        "endChar": 36
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7fd42963_5c278f61",
+        "filename": "rust/x86_64/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 126,
+        "startChar": 22,
+        "endLine": 126,
+        "endChar": 28
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004103385",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1377758?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a7f13262_5aaaefbf",
+        "filename": "rust/x86_64/bindings.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-07-30T00:01:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 343,
+        "startChar": 30,
+        "endLine": 343,
+        "endChar": 36
+      },
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
