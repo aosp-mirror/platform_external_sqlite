@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "af079b5c_bd371ccc",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1052399
+      },
+      "writtenOn": "2020-07-30T04:15:19Z",
+      "side": 1,
+      "message": "This can be improved later if soong rules allow us to construct a cmd string from a list of strings. The cc modules use list of strings for flags and gen_rule modules use single command string. We need to keep them in sync, but i don\u0027t see a solution in .bp yet. Any suggestion?",
+      "parentUuid": "fd7b982a_bc1566db",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5c7a7bd_b9dbc5e2",
         "filename": "rust/Android.bp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2020-07-30T01:09:35Z",
       "side": 1,
       "message": "Using sed is incredibly hacky and fragile.  It is very easy to break on any upgrade to sqlite or rusqlite, as it could easily change extra things (false positives) or miss things in the future.",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84ac9384_a59b93b6",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1052399
+      },
+      "writtenOn": "2020-07-30T04:15:19Z",
+      "side": 1,
+      "message": "The plan is to add into bindgen a flag to use i32 for default, then we will use that flag instead of sed. It\u0027s not that fragile to changes in bindgen or sqlite. In any solution, we need to manually verify the generated .rs file. Then, with the checked in version, any change will be caught with the diff between saved version and newly generated version. Without the checked in version, we won\u0027t catch any regression in generated .rs files as easily.\nWe could make a local enhancement to bindgen quickly too, to replace sed.\nLet me know if you rather to wait for that instead of this temporary sed solution.",
+      "parentUuid": "c5c7a7bd_b9dbc5e2",
       "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4d7180f_ba334aab",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1052399
+      },
+      "writtenOn": "2020-07-30T04:15:19Z",
+      "side": 1,
+      "message": "The full file diff will catch any change, not just version number.\nUsers of this module can import the checked in version or include the generated version, but the diff check will make sure that they are the same and reviewed here.\nSee aosp/1378866 PS2 and PS3 for two different ways to use bindings.rs or the generated .rs files.",
+      "parentUuid": "a56454ba_4abd1e23",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
