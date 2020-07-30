@@ -16,6 +16,24 @@
       "revId": "629ec565a8f66b579553c32b7bbee9b357e45f52",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6443dd46_c4204d61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1052399
+      },
+      "writtenOn": "2020-07-30T17:57:08Z",
+      "side": 1,
+      "message": "Joel may collect me if I\u0027m wrong. I think the difference came from different cflags used to compile the sqlite3 header file. According to its comments, go/oag/1375011 uses build.rs, which I don\u0027t see the same cflags used here.\nFor that reason, I think calling bindgen from build.rs without extra cflags here is incorrect and more fragile when we upgrade either package.\n\nI believe the fragile you talking about might be the post-editing with \u0027sed\u0027.\nPlease see my previous reply and new comments in .bp file. We have automatically generated files, post-edited, and then compared with manually reviewed saved bindings.rs. This approach should be less fragile compared with go/oag/1375011, which only copy saved version to use, without rerunning bindgen. When it uses manual steps to change build.rs and regenerate binding files, the steps would be even more fragile and error-prone, right?",
+      "parentUuid": "757b34a1_d971ce14",
+      "revId": "629ec565a8f66b579553c32b7bbee9b357e45f52",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
