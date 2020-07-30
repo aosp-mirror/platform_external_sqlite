@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd7b982a_bc1566db",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1208973
+      },
+      "writtenOn": "2020-07-30T01:09:35Z",
+      "side": 1,
+      "message": "Manually copying over a lot of flags is fragile.",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5c7a7bd_b9dbc5e2",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1208973
+      },
+      "writtenOn": "2020-07-30T01:09:35Z",
+      "side": 1,
+      "message": "Using sed is incredibly hacky and fragile.  It is very easy to break on any upgrade to sqlite or rusqlite, as it could easily change extra things (false positives) or miss things in the future.",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a56454ba_4abd1e23",
+        "filename": "rust/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1208973
+      },
+      "writtenOn": "2020-07-30T01:09:35Z",
+      "side": 1,
+      "message": "With this diff command, you\u0027re just using the pre-generated bindings, right?  If that\u0027s so, then just do a version check, fail if it\u0027s different than expected, and use the bindings otherwise.",
+      "revId": "31452b9c674f781b82ddffe4ace1e1165dfda3ca",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
