@@ -19,7 +19,10 @@ cc_library_static {
     ],
     target: {
         android: {
-            cflags: ["-DSQLITE_ENABLE_ICU"],
+            cflags: [
+                    "-DSQLITE_ENABLE_ICU",
+                    "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
+            ],
             shared_libs: [
                 "libandroidicu",
             ],
