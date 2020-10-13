@@ -16,6 +16,23 @@
       "message": "Zimuzo is OOO. Jeff, could you help take a look?",
       "revId": "6a1491e347d854bbfe6b65b8426119cba543d4dd",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c2afc58_e1924089",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2020-10-13T15:24:56Z",
+      "side": 1,
+      "message": "For future reference, I\u0027d recommend adding more details to your commit message about why a change is being made, since the linked bug is very sparse on details.  😞\n\nI was able to understand more about this CL by looking at the larger topic it\u0027s a part of, but it was difficult to find that context.",
+      "revId": "6a1491e347d854bbfe6b65b8426119cba543d4dd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
