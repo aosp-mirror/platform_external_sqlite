@@ -1,0 +1,10 @@
+Lint+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Code-Review+1: Nikita Iashchenko <nikitai@google.com>
+Code-Review+2: Jeff Sharkey <jsharkey@google.com>
+Code-Review+2: Jeff Sharkey <jsharkey@android.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-by: vichang <vichang@google.com>
+Submitted-at: Tue, 20 Oct 2020 08:59:48 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/external/sqlite/+/1449416
+Project: platform/external/sqlite
+Branch: refs/heads/master
