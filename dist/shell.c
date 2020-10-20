@@ -97,7 +97,6 @@ typedef unsigned char u8;
 #include <stdarg.h>
 // Begin Android Add
 #ifndef NO_ANDROID_FUNCS
-#include <aicu/AIcu.h>
 #include <sqlite3_android.h>
 #endif
 // End Android Add
@@ -12966,7 +12965,6 @@ static void open_db(ShellState *p, int openFlags){
 
 // Begin Android Add
 #ifndef NO_ANDROID_FUNCS
-    AIcu_initializeIcuOrDie();
     int err = register_localized_collators(p->db, "en_US", 0);
     if (err != SQLITE_OK) {
       fprintf(stderr, "register_localized_collators() failed\n");
