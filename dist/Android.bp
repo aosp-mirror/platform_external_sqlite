@@ -72,6 +72,7 @@ cc_library {
     name: "libsqlite",
     defaults: ["sqlite-defaults"],
     vendor_available: true,
+    product_available: true,
     native_bridge_supported: true,
     vndk: {
         enabled: true,
@@ -100,6 +101,11 @@ cc_library {
             enabled: true,
         },
         vendor: {
+            cflags: ["-USQLITE_ENABLE_ICU"],
+            exclude_shared_libs: ["libandroidicu"],
+            exclude_static_libs: ["libsqlite3_android"],
+        },
+        product: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
             exclude_static_libs: ["libsqlite3_android"],
