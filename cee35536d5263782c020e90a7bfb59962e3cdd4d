@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbaa699f_7edf1c5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1146974
+      },
+      "writtenOn": "2020-12-04T12:11:41Z",
+      "side": 1,
+      "message": "I think libsqlite can be used from the product partition since it does not have hardware dependency and it is a VNDK.\n\nCan I get an ORV for this?",
+      "revId": "cee35536d5263782c020e90a7bfb59962e3cdd4d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
