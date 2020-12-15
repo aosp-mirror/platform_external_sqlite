@@ -33,6 +33,23 @@
       "message": "I don\u0027t see a reason to hide this to the product world. If there is, please let us know.",
       "revId": "cee35536d5263782c020e90a7bfb59962e3cdd4d",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ffdc6df_664b3aba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2020-12-15T13:47:25Z",
+      "side": 1,
+      "message": "Does this effectively commit us to a stable API surface between SQLite and product apps?  If so, have we confirmed that the SQLite community is comfortable committing to a stable interface?",
+      "revId": "cee35536d5263782c020e90a7bfb59962e3cdd4d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
