@@ -50,6 +50,24 @@
       "message": "Does this effectively commit us to a stable API surface between SQLite and product apps?  If so, have we confirmed that the SQLite community is comfortable committing to a stable interface?",
       "revId": "cee35536d5263782c020e90a7bfb59962e3cdd4d",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74802ffa_caded251",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1146974
+      },
+      "writtenOn": "2020-12-21T05:31:08Z",
+      "side": 1,
+      "message": "libsqlite is already a VNDK. That does not mean it must have a stable API for apps, but means that the ABI of the libsqlite.so will be frozen by the Android release process.\nIt does not need to be backward compatible, but must have a stable ABI just inside an Android release.\nAs libsqlite is already a VNDK, we have frozen the ABIs of libsqlite for every Android release since Android P. This CL does not change the current API/ABI policy for libsqlite.\n\nThe CL is to allow the binaries installed in the product partition to use the libsqlite.so. It does not require any additional policies of stable interfaces.",
+      "parentUuid": "3ffdc6df_664b3aba",
+      "revId": "cee35536d5263782c020e90a7bfb59962e3cdd4d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
