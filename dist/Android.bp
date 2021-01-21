@@ -4,6 +4,17 @@
 //
 //
 
+package {
+    default_applicable_licenses: ["external_sqlite_dist_license"],
+}
+
+license {
+    name: "external_sqlite_dist_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["legacy_permissive","legacy_unencumbered"],
+    license_text: ["NOTICE"],
+}
+
 cc_defaults {
     name: "sqlite-minimal-defaults",
     host_supported: true,
