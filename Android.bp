@@ -1,3 +1,11 @@
+package {
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "external_sqlite_license":
+    //   SPDX-license-identifier-Apache-2.0
+    //   legacy_permissive
+    default_applicable_licenses: ["external_sqlite_license"],
+}
+
 subdirs = [
     "android",
     "dist",
