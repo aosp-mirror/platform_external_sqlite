@@ -16,6 +16,23 @@
       "message": "I\u0027m not certain who the right audience is to review. If more folks should be on copy, please lmk.",
       "revId": "936e83ba24e2440093bb70a003e9220ea8150f81",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2abd46e_ac612794",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1833664
+      },
+      "writtenOn": "2021-04-16T18:31:57Z",
+      "side": 1,
+      "message": "Got a note from sqlite support on the impact of this:\n\u003e Can you describe any additional CPU or runtime memory overhead of\n\u003e enabling this flag?\n\u003e AFAICT, enabling DBSTAT has 0 CPU/memory impact other than some\n\u003e additional code that\u0027s linked in. Can you confirm/deny this? If there\n\u003e is additional overhead, can you quantify it for us?\n\nHi Seth,\n\nJust for enabling the flag in the build?\n\nAs you say, virtually nothing - a few thousand cycles in each\nsqlite3_open() call to register the table, a hundred bytes or\nthereabouts of  main memory for each (sqlite3*) and a few KB of code",
+      "revId": "936e83ba24e2440093bb70a003e9220ea8150f81",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
