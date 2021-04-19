@@ -50,6 +50,23 @@
       "message": "@Zim PTAL?",
       "revId": "936e83ba24e2440093bb70a003e9220ea8150f81",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c09c6e85_0f492fae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1833664
+      },
+      "writtenOn": "2021-04-19T16:31:57Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1: Code-Review+1\n\u003e \n\u003e By voting Code-Review+1 the following files are now code-owner approved by Zimuzo Ezeozue:\n\u003e * dist/Android.bp\n\u003e \n\nI still need a +2. @zezeozue, can you help with that, or do I need another set of eyes?",
+      "revId": "936e83ba24e2440093bb70a003e9220ea8150f81",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
