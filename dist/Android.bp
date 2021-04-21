@@ -93,6 +93,7 @@ cc_defaults {
                 "-Dfdatasync=fdatasync",
                 "-DHAVE_MALLOC_H=1",
                 "-DHAVE_MALLOC_USABLE_SIZE",
+                "-DSQLITE_ENABLE_DBSTAT_VTAB",
             ],
         },
     },
