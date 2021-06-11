@@ -37,6 +37,7 @@ cc_defaults {
         "-DSQLITE_DEFAULT_FILE_PERMISSIONS=0600",
         "-DSQLITE_SECURE_DELETE",
         "-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE",
+        "-DSQLITE_PRINTF_PRECISION_LIMIT=100000000",
         "-Wno-unused-parameter",
         "-Werror",
     ],
