@@ -24,7 +24,7 @@ package {
 // See: http://go/android-license-faq
 license {
     name: "external_sqlite_dist_license",
-    visibility: [":__subpackages__"],
+    visibility: ["//external/sqlite:__subpackages__"],
     license_kinds: [
         "legacy_permissive",
         "legacy_unencumbered",
