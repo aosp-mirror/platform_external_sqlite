@@ -1,5 +1,5 @@
---- orig/shell.c	2020-05-07 10:06:07.883965871 +0100
-+++ shell.c	2020-05-07 10:08:55.333081159 +0100
+--- orig/shell.c	2021-07-14 18:36:30.410913351 +0100
++++ shell.c	2021-07-14 18:37:50.691479583 +0100
 @@ -87,6 +87,12 @@
  #endif
  #include <ctype.h>
@@ -37,9 +37,9 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2020-05-07 10:06:07.867965765 +0100
-+++ sqlite3.c	2020-05-07 10:08:55.333081159 +0100
-@@ -32446,6 +32446,10 @@
+--- orig/sqlite3.c	2021-07-14 18:36:30.454913661 +0100
++++ sqlite3.c	2021-07-14 18:37:50.691479583 +0100
+@@ -32447,6 +32447,10 @@
  # include <sys/mount.h>
  #endif
  
@@ -50,7 +50,7 @@
  #ifdef HAVE_UTIME
  # include <utime.h>
  #endif
-@@ -33205,6 +33209,12 @@
+@@ -33206,6 +33210,12 @@
  #if defined(FD_CLOEXEC) && (!defined(O_CLOEXEC) || O_CLOEXEC==0)
      osFcntl(fd, F_SETFD, osFcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
  #endif
@@ -63,7 +63,7 @@
    }
    return fd;
  }
-@@ -33785,7 +33795,13 @@
+@@ -33786,7 +33796,13 @@
  ** and move on.
  */
  static void robust_close(unixFile *pFile, int h, int lineno){
@@ -77,7 +77,7 @@
      unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close",
                         pFile ? pFile->zPath : 0, lineno);
    }
-@@ -36318,7 +36334,7 @@
+@@ -36319,7 +36335,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -86,7 +86,7 @@
    }
    *pSize = buf.st_size;
  
-@@ -36354,7 +36370,7 @@
+@@ -36355,7 +36371,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
     
      if( osFstat(pFile->h, &buf) ){
@@ -95,7 +95,7 @@
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -37040,7 +37056,7 @@
+@@ -37041,7 +37057,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -104,7 +104,7 @@
        goto shm_open_err;
      }
  
-@@ -124046,7 +124062,7 @@
+@@ -124047,7 +124063,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -113,7 +113,7 @@
      goto initone_error_out;
    }
  
-@@ -164418,13 +164434,25 @@
+@@ -164415,13 +164431,25 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc 
