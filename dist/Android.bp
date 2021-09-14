@@ -149,6 +149,18 @@ cc_library {
     export_include_dirs: ["."],
 }
 
+// This static library is variant of libsqlite built without the ICU extension.
+// The library is supposed to be used in environments where the ICU extension
+// is not needed and the dependency to ICU (which is as large as 60+ MB) is not
+// desirable, like microdroid.
+cc_library_static {
+    name: "libsqlite_static_noicu",
+    defaults: ["sqlite-defaults"],
+    srcs: ["sqlite3.c"],
+    whole_static_libs: ["libsqlite3_android_noicu"],
+    // Not define SQLITE_ENABLE_ICU
+}
+
 //
 //
 // Build the device command line tool sqlite3
