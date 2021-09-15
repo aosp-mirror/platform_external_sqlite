@@ -1,4 +1,4 @@
-URL: https://www.sqlite.org/src/tarball/b302b260/SQLite-b302b260.tar.gz
-Version: 3.28.0 b2325a6e
-This patch fixes app compatibility bug b/147928666
+URL: https://www.sqlite.org/src/tarball/d2e67220/SQLite-d2e67220.tar.gz
+Version: 3.28a d2e67220
+This patch fixes CVE-2020-15358 and CVE-2020-13871, b/192605364 and b/192606047
 BugComponent: 24950
