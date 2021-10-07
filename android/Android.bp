@@ -17,6 +17,7 @@ license {
 
 cc_defaults {
     name: "libsqlite3_android_defaults",
+    host_supported: true,
     cflags: [
         "-Wall",
         "-Werror",
@@ -50,6 +51,13 @@ cc_library_static {
                 "libandroidicu",
             ],
         },
+        host: {
+            cflags: ["-DSQLITE_ENABLE_ICU"],
+            shared_libs: [
+                "libicui18n",
+                "libicuuc",
+            ],
+        },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
@@ -64,7 +72,6 @@ cc_library_static {
 cc_library_static {
     name: "libsqlite3_android_noicu",
     defaults: ["libsqlite3_android_defaults"],
-    host_supported: true,
     // Not define SQLITE_ENABLE_ICU
 }
 
@@ -72,6 +79,7 @@ cc_library_static {
 //       (as of 2009-08-02), in which phone_number_compare() is tested via sqlite's custom
 //       function "PHONE_NUMBER_COMPARE".
 cc_test {
+    host_supported: true,
     name: "libsqlite3_phone_number_utils_test",
     cflags: [
         "-Wall",

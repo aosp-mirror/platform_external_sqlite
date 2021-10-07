@@ -128,6 +128,15 @@ cc_library {
                 "liblog",
             ],
         },
+        not_windows: {
+            shared_libs: [
+                "libicui18n",
+                "libicuuc",
+            ],
+
+            // include android specific methods
+            whole_static_libs: ["libsqlite3_android"],
+        },
         windows: {
             enabled: true,
         },
