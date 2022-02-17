@@ -1,3 +1,6 @@
 third_party {
   license_type: NOTICE
+  security {
+      tag: "NVD-CPE2.3:cpe:/a:sqlite:sqlite:3.32.0"
+  }
 }
