@@ -1,4 +1,4 @@
-URL: https://www.sqlite.org/src/tarball/bcd014c4/SQLite-bcd014c4.tar.gz
-Version: 3.32a bcd014c4
+URL: https://www.sqlite.org/src/tarball/d2e67220/SQLite-d2e67220.tar.gz
+Version: 3.28a d2e67220
 This patch fixes CVE-2020-15358 and CVE-2020-13871, b/192605364 and b/192606047
 BugComponent: 24950
