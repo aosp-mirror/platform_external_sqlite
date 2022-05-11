@@ -15,10 +15,8 @@ license {
     ],
 }
 
-cc_library_static {
-    name: "libsqlite3_android",
-    vendor_available: true,
-    native_bridge_supported: true,
+cc_defaults {
+    name: "libsqlite3_android_defaults",
     host_supported: true,
     cflags: [
         "-Wall",
@@ -35,6 +33,14 @@ cc_library_static {
     shared_libs: [
         "liblog",
     ],
+    export_include_dirs: ["."],
+}
+
+cc_library_static {
+    name: "libsqlite3_android",
+    defaults: ["libsqlite3_android_defaults"],
+    vendor_available: true,
+    native_bridge_supported: true,
     target: {
         android: {
             cflags: [
@@ -57,7 +63,16 @@ cc_library_static {
             exclude_shared_libs: ["libandroidicu"],
         },
     },
-    export_include_dirs: ["."],
+}
+
+// This static library is variant of libsqlite3_android built without the ICU
+// extension.  The library is supposed to be used in environments where the ICU
+// extension is not needed and the dependency to ICU (which is as large as 60+
+// MB) is not desirable, like microdroid.
+cc_library_static {
+    name: "libsqlite3_android_noicu",
+    defaults: ["libsqlite3_android_defaults"],
+    // Not define SQLITE_ENABLE_ICU
 }
 
 //       The formal test for phone_number_compare() is in DataBaseGeneralTest.java
