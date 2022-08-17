@@ -207,3 +207,15 @@ cc_library_static {
     sdk_version: "23",
     export_include_dirs: ["."],
 }
+
+
+cc_library {
+    name: "sqlite_ext_percentile",
+    srcs: [
+        "ext/misc/percentile.c",
+    ],
+    export_include_dirs: ["."],
+    cflags: [
+      "-Wno-unused-parameter",
+    ]
+}
