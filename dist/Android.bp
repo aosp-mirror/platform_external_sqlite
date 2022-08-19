@@ -208,14 +208,12 @@ cc_library_static {
     export_include_dirs: ["."],
 }
 
-
-cc_library {
+cc_library_static {
     name: "sqlite_ext_percentile",
     srcs: [
         "ext/misc/percentile.c",
     ],
+    defaults: ["sqlite-defaults"],
+    host_supported: true,
     export_include_dirs: ["."],
-    cflags: [
-      "-Wno-unused-parameter",
-    ]
 }
