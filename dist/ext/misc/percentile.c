@@ -58,7 +58,7 @@
 **        file that compiles into a shared-library or DLL that can be loaded
 **        into SQLite using the sqlite3_load_extension() interface.
 */
-#include "../../sqlite3ext.h"
+#include "sqlite3ext.h"
 SQLITE_EXTENSION_INIT1
 #include <assert.h>
 #include <string.h>
