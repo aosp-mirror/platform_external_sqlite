@@ -207,3 +207,13 @@ cc_library_static {
     sdk_version: "23",
     export_include_dirs: ["."],
 }
+
+cc_library_static {
+    name: "sqlite_ext_percentile",
+    srcs: [
+        "ext/misc/percentile.c",
+    ],
+    defaults: ["sqlite-defaults"],
+    host_supported: true,
+    export_include_dirs: ["."],
+}
