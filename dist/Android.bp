@@ -111,6 +111,12 @@ cc_library {
 
     srcs: ["sqlite3.c"],
 
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+
     target: {
         android: {
             shared_libs: [
@@ -146,7 +152,7 @@ cc_library {
             exclude_static_libs: ["libsqlite3_android"],
         },
     },
-
+    min_sdk_version: "apex_inherit",
     export_include_dirs: ["."],
 }
 
