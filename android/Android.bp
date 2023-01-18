@@ -41,12 +41,6 @@ cc_library_static {
     defaults: ["libsqlite3_android_defaults"],
     vendor_available: true,
     native_bridge_supported: true,
-    apex_available: [
-        "//apex_available:platform",
-        "com.android.os.statsd",
-        "test_com.android.os.statsd",
-    ],
-    min_sdk_version: "apex_inherit",
     target: {
         android: {
             cflags: [
@@ -79,6 +73,12 @@ cc_library_static {
     name: "libsqlite3_android_noicu",
     defaults: ["libsqlite3_android_defaults"],
     // Not define SQLITE_ENABLE_ICU
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    min_sdk_version: "apex_inherit",
 }
 
 //       The formal test for phone_number_compare() is in DataBaseGeneralTest.java
