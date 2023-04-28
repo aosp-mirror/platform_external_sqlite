@@ -126,6 +126,7 @@ cc_library {
             static_libs: [
                 "liblog",
             ],
+            cflags: ["-DSQLITE_ENABLE_ICU"],
         },
         not_windows: {
             shared_libs: [
