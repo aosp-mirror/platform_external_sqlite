@@ -1,3 +1,5 @@
+include platform/frameworks/base:/SQLITE_OWNERS
+
 zezeozue@google.com
 nandana@google.com
 omakoto@google.com
