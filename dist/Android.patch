@@ -1,6 +1,6 @@
---- orig/shell.c	2021-07-12 20:54:40.989319871 +0100
-+++ shell.c	2021-07-12 20:54:51.609392247 +0100
-@@ -95,6 +95,11 @@
+--- orig/shell.c	2022-09-01 12:39:01.340032408 +0100
++++ shell.c	2022-09-01 12:39:01.528030292 +0100
+@@ -107,6 +107,11 @@
  #endif
  #include <ctype.h>
  #include <stdarg.h>
@@ -12,7 +12,7 @@
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -12957,6 +12962,22 @@
+@@ -16177,6 +16182,22 @@
      sqlite3_create_function(p->db, "edit", 2, SQLITE_UTF8, 0,
                              editFunc, 0, 0);
  #endif
@@ -34,10 +34,10 @@
 +
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
-          "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", p->zDbFilename);
---- orig/sqlite3.c	2021-07-12 20:54:40.969319735 +0100
-+++ sqlite3.c	2021-07-12 20:54:51.609392247 +0100
-@@ -33407,6 +33407,10 @@
+          "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", zDbFilename);
+--- orig/sqlite3.c	2022-09-01 12:39:01.356032228 +0100
++++ sqlite3.c	2022-09-01 12:39:15.955867966 +0100
+@@ -35608,6 +35608,10 @@
  # include <sys/mount.h>
  #endif
  
@@ -48,7 +48,7 @@
  #ifdef HAVE_UTIME
  # include <utime.h>
  #endif
-@@ -34167,6 +34171,12 @@
+@@ -36170,6 +36174,12 @@
  #if defined(FD_CLOEXEC) && (!defined(O_CLOEXEC) || O_CLOEXEC==0)
      osFcntl(fd, F_SETFD, osFcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
  #endif
@@ -61,7 +61,7 @@
    }
    return fd;
  }
-@@ -34747,7 +34757,13 @@
+@@ -36750,7 +36760,13 @@
  ** and move on.
  */
  static void robust_close(unixFile *pFile, int h, int lineno){
@@ -75,7 +75,7 @@
      unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close",
                         pFile ? pFile->zPath : 0, lineno);
    }
-@@ -37281,7 +37297,7 @@
+@@ -39305,7 +39321,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -84,16 +84,16 @@
    }
    *pSize = buf.st_size;
  
-@@ -37317,7 +37333,7 @@
+@@ -39341,7 +39357,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
-    
+ 
      if( osFstat(pFile->h, &buf) ){
 -      return SQLITE_IOERR_FSTAT;
 +      return unixLogError(SQLITE_IOERR_FSTAT, "fstat", pFile->zPath);
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -38012,7 +38028,7 @@
+@@ -40083,7 +40099,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -102,7 +102,7 @@
        goto shm_open_err;
      }
  
-@@ -128302,7 +128318,7 @@
+@@ -134802,7 +134818,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -111,29 +111,34 @@
      goto initone_error_out;
    }
  
-@@ -170259,13 +170275,25 @@
+@@ -180855,7 +180871,9 @@
    ** module with sqlite.
    */
-   if( SQLITE_OK==rc 
+   if( SQLITE_OK==rc
 +#ifndef ANDROID    /* fts3_tokenizer disabled for security reasons */
-    && SQLITE_OK==(rc = sqlite3Fts3InitHashTable(db, pHash, "fts3_tokenizer"))
+    && SQLITE_OK==(rc=sqlite3Fts3InitHashTable(db,&pHash->hash,"fts3_tokenizer"))
 +#endif
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "snippet", -1))
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "offsets", 1))
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "matchinfo", 1))
-    && SQLITE_OK==(rc = sqlite3_overload_function(db, "matchinfo", 2))
-    && SQLITE_OK==(rc = sqlite3_overload_function(db, "optimize", 1))
-   ){
-+#ifdef SQLITE_ENABLE_FTS3_BACKWARDS
-+    rc = sqlite3_create_module_v2(
-+        db, "fts1", &fts3Module, (void *)pHash, 0
-+        );
-+    if(rc) return rc;
-+    rc = sqlite3_create_module_v2(
-+        db, "fts2", &fts3Module, (void *)pHash, 0
-+        );
-+    if(rc) return rc;
-+#endif
+@@ -180866,6 +180884,20 @@
      rc = sqlite3_create_module_v2(
          db, "fts3", &fts3Module, (void *)pHash, hashDestroy
      );
++#ifdef SQLITE_ENABLE_FTS3_BACKWARDS
++    if( rc==SQLITE_OK ){
++      pHash->nRef++;
++      rc = sqlite3_create_module_v2(
++          db, "fts1", &fts3Module, (void *)pHash, hashDestroy
++      );
++    }
++    if( rc==SQLITE_OK ){
++      pHash->nRef++;
++      rc = sqlite3_create_module_v2(
++          db, "fts2", &fts3Module, (void *)pHash, hashDestroy
++      );
++    }
++#endif
+     if( rc==SQLITE_OK ){
+       pHash->nRef++;
+       rc = sqlite3_create_module_v2(
