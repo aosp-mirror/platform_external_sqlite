@@ -69,6 +69,7 @@ cc_defaults {
         "-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE",
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
+        "-DSQLITE_ALLOW_ROWID_IN_VIEW",
         "-Wno-unused-parameter",
         "-Werror",
 
@@ -145,7 +146,6 @@ cc_library {
             exclude_static_libs: ["libsqlite3_android"],
         },
     },
-
     export_include_dirs: ["."],
 }
 
@@ -159,6 +159,13 @@ cc_library_static {
     srcs: ["sqlite3.c"],
     whole_static_libs: ["libsqlite3_android_noicu"],
     // Not define SQLITE_ENABLE_ICU
+    export_include_dirs: ["."],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    min_sdk_version: "apex_inherit",
 }
 
 //
@@ -205,5 +212,15 @@ cc_library_static {
     defaults: ["sqlite-minimal-defaults"],
     srcs: ["sqlite3.c"],
     sdk_version: "23",
+    export_include_dirs: ["."],
+}
+
+cc_library_static {
+    name: "sqlite_ext_percentile",
+    srcs: [
+        "ext/misc/percentile.c",
+    ],
+    defaults: ["sqlite-defaults"],
+    host_supported: true,
     export_include_dirs: ["."],
 }
