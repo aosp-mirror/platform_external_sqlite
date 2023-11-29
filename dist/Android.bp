@@ -133,7 +133,7 @@ cc_library {
                 "libicui18n",
                 "libicuuc",
             ],
-
+            cflags: ["-DSQLITE_ENABLE_ICU"],
             // include android specific methods
             whole_static_libs: ["libsqlite3_android"],
         },
@@ -166,6 +166,7 @@ cc_library_static {
         "test_com.android.os.statsd",
     ],
     min_sdk_version: "apex_inherit",
+    host_supported: true,
 }
 
 //
@@ -197,7 +198,12 @@ cc_binary {
                 "liblog",
             ],
         },
-
+        not_windows: {
+            shared_libs: [
+                "libicui18n",
+                "libicuuc",
+            ],
+        },
         windows: {
             enabled: true,
         },
