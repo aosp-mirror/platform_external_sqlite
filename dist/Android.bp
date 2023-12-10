@@ -201,9 +201,10 @@ cc_binary {
             ],
         },
         not_windows: {
-            shared_libs: [
+            static_libs: [
                 "libicui18n",
                 "libicuuc",
+                "libicuuc_stubdata",
             ],
         },
         windows: {
