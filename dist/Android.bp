@@ -133,7 +133,7 @@ cc_library {
                 "libicui18n",
                 "libicuuc",
             ],
-
+            cflags: ["-DSQLITE_ENABLE_ICU"],
             // include android specific methods
             whole_static_libs: ["libsqlite3_android"],
         },
@@ -147,6 +147,8 @@ cc_library {
         },
     },
     export_include_dirs: ["."],
+
+    afdo: true,
 }
 
 // This static library is variant of libsqlite built without the ICU extension.
@@ -166,6 +168,7 @@ cc_library_static {
         "test_com.android.os.statsd",
     ],
     min_sdk_version: "apex_inherit",
+    host_supported: true,
 }
 
 //
@@ -197,7 +200,13 @@ cc_binary {
                 "liblog",
             ],
         },
-
+        not_windows: {
+            static_libs: [
+                "libicui18n",
+                "libicuuc",
+                "libicuuc_stubdata",
+            ],
+        },
         windows: {
             enabled: true,
         },
