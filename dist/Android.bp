@@ -123,18 +123,14 @@ cc_library {
             whole_static_libs: ["libsqlite3_android"],
         },
         host: {
-            static_libs: [
+        static_libs: [
                 "liblog",
             ],
-            cflags: ["-DSQLITE_ENABLE_ICU"],
-        },
-        not_windows: {
             shared_libs: [
                 "libicui18n",
                 "libicuuc",
             ],
-
-            // include android specific methods
+            cflags: ["-DSQLITE_ENABLE_ICU"],
             whole_static_libs: ["libsqlite3_android"],
         },
         windows: {
