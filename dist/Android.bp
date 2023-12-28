@@ -127,8 +127,6 @@ cc_library {
             static_libs: [
                 "liblog",
             ],
-        },
-        not_windows: {
             shared_libs: [
                 "libicui18n",
                 "libicuuc",
@@ -198,10 +196,6 @@ cc_binary {
                 "libsqlite",
                 // sqlite3MemsysAlarm uses LOG()
                 "liblog",
-            ],
-        },
-        not_windows: {
-            static_libs: [
                 "libicui18n",
                 "libicuuc",
                 "libicuuc_stubdata",
