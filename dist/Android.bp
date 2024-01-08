@@ -70,6 +70,7 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
         "-DSQLITE_ALLOW_ROWID_IN_VIEW",
+        "-DSQLITE_ENABLE_BYTECODE_VTAB",
         "-Wno-unused-parameter",
         "-Werror",
 
