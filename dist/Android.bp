@@ -70,6 +70,7 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
         "-DSQLITE_ALLOW_ROWID_IN_VIEW",
+        "-DSQLITE_ENABLE_BYTECODE_VTAB",
         "-Wno-unused-parameter",
         "-Werror",
 
@@ -127,8 +128,6 @@ cc_library {
             static_libs: [
                 "liblog",
             ],
-        },
-        not_windows: {
             shared_libs: [
                 "libicui18n",
                 "libicuuc",
@@ -147,6 +146,8 @@ cc_library {
         },
     },
     export_include_dirs: ["."],
+
+    afdo: true,
 }
 
 // This static library is variant of libsqlite built without the ICU extension.
@@ -196,12 +197,9 @@ cc_binary {
                 "libsqlite",
                 // sqlite3MemsysAlarm uses LOG()
                 "liblog",
-            ],
-        },
-        not_windows: {
-            shared_libs: [
                 "libicui18n",
                 "libicuuc",
+                "libicuuc_stubdata",
             ],
         },
         windows: {
