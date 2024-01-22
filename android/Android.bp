@@ -58,6 +58,9 @@ cc_library_static {
                 "libicuuc",
             ],
         },
+        windows: {
+          enabled: true,
+        },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
