@@ -1,0 +1,3 @@
+URL: ${SQLITE_URL}
+Version: ${SQLITE_VERSION}
+BugComponent: 24950
