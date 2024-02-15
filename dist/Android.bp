@@ -70,6 +70,7 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
         "-DSQLITE_ALLOW_ROWID_IN_VIEW",
+        "-DSQLITE_ENABLE_BYTECODE_VTAB",
         "-Wno-unused-parameter",
         "-Werror",
 
@@ -127,13 +128,11 @@ cc_library {
             static_libs: [
                 "liblog",
             ],
-        },
-        not_windows: {
             shared_libs: [
                 "libicui18n",
                 "libicuuc",
             ],
-
+            cflags: ["-DSQLITE_ENABLE_ICU"],
             // include android specific methods
             whole_static_libs: ["libsqlite3_android"],
         },
@@ -147,6 +146,8 @@ cc_library {
         },
     },
     export_include_dirs: ["."],
+
+    afdo: true,
 }
 
 // This static library is variant of libsqlite built without the ICU extension.
@@ -166,6 +167,7 @@ cc_library_static {
         "test_com.android.os.statsd",
     ],
     min_sdk_version: "apex_inherit",
+    host_supported: true,
 }
 
 //
@@ -195,9 +197,11 @@ cc_binary {
                 "libsqlite",
                 // sqlite3MemsysAlarm uses LOG()
                 "liblog",
+                "libicui18n",
+                "libicuuc",
+                "libicuuc_stubdata",
             ],
         },
-
         windows: {
             enabled: true,
         },
