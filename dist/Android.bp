@@ -146,6 +146,10 @@ cc_library {
         },
     },
     export_include_dirs: ["."],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
 
     afdo: true,
 }
