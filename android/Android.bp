@@ -44,8 +44,8 @@ cc_library_static {
     target: {
         android: {
             cflags: [
-                    "-DSQLITE_ENABLE_ICU",
-                    "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
+                "-DSQLITE_ENABLE_ICU",
+                "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
             ],
             shared_libs: [
                 "libandroidicu",
@@ -59,13 +59,18 @@ cc_library_static {
             ],
         },
         windows: {
-          enabled: true,
+            enabled: true,
         },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
         },
     },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+
 }
 
 // This static library is variant of libsqlite3_android built without the ICU
