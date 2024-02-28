@@ -14,12 +14,12 @@ external/sqlite
 The upgrade steps are:
 
 *   Select a version for the upgrade.
-*   Download the autoconf amalgamation tarball. For release 3.42.0, the URL is
+*   Find the autoconf amalgamation tarball. For release 3.42.0, the URL is
     [sqlite-autoconf-3420000.tar.gz](https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz).
 *   Change to the directory `external/sqlite` in the workspace.
-*   Run the script `UPDATE-SOURCE.bash`. This script is executable. The single
-    argument is the path to the tarball.
-*   Update the internal bookkeeping files (see below).
+*   Run the script `UPDATE-SOURCE.bash`. This script is executable. The
+    arguments are the tarball URL and the version. Invoke the script without
+    arguments for an example.
 
 `UPDATE-SOURCE.bash` may fail if the Android patch cannot be applied cleanly. If
 this happens, correct the patch failures by hand and rebuild the Android patch
@@ -27,25 +27,7 @@ file. Use the script `REBUILD-ANDROID-PATCH.bash` to rebuild the patch file.
 Then rerun `UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run
 without errors.
 
-A number of files in this directory require special handling.
-
-### README.version
-
-This contains the URL of the source code, the version information, and the bug
-component under which the Android tree was updated. An example is below.
-
-```text
-URL: https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz
-Version: 3.42.0
-BugComponent: 24950
-```
-
-### METADATA
-
-This file contains a security tag and a reference to the license file. The
-format changes now and then; ensure that it is up to date.
-
-### LICENSE
+## LICENSE
 
 This file contains the license that allows Android to use the third-party
 software. SQLite is unusual because it has no license: it is in the public
@@ -76,11 +58,7 @@ Update the following two constants (the values below are for SQLite 3.42.0).
     static final int EXPECTED_MIN_PATCH_LEVEL = 0;
 ```
 
-## Miscellaneous Files
-
-The following files are updated in an internal Android branch (such as `main`)
-
-### package.html
+## package.html
 
 ```text
 frameworks/base/core/java/android/database/sqlite/package.html
