@@ -1,0 +1,21 @@
+name: "SQLite"
+description:
+    "SQLite database"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.sqlite.org"
+  }
+  url {
+    type: ARCHIVE
+    value: "${SQLITE_URL}"
+  }
+  version: "${SQLITE_VERSION}"
+  last_upgrade_date { year: ${YEAR} month: ${MONTH} day: ${DAY} }
+  license_type: NOTICE
+
+  security: {
+    tag: "NVD-CPE2.3:cpe:/a:sqlite:sqlite"  # see http://go/metadata-cpe
+  }
+}
