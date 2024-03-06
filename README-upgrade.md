@@ -83,6 +83,9 @@ The following tests are recommended before committing an update:
 
 ```text
 CtsScopedStorageDeviceOnlyTest
+CtsScopedStorageBypassDatabaseOperationsTest
+CtsScopedStorageGeneralTest
+CtsScopedStorageRedactUriTest
 CtsDatabaseTestCases
 FrameworksCoreTests:android.database
 ```
