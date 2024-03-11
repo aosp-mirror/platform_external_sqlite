@@ -106,9 +106,6 @@ cc_library {
     defaults: ["sqlite-defaults"],
     vendor_available: true,
     native_bridge_supported: true,
-    vndk: {
-        enabled: true,
-    },
 
     srcs: ["sqlite3.c"],
 
