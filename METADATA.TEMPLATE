@@ -12,7 +12,7 @@ third_party {
     value: "${SQLITE_URL}"
   }
   version: "${SQLITE_VERSION}"
-  last_upgrade_date { year: $(date +%Y) month: $(date +%M) day: $(date +%D) }
+  last_upgrade_date { year: ${YEAR} month: ${MONTH} day: ${DAY} }
   license_type: NOTICE
 
   security: {
