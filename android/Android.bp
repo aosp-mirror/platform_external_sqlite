@@ -15,29 +15,8 @@ license {
     ],
 }
 
-soong_config_module_type {
-    name: "release_package_libsqlite3_android_defaults_config",
-    module_type: "cc_defaults",
-    config_namespace: "libsqlite3",
-    value_variables: ["release_package_libsqlite3"],
-    properties: [
-        "include_dirs",
-    ],
-}
-
-// Construct the correct source and includes for sqlite libraries,
-// based on the build flag.
-release_package_libsqlite3_android_defaults_config {
+cc_defaults {
     name: "libsqlite3_android_defaults",
-    soong_config_variables: {
-        release_package_libsqlite3: {
-            include_dirs: ["external/sqlite/dist/sqlite-autoconf-%s"],
-            conditions_default: {
-                include_dirs: ["external/sqlite/dist"],
-            },
-        },
-    },
-
     host_supported: true,
     cflags: [
         "-Wall",
@@ -50,6 +29,7 @@ release_package_libsqlite3_android_defaults_config {
         "OldPhoneNumberUtils.cpp",
         "sqlite3_android.cpp",
     ],
+    include_dirs: ["external/sqlite/dist"],
     shared_libs: [
         "liblog",
     ],
