@@ -16,7 +16,7 @@
 
 # This script updates SQLite source files with a SQLite tarball.
 #
-# Usage: REBUILD-ANDROID_PATCH.bash <release>
+# Usage: REBUILD-ANDROID_PATCH.bash
 #
 # This script must be executed in $ANDROID_BUILD_TOP/external/sqlite/
 #
@@ -24,7 +24,9 @@
 set -e
 
 script_name="$(basename "$0")"
-script_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
+
+source_tgz="$1"
+source_ext_dir="$1.extracted"
 
 die() {
     echo "$script_name: $*"
@@ -36,38 +38,20 @@ echo_and_exec() {
     "$@"
 }
 
-# This function converts a release string like "3.42.0" to the canonical 7-digit
-# format used by sqlite.org for downloads: "3420000".  A hypothetical release
-# number of 3.45.6 is converted to "3450600".  A hypothetical release number of
-# 3.45.17 is converted to "3451700".  The last two digits are assumed to be
-# "00" for now, as there are no known counter-examples.
-function normalize_release {
-  local version=$1
-  local -a fields
-  fields=($(echo "$version" | sed 's/\./ /g'))
-  if [[ ${#fields[*]} -lt 2 || ${#fields[*]} -gt 3 ]]; then
-    echo "cannot parse version: $version"
-    return 1
-  elif [[ ${#fields[*]} -eq 2 ]]; then
-    fields+=(0)
-  fi
-  printf "%d%02d%02d00" ${fields[*]}
-  return 0
-}
-
-if [[ $# -lt 1 ]]; then
-  die "missing required arguments"
-elif [[ $# -gt 1 ]]; then
-  die "extra arguments on command line"
+# Make sure the source tgz file exists.
+pwd="$(pwd)"
+if [[ ! "$pwd" =~ .*/external/sqlite/? ]] ; then
+    die 'Execute this script in $ANDROID_BUILD_TOP/external/sqlite/'
 fi
-sqlite_release=$(normalize_release "$1") || die "invalid release"
-sqlite_base="sqlite-autoconf-${sqlite_release}"
 
-export patch_dir=${script_dir}/dist
+# No parameters are permitted
+if [[ ! $# -eq 0 ]]; then
+    die "Unexpected arguments on the command line"
+fi
+
 echo
 echo "# Regenerating Android.patch ..."
 (
-    cd dist/$sqlite_base || die "release directory not found"
+    cd dist
     echo_and_exec bash -c '(for x in orig/*; do diff -u -d $x ${x#orig/}; done) > Android.patch'
-    echo_and_exec cp Android.patch ${patch_dir}/
-) 
+)
