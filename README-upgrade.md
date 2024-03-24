@@ -28,6 +28,28 @@ This script takes the same arguments as `UPDATE-SOURCE.bash`.  Then rerun
 `UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run without
 errors.
 
+Once the scripts have completed, there will be a directory containing the new
+source files.  The directory is named after the sqlite release and exists in
+parallel with other sqlite release directories.  For release 3.42.0, the
+directory name is `external/sqlite/dist/sqlite-autoconf-3420000`.
+
+## Flagging
+
+The release of sqlite can be controlled by trunk-stable build flags.  The flag
+is `RELEASE_PACKAGE_LIBSQLITE3`.  The value of that flag is the 7-digit sqlite
+release number (e.g., 3420000).  Any target that respects trunk-stable flags
+will use the source in `external/sqlite/dist/sqlite-autoconf-FLAG`.  Not all
+targets respect the trunk-stable flags, however.  Such targets use the directory
+`external/sqlite/dist/sqlite-default`.  
+
+A new release of sqlite can be promoted to `trunk` by setting the flag to the
+proper release string.  
+
+A release of sqlite is promoted to `next` by setting the flag to the release
+string AND by copying the associated release directory to `sqlite-default`.
+This moves all targets that do not honor build flags to use the newly promoted
+release. 
+
 ## LICENSE
 
 This file contains the license that allows Android to use the third-party
