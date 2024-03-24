@@ -13,19 +13,20 @@ external/sqlite
 
 The upgrade steps are:
 
-*   Select a version for the upgrade.
+*   Select a version for the upgrade.  Note the year it was released by sqlite.org.
 *   Find the autoconf amalgamation tarball. For release 3.42.0, the URL is
     [sqlite-autoconf-3420000.tar.gz](https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz).
 *   Change to the directory `external/sqlite` in the workspace.
 *   Run the script `UPDATE-SOURCE.bash`. This script is executable. The
-    arguments are the tarball URL and the version. Invoke the script without
+    arguments are the sqlite release year and the version. Invoke the script without
     arguments for an example.
 
 `UPDATE-SOURCE.bash` may fail if the Android patch cannot be applied cleanly. If
 this happens, correct the patch failures by hand and rebuild the Android patch
 file. Use the script `REBUILD-ANDROID-PATCH.bash` to rebuild the patch file.
-Then rerun `UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run
-without errors.
+This script takes the same arguments as `UPDATE-SOURCE.bash`.  Then rerun
+`UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run without
+errors.
 
 ## LICENSE
 
