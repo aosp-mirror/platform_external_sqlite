@@ -16,7 +16,7 @@
 
 # This script updates SQLite source files with a SQLite tarball.
 #
-# Usage: REBUILD-ANDROID_PATCH.bash
+# Usage: REBUILD-ANDROID_PATCH.bash <release>
 #
 # This script must be executed in $ANDROID_BUILD_TOP/external/sqlite/
 #
@@ -24,34 +24,23 @@
 set -e
 
 script_name="$(basename "$0")"
+script_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
 
-source_tgz="$1"
-source_ext_dir="$1.extracted"
+source $script_dir/common-functions.sh
 
-die() {
-    echo "$script_name: $*"
-    exit 1
-}
-
-echo_and_exec() {
-    echo "  Running: $@"
-    "$@"
-}
-
-# Make sure the source tgz file exists.
-pwd="$(pwd)"
-if [[ ! "$pwd" =~ .*/external/sqlite/? ]] ; then
-    die 'Execute this script in $ANDROID_BUILD_TOP/external/sqlite/'
+if [[ $# -lt 1 ]]; then
+  die "missing required arguments"
+elif [[ $# -gt 1 ]]; then
+  die "extra arguments on command line"
 fi
+sqlite_release=$(normalize_release "$1") || die "invalid release"
+sqlite_base="sqlite-autoconf-${sqlite_release}"
 
-# No parameters are permitted
-if [[ ! $# -eq 0 ]]; then
-    die "Unexpected arguments on the command line"
-fi
-
+export patch_dir=${script_dir}/dist
 echo
 echo "# Regenerating Android.patch ..."
 (
-    cd dist
+    cd dist/$sqlite_base || die "release directory not found"
     echo_and_exec bash -c '(for x in orig/*; do diff -u -d $x ${x#orig/}; done) > Android.patch'
-)
+    echo_and_exec cp Android.patch ${patch_dir}/
+) 
