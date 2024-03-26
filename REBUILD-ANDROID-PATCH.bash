@@ -26,34 +26,7 @@ set -e
 script_name="$(basename "$0")"
 script_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
 
-die() {
-    echo "$script_name: $*"
-    exit 1
-}
-
-echo_and_exec() {
-    echo "  Running: $@"
-    "$@"
-}
-
-# This function converts a release string like "3.42.0" to the canonical 7-digit
-# format used by sqlite.org for downloads: "3420000".  A hypothetical release
-# number of 3.45.6 is converted to "3450600".  A hypothetical release number of
-# 3.45.17 is converted to "3451700".  The last two digits are assumed to be
-# "00" for now, as there are no known counter-examples.
-function normalize_release {
-  local version=$1
-  local -a fields
-  fields=($(echo "$version" | sed 's/\./ /g'))
-  if [[ ${#fields[*]} -lt 2 || ${#fields[*]} -gt 3 ]]; then
-    echo "cannot parse version: $version"
-    return 1
-  elif [[ ${#fields[*]} -eq 2 ]]; then
-    fields+=(0)
-  fi
-  printf "%d%02d%02d00" ${fields[*]}
-  return 0
-}
+source $script_dir/common-functions.sh
 
 if [[ $# -lt 1 ]]; then
   die "missing required arguments"
