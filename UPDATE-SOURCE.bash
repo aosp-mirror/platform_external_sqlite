@@ -14,23 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script updates SQLite source files with a SQLite tarball.
+# This script updates SQLite source files with a SQLite tarball.  The tarball is
+# downloaded from the sqlite website.
 #
-# Usage: UPDATE-SOURCE.bash SQLITE-SOURCE.tgz
+# Usage: UPDATE-SOURCE.bash [-nF] <year> <sqlite-release>
 #
-# This script must be executed in $ANDROID_BUILD_TOP/external/sqlite/
+# This script must be executed in $ANDROID_BUILD_TOP/external/sqlite/.  However,
+# for testing it can run anywhere: use the -F switch.
 #
 
 set -e
 
 script_name="$(basename "$0")"
+script_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
 
-if [ $# -eq 0 ]; then
-  echo "Usage: ${script_name} [src_tarball_url] [sqlite_version]"
+usage() {
+  if [[ $# -gt 0 ]]; then echo "$*" >&2; fi
+  echo "Usage: ${script_name} -nF <year> <version>"
+  echo "  year    the 4-digit year the sqlite version was released"
+  echo "  version the sqlite version as <major>.<minor>[.<patch>]"
+  echo "          the patch level defaults to 0"
+  echo "  -n      dry-run: evaluate arguments but d not change anything"
+  echo "  -F      force execution even if not in external/sqlite"
+  echo 
   echo "Example:"
-  echo "${script_name} https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz 3.42.0"
-  exit 1
-fi
+  echo "${script_name} 2023 3.42"
+}
 
 die() {
     echo "$script_name: $*"
@@ -42,20 +51,89 @@ echo_and_exec() {
     "$@"
 }
 
+validate_year() {
+  local year=$1
+  if [[ "$year" =~ ^2[0-9][0-9][0-9]$ ]]; then
+    return 0;
+  else
+    return 1;
+  fi
+}
+
+# This function converts a release string like "3.42.0" to the canonical 7-digit
+# format used by sqlite.org for downloads: "3420000".  A hypothetical release
+# number of 3.45.6 is converted to "3450600".  A hypothetical release number of
+# 3.45.17 is converted to "3451700".  The last two digits are assumed to be
+# "00" for now, as there are no known counter-examples.
+function normalize_release {
+  local version=$1
+  local -a fields
+  fields=($(echo "$version" | sed 's/\./ /g'))
+  if [[ ${#fields[*]} -lt 2 || ${#fields[*]} -gt 3 ]]; then
+    echo "cannot parse version: $version"
+    return 1
+  elif [[ ${#fields[*]} -eq 2 ]]; then
+    fields+=(0)
+  fi
+  printf "%d%02d%02d00" ${fields[*]}
+  return 0
+}
+
+function prettify_release {
+  local version=$1
+  local patch=$((version % 100))
+  version=$((version / 100))
+  local minor=$((version % 100))
+  version=$((version / 100))
+  local major=$((version % 100))
+  version=$((version / 100))
+  # version now contains the generation number.
+  printf "%d.%d.%d" $version $major $minor
+}
+
+dry_run=
+force=
+while getopts "hnF" option; do
+  case $option in
+    h) usage; exit 0;;
+    n) dry_run=y;;
+    F) force=y;;
+    *) usage "unknown switch"; exit 1;;
+  esac
+done
+shift $((OPTIND- 1))
+
+if [[ $# -lt 2 ]]; then
+  usage; die "missing required arguments"
+elif [[ $# -gt 2 ]]; then
+  die "extra arguments on command line"
+fi
+year=$1
+validate_year "$year" || die "invalid year"
+sqlite_release=$(normalize_release "$2") || die "invalid release"
+
+sqlite_base="sqlite-autoconf-${sqlite_release}"
+sqlite_file="${sqlite_base}.tar.gz"
+src_tarball_url="https://www.sqlite.org/$year/${sqlite_file}"
+
+if [[ -n $dry_run ]]; then
+  echo "fetching $src_tarball_url"
+  echo "installing in dist/$sqlite_base"
+  exit 0
+fi
+
 pwd="$(pwd)"
-if [[ ! "$pwd" =~ .*/external/sqlite/? ]] ; then
+if [[ -z $force && ! "$pwd" =~ .*/external/sqlite/? ]] ; then
     die 'Execute this script in $ANDROID_BUILD_TOP/external/sqlite/'
 fi
 
-src_tarball_url="$1"
-sqlite_version="$2"
-
-source_tgz=$(mktemp /tmp/sqlite-${sqlite_version}.zip.XXXXXX)
+source_tgz=$(mktemp /tmp/sqlite-${sqlite_release}.zip.XXXXXX)
+source_ext_dir="${source_tgz}.extracted"
+trap "rm -r ${source_tgz} ${source_ext_dir}" EXIT
 wget ${src_tarball_url} -O ${source_tgz}
 
 echo
 echo "# Extracting the source tgz..."
-source_ext_dir="${source_tgz}.extracted"
 echo_and_exec rm -fr "$source_ext_dir"
 echo_and_exec mkdir -p "$source_ext_dir"
 echo_and_exec tar xvf "$source_tgz" -C "$source_ext_dir" --strip-components=1
@@ -68,20 +146,23 @@ echo "# Making file sqlite3.c in $source_ext_dir ..."
     echo_and_exec make -j 4 sqlite3.c
 )
 
-dist_dir="dist-${sqlite_version}"
+export dist_dir="dist/${sqlite_base}"
 echo
 echo "# Copying the source files ..."
+echo_and_exec rm -rf ${dist_dir}
 echo_and_exec mkdir -p "${dist_dir}"
 echo_and_exec mkdir -p "${dist_dir}/orig"
 for to in ${dist_dir}/orig/ ${dist_dir}/ ; do
     echo_and_exec cp "$source_ext_dir/"{shell.c,sqlite3.c,sqlite3.h,sqlite3ext.h} "$to"
 done
 
+export patch_dir=${script_dir}/dist
 echo
 echo "# Applying Android.patch ..."
 (
     cd ${dist_dir}
-    echo_and_exec patch -i ../Android.patch
+    echo "PATCHING IN $dist_dir" >&2
+    echo_and_exec patch -i ${patch_dir}/Android.patch
 )
 
 echo
@@ -89,13 +170,14 @@ echo "# Regenerating Android.patch ..."
 (
     cd ${dist_dir}
     echo_and_exec bash -c '(for x in orig/*; do diff -u -d $x ${x#orig/}; done) > Android.patch'
+    echo_and_exec cp Android.patch ${patch_dir}/
 )
 
 echo
 echo "# Generating metadata ..."
 (
     export SQLITE_URL=${src_tarball_url}
-    export SQLITE_VERSION=${sqlite_version}
+    export SQLITE_VERSION=$(prettify_release ${sqlite_release})
     export YEAR=$(date +%Y)
     export MONTH=$(date +%M)
     export DAY=$(date +%D)
