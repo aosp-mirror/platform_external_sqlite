@@ -13,19 +13,42 @@ external/sqlite
 
 The upgrade steps are:
 
-*   Select a version for the upgrade.
+*   Select a version for the upgrade.  Note the year it was released by sqlite.org.
 *   Find the autoconf amalgamation tarball. For release 3.42.0, the URL is
     [sqlite-autoconf-3420000.tar.gz](https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz).
 *   Change to the directory `external/sqlite` in the workspace.
 *   Run the script `UPDATE-SOURCE.bash`. This script is executable. The
-    arguments are the tarball URL and the version. Invoke the script without
+    arguments are the sqlite release year and the version. Invoke the script without
     arguments for an example.
 
 `UPDATE-SOURCE.bash` may fail if the Android patch cannot be applied cleanly. If
 this happens, correct the patch failures by hand and rebuild the Android patch
 file. Use the script `REBUILD-ANDROID-PATCH.bash` to rebuild the patch file.
-Then rerun `UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run
-without errors.
+This script takes the same arguments as `UPDATE-SOURCE.bash`.  Then rerun
+`UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run without
+errors.
+
+Once the scripts have completed, there will be a directory containing the new
+source files.  The directory is named after the sqlite release and exists in
+parallel with other sqlite release directories.  For release 3.42.0, the
+directory name is `external/sqlite/dist/sqlite-autoconf-3420000`.
+
+## Flagging
+
+The release of sqlite can be controlled by trunk-stable build flags.  The flag
+is `RELEASE_PACKAGE_LIBSQLITE3`.  The value of that flag is the 7-digit sqlite
+release number (e.g., 3420000).  Any target that respects trunk-stable flags
+will use the source in `external/sqlite/dist/sqlite-autoconf-FLAG`.  Not all
+targets respect the trunk-stable flags, however.  Such targets use the directory
+`external/sqlite/dist/sqlite-default`.  
+
+A new release of sqlite can be promoted to `trunk` by setting the flag to the
+proper release string.  
+
+A release of sqlite is promoted to `next` by setting the flag to the release
+string AND by copying the associated release directory to `sqlite-default`.
+This moves all targets that do not honor build flags to use the newly promoted
+release. 
 
 ## LICENSE
 
