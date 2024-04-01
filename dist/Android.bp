@@ -187,6 +187,10 @@ cc_library {
     ],
 
     afdo: true,
+    // libsqlite is a single gigantic C file, no need to run LTO.
+    lto: {
+         never: true,
+    },
 }
 
 // This static library is variant of libsqlite built without the ICU extension.
