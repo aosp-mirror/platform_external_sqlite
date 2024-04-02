@@ -28,75 +28,30 @@ set -e
 script_name="$(basename "$0")"
 script_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
 
+source $script_dir/common-functions.sh
+
 usage() {
   if [[ $# -gt 0 ]]; then echo "$*" >&2; fi
-  echo "Usage: ${script_name} -nF <year> <version>"
+  echo "Usage: ${script_name} [-nF] [-u <url>] <year> <version>"
   echo "  year    the 4-digit year the sqlite version was released"
   echo "  version the sqlite version as <major>.<minor>[.<patch>]"
   echo "          the patch level defaults to 0"
   echo "  -n      dry-run: evaluate arguments but d not change anything"
+  echo "  -u url  download the tarball from the specified url"
   echo "  -F      force execution even if not in external/sqlite"
   echo 
   echo "Example:"
   echo "${script_name} 2023 3.42"
 }
 
-die() {
-    echo "$script_name: $*"
-    exit 1
-}
-
-echo_and_exec() {
-    echo "  Running: $@"
-    "$@"
-}
-
-validate_year() {
-  local year=$1
-  if [[ "$year" =~ ^2[0-9][0-9][0-9]$ ]]; then
-    return 0;
-  else
-    return 1;
-  fi
-}
-
-# This function converts a release string like "3.42.0" to the canonical 7-digit
-# format used by sqlite.org for downloads: "3420000".  A hypothetical release
-# number of 3.45.6 is converted to "3450600".  A hypothetical release number of
-# 3.45.17 is converted to "3451700".  The last two digits are assumed to be
-# "00" for now, as there are no known counter-examples.
-function normalize_release {
-  local version=$1
-  local -a fields
-  fields=($(echo "$version" | sed 's/\./ /g'))
-  if [[ ${#fields[*]} -lt 2 || ${#fields[*]} -gt 3 ]]; then
-    echo "cannot parse version: $version"
-    return 1
-  elif [[ ${#fields[*]} -eq 2 ]]; then
-    fields+=(0)
-  fi
-  printf "%d%02d%02d00" ${fields[*]}
-  return 0
-}
-
-function prettify_release {
-  local version=$1
-  local patch=$((version % 100))
-  version=$((version / 100))
-  local minor=$((version % 100))
-  version=$((version / 100))
-  local major=$((version % 100))
-  version=$((version / 100))
-  # version now contains the generation number.
-  printf "%d.%d.%d" $version $major $minor
-}
-
 dry_run=
 force=
-while getopts "hnF" option; do
+src_tarball_url=
+while getopts "hnFu:" option; do
   case $option in
     h) usage; exit 0;;
     n) dry_run=y;;
+    u) src_tarball_url=$OPTARG;;
     F) force=y;;
     *) usage "unknown switch"; exit 1;;
   esac
@@ -114,7 +69,9 @@ sqlite_release=$(normalize_release "$2") || die "invalid release"
 
 sqlite_base="sqlite-autoconf-${sqlite_release}"
 sqlite_file="${sqlite_base}.tar.gz"
-src_tarball_url="https://www.sqlite.org/$year/${sqlite_file}"
+if [[ -z $src_tarball_url ]]; then
+  src_tarball_url="https://www.sqlite.org/$year/${sqlite_file}"
+fi
 
 if [[ -n $dry_run ]]; then
   echo "fetching $src_tarball_url"
