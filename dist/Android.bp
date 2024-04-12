@@ -144,9 +144,6 @@ cc_library {
     ],
     vendor_available: true,
     native_bridge_supported: true,
-    vndk: {
-        enabled: true,
-    },
 
     target: {
         android: {
