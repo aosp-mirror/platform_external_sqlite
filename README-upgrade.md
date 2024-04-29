@@ -24,9 +24,9 @@ The upgrade steps are:
 `UPDATE-SOURCE.bash` may fail if the Android patch cannot be applied cleanly. If
 this happens, correct the patch failures by hand and rebuild the Android patch
 file. Use the script `REBUILD-ANDROID-PATCH.bash` to rebuild the patch file.
-This script takes the same arguments as `UPDATE-SOURCE.bash`.  Then rerun
-`UPDATE-SOURCE.bash`. It is important that `UPDATE-SOURCE.bash` run without
-errors.
+This script takes a single argument which is the same version number that was
+given to `UPDATE-SOURCE.bash`.  Then rerun `UPDATE-SOURCE.bash`. It is important
+that `UPDATE-SOURCE.bash` run without errors.
 
 Once the scripts have completed, there will be a directory containing the new
 source files.  The directory is named after the sqlite release and exists in
@@ -40,15 +40,16 @@ is `RELEASE_PACKAGE_LIBSQLITE3`.  The value of that flag is the 7-digit sqlite
 release number (e.g., 3420000).  Any target that respects trunk-stable flags
 will use the source in `external/sqlite/dist/sqlite-autoconf-FLAG`.  Not all
 targets respect the trunk-stable flags, however.  Such targets use the directory
-`external/sqlite/dist/sqlite-default`.  
+`external/sqlite/dist/sqlite-default`.
 
 A new release of sqlite can be promoted to `trunk` by setting the flag to the
-proper release string.  
+proper release string.  Once a new release of sqlite has been promoted to
+`next`, it is best practice to change the symbolic link `sqlite-default` to
+point to the new release.  This ensures that any target that does not honor
+build flags will use the newly promoted release.
 
-A release of sqlite is promoted to `next` by setting the flag to the release
-string AND by copying the associated release directory to `sqlite-default`.
-This moves all targets that do not honor build flags to use the newly promoted
-release. 
+Finally, after the new sqlite release has been delivered in an Android update,
+old sqlite release directories can be deleted.
 
 ## LICENSE
 
@@ -74,12 +75,14 @@ well and it must be updated within `aosp-main` at the same time as the source.
 cts/tests/tests/database/src/android/database/sqlite/cts/SQLiteDatabaseTest.java
 ```
 
-Update the following two constants (the values below are for SQLite 3.42.0).
+Find and update the function `testSqliteLibraryVersion()`.  This function must
+be updated as soon as a new sqlite release is installed in `trunk_staging`, and
+the function must accept old and new sqlite releases. Once a new release has
+been committed to `next`, old releases can be rejected by this function.
 
-```java
-    static final String EXPECTED_MAJOR_MINOR_VERSION = "3.42";
-    static final int EXPECTED_MIN_PATCH_LEVEL = 0;
-```
+Note that the CTS test is sometimes propagated to branches for older Android
+releases, which do not use the latest sqlite release.  If that happens, the CTS
+test will have to accept both the old and new sqlite releases.
 
 ## package.html
 
