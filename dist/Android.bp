@@ -144,9 +144,6 @@ cc_library {
     ],
     vendor_available: true,
     native_bridge_supported: true,
-    vndk: {
-        enabled: true,
-    },
 
     target: {
         android: {
@@ -187,6 +184,10 @@ cc_library {
     ],
 
     afdo: true,
+    // libsqlite is a single gigantic C file, no need to run LTO.
+    lto: {
+         never: true,
+    },
 }
 
 // This static library is variant of libsqlite built without the ICU extension.
