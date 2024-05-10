@@ -70,6 +70,7 @@ cc_defaults {
         "-DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD",
         "-DSQLITE_DEFAULT_LEGACY_ALTER_TABLE",
         "-DSQLITE_ALLOW_ROWID_IN_VIEW",
+        "-DSQLITE_ENABLE_BYTECODE_VTAB",
         "-Wno-unused-parameter",
         "-Werror",
 
@@ -100,16 +101,49 @@ cc_defaults {
     },
 }
 
+soong_config_module_type {
+    name: "release_package_libsqlite3_library_defaults_config",
+    module_type: "cc_defaults",
+    config_namespace: "libsqlite3",
+    value_variables: ["release_package_libsqlite3"],
+    properties: [
+        "export_include_dirs",
+        "srcs",
+    ],
+}
+
+// Construct the correct source and includes for sqlite libraries,
+// based on the build flag.
+release_package_libsqlite3_library_defaults_config {
+    name: "release_package_libsqlite3_library_defaults",
+    soong_config_variables: {
+        release_package_libsqlite3: {
+            export_include_dirs: ["sqlite-autoconf-%s"],
+            srcs: ["sqlite-autoconf-%s/sqlite3.c"],
+            conditions_default: {
+                export_include_dirs: ["sqlite-default"],
+                srcs: ["sqlite-default/sqlite3.c"],
+            },
+        },
+    },
+}
+
+cc_defaults {
+    name: "libsqlite_defaults",
+    defaults: [
+        "sqlite-defaults",
+        "release_package_libsqlite3_library_defaults",
+    ],
+}
+
 cc_library {
     name: "libsqlite",
-    defaults: ["sqlite-defaults"],
+    defaults: [
+        "sqlite-defaults",
+        "release_package_libsqlite3_library_defaults",
+    ],
     vendor_available: true,
     native_bridge_supported: true,
-    vndk: {
-        enabled: true,
-    },
-
-    srcs: ["sqlite3.c"],
 
     target: {
         android: {
@@ -127,13 +161,11 @@ cc_library {
             static_libs: [
                 "liblog",
             ],
-        },
-        not_windows: {
             shared_libs: [
                 "libicui18n",
                 "libicuuc",
             ],
-
+            cflags: ["-DSQLITE_ENABLE_ICU"],
             // include android specific methods
             whole_static_libs: ["libsqlite3_android"],
         },
@@ -146,8 +178,16 @@ cc_library {
             exclude_static_libs: ["libsqlite3_android"],
         },
     },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
 
-    export_include_dirs: ["."],
+    afdo: true,
+    // libsqlite is a single gigantic C file, no need to run LTO.
+    lto: {
+         never: true,
+    },
 }
 
 // This static library is variant of libsqlite built without the ICU extension.
@@ -156,10 +196,58 @@ cc_library {
 // desirable, like microdroid.
 cc_library_static {
     name: "libsqlite_static_noicu",
-    defaults: ["sqlite-defaults"],
-    srcs: ["sqlite3.c"],
+    defaults: [
+        "sqlite-defaults",
+        "release_package_libsqlite3_library_defaults",
+    ],
     whole_static_libs: ["libsqlite3_android_noicu"],
     // Not define SQLITE_ENABLE_ICU
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    min_sdk_version: "apex_inherit",
+    host_supported: true,
+}
+
+// Build a minimal version of sqlite3 without any android specific
+// features against the NDK. This is used by libcore's JDBC related
+// unit tests.
+cc_library_static {
+    name: "libsqlite_static_minimal",
+    defaults: [
+        "sqlite-minimal-defaults",
+        "release_package_libsqlite3_library_defaults",
+    ],
+    sdk_version: "23",
+}
+
+soong_config_module_type {
+    name: "release_package_libsqlite3_library_percentile_config",
+    module_type: "cc_library_static",
+    config_namespace: "libsqlite3",
+    value_variables: ["release_package_libsqlite3"],
+    properties: [
+        "export_include_dirs",
+    ],
+}
+
+release_package_libsqlite3_library_percentile_config {
+    name: "sqlite_ext_percentile",
+    soong_config_variables: {
+        release_package_libsqlite3: {
+            export_include_dirs: ["sqlite-autoconf-%s"],
+            conditions_default: {
+                export_include_dirs: ["sqlite-default"],
+            },
+        },
+    },
+    srcs: [
+        "ext/misc/percentile.c",
+    ],
+    defaults: ["sqlite-defaults"],
+    host_supported: true,
 }
 
 //
@@ -168,11 +256,29 @@ cc_library_static {
 //
 //
 
-cc_binary {
-    name: "sqlite3",
-    defaults: ["sqlite-defaults"],
+soong_config_module_type {
+    name: "release_package_libsqlite3_library_shell_config",
+    module_type: "cc_binary",
+    config_namespace: "libsqlite3",
+    value_variables: ["release_package_libsqlite3"],
+    properties: [
+        "srcs",
+    ],
+}
 
-    srcs: ["shell.c"],
+// Construct the correct source and includes for sqlite libraries,
+// based on the build flag.
+release_package_libsqlite3_library_shell_config {
+    name: "sqlite3",
+    soong_config_variables: {
+        release_package_libsqlite3: {
+            srcs: ["sqlite-autoconf-%s/shell.c"],
+            conditions_default: {
+                srcs: ["sqlite-default/shell.c"],
+            },
+        },
+    },
+    defaults: ["sqlite-defaults"],
 
     target: {
         android: {
@@ -189,32 +295,13 @@ cc_binary {
                 "libsqlite",
                 // sqlite3MemsysAlarm uses LOG()
                 "liblog",
+                "libicui18n",
+                "libicuuc",
+                "libicuuc_stubdata",
             ],
         },
-
         windows: {
             enabled: true,
         },
     },
-}
-
-// Build a minimal version of sqlite3 without any android specific
-// features against the NDK. This is used by libcore's JDBC related
-// unit tests.
-cc_library_static {
-    name: "libsqlite_static_minimal",
-    defaults: ["sqlite-minimal-defaults"],
-    srcs: ["sqlite3.c"],
-    sdk_version: "23",
-    export_include_dirs: ["."],
-}
-
-cc_library_static {
-    name: "sqlite_ext_percentile",
-    srcs: [
-        "ext/misc/percentile.c",
-    ],
-    defaults: ["sqlite-defaults"],
-    host_supported: true,
-    export_include_dirs: ["."],
 }
