@@ -9,7 +9,7 @@ third_party {
   }
   url {
     type: ARCHIVE
-    value: "https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz"
+    value: "https://www.sqlite.org/2023/sqlite-amalgamation-3420000.zip"
   }
   version: "3.42.0"
   last_upgrade_date { year: 2023 month: 7 day: 6 }
