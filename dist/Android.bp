@@ -94,11 +94,14 @@ cc_defaults {
                 "-DUSE_PREAD64",
                 "-Dfdatasync=fdatasync",
                 "-DHAVE_MALLOC_H=1",
-                "-DHAVE_MALLOC_USABLE_SIZE",
                 "-DSQLITE_ENABLE_DBSTAT_VTAB",
             ],
         },
     },
+    cflags: [
+        "-U_FORTIFY_SOURCE",
+        "-D_FORTIFY_SOURCE=3",
+    ],
 }
 
 soong_config_module_type {
@@ -142,6 +145,7 @@ cc_library {
         "sqlite-defaults",
         "release_package_libsqlite3_library_defaults",
     ],
+    product_available: true,
     vendor_available: true,
     native_bridge_supported: true,
 
@@ -172,6 +176,11 @@ cc_library {
         windows: {
             enabled: true,
         },
+        product: {
+            cflags: ["-USQLITE_ENABLE_ICU"],
+            exclude_shared_libs: ["libandroidicu"],
+            exclude_static_libs: ["libsqlite3_android"],
+        },
         vendor: {
             cflags: ["-USQLITE_ENABLE_ICU"],
             exclude_shared_libs: ["libandroidicu"],
@@ -186,7 +195,7 @@ cc_library {
     afdo: true,
     // libsqlite is a single gigantic C file, no need to run LTO.
     lto: {
-         never: true,
+        never: true,
     },
 }
 
