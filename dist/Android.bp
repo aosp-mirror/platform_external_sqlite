@@ -94,11 +94,14 @@ cc_defaults {
                 "-DUSE_PREAD64",
                 "-Dfdatasync=fdatasync",
                 "-DHAVE_MALLOC_H=1",
-                "-DHAVE_MALLOC_USABLE_SIZE",
                 "-DSQLITE_ENABLE_DBSTAT_VTAB",
             ],
         },
     },
+    cflags: [
+        "-U_FORTIFY_SOURCE",
+        "-D_FORTIFY_SOURCE=3",
+    ],
 }
 
 soong_config_module_type {
