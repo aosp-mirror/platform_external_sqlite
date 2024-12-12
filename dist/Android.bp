@@ -192,6 +192,7 @@ cc_library {
         "com.android.virt",
         "com.sdv.*",
     ],
+    min_sdk_version: "35",
 
     afdo: true,
     // libsqlite is a single gigantic C file, no need to run LTO.
