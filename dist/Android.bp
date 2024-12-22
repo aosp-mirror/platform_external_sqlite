@@ -192,6 +192,7 @@ cc_library {
         "com.android.virt",
         "com.sdv.*",
     ],
+    min_sdk_version: "35",
 
     afdo: true,
     // libsqlite is a single gigantic C file, no need to run LTO.
@@ -215,7 +216,6 @@ cc_library_static {
     apex_available: [
         "//apex_available:platform",
         "com.android.os.statsd",
-        "test_com.android.os.statsd",
     ],
     min_sdk_version: "apex_inherit",
     host_supported: true,
