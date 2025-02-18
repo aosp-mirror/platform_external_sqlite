@@ -32,12 +32,13 @@ source $script_dir/common-functions.sh
 
 usage() {
   if [[ $# -gt 0 ]]; then echo "$*" >&2; fi
-  echo "Usage: ${script_name} [-nF] [-u <url>] <year> <version>"
-  echo "  year    the 4-digit year the sqlite version was released"
+  echo "Usage: ${script_name} [-nF] [-u <url>] [-y <year>] <version>"
   echo "  version the sqlite version as <major>.<minor>[.<patch>]"
   echo "          the patch level defaults to 0"
   echo "  -n      dry-run: evaluate arguments but d not change anything"
   echo "  -u url  download the tarball from the specified url"
+  echo "  -y year the 4-digit year the sqlite version was released - required"
+  echo "          if a full url is not specified and the year is not this year"
   echo "  -F      force execution even if not in external/sqlite"
   echo 
   echo "Example:"
@@ -47,29 +48,30 @@ usage() {
 dry_run=
 force=
 src_tarball_url=
-while getopts "hnFu:" option; do
+year=$(date +%Y)
+while getopts "hnFu:y:" option; do
   case $option in
     h) usage; exit 0;;
     n) dry_run=y;;
     u) src_tarball_url=$OPTARG;;
+    y) year=$OPTARG;;
     F) force=y;;
     *) usage "unknown switch"; exit 1;;
   esac
 done
 shift $((OPTIND- 1))
 
-if [[ $# -lt 2 ]]; then
+if [[ $# -lt 1 ]]; then
   usage; die "missing required arguments"
-elif [[ $# -gt 2 ]]; then
+elif [[ $# -gt 1 ]]; then
   die "extra arguments on command line"
 fi
-year=$1
-validate_year "$year" || die "invalid year"
-sqlite_release=$(normalize_release "$2") || die "invalid release"
+sqlite_release=$(normalize_release "$1") || die "invalid release"
 
 sqlite_base="sqlite-autoconf-${sqlite_release}"
 sqlite_file="${sqlite_base}.tar.gz"
 if [[ -z $src_tarball_url ]]; then
+  validate_year "$year" || die "invalid year"
   src_tarball_url="https://www.sqlite.org/$year/${sqlite_file}"
 fi
 
