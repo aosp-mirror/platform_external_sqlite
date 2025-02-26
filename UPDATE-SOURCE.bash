@@ -138,8 +138,8 @@ echo "# Generating metadata ..."
     export SQLITE_URL=${src_tarball_url}
     export SQLITE_VERSION=$(prettify_release ${sqlite_release})
     export YEAR=$(date +%Y)
-    export MONTH=$(date +%M)
-    export DAY=$(date +%D)
+    export MONTH=$(date +%-m)
+    export DAY=$(date +%-d)
     envsubst < README.version.TEMPLATE > ${dist_dir}/README.version
     envsubst < METADATA.TEMPLATE > ${dist_dir}/METADATA
 )
