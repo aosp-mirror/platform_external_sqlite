@@ -79,7 +79,7 @@ cc_defaults {
     ],
 
     target: {
-        linux_glibc: {
+        host_linux: {
             cflags: ["-DHAVE_POSIX_FALLOCATE=1"],
         },
     },
