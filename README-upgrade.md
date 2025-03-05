@@ -14,8 +14,8 @@ external/sqlite
 The upgrade steps are:
 
 *   Select a version for the upgrade.
-*   Find the amalgamation zip file. For release 3.42.0, the URL is
-    [sqlite-amalgamation-3420000.zip](https://www.sqlite.org/2023/sqlite-amalgamation-3420000.zip).
+*   Find the amalgamation zip file. For release 3.46.0, the URL is
+    [sqlite-amalgamation-3460000.zip](https://www.sqlite.org/2024/sqlite-amalgamation-3460000.zip).
 *   Extract the content of the direcoty into `external/sqlite/src`,
     it should contain the following files:
     * `shell.c`
@@ -27,8 +27,8 @@ The upgrade steps are:
 frameworks/support/sqlite/sqlite-bundled/build.gradle
 ```
 ```
-    it.sqliteVersion.set("3.42.0")
-    it.sqliteReleaseYear.set(2023)
+    it.sqliteVersion.set("3.46.0")
+    it.sqliteReleaseYear.set(2024)
 ```
 * Update `METADATA` and `README.version` located in `external/sqlite`.
 
@@ -61,7 +61,7 @@ frameworks/support/sqlite/integration-tests/driver-conformance-test/src/commonTe
 Update the following constant:
 
 ```kotlin
-    const val EXPECTED_SQLITE_VERSION = "3.42.0"
+    const val EXPECTED_SQLITE_VERSION = "3.46.0"
 
 
 ## Recommended Tests
