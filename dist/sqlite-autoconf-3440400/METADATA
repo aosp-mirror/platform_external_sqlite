@@ -1,0 +1,21 @@
+name: "SQLite"
+description:
+    "SQLite database"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.sqlite.org"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://sqlite.org/tmp/sqlite-autoconf-3440400.tar.gz"
+  }
+  version: "3.44.4"
+  last_upgrade_date { year: 2025 month: 2 day: 19 }
+  license_type: NOTICE
+
+  security: {
+    tag: "NVD-CPE2.3:cpe:/a:sqlite:sqlite"  # see http://go/metadata-cpe
+  }
+}
