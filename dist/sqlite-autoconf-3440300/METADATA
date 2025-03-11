@@ -12,7 +12,7 @@ third_party {
     value: "https://sqlite.org/src/tarball/d68fb8b5/SQLite-d68fb8b5.tar.gz"
   }
   version: "3.44.3"
-  last_upgrade_date { year: 2024 month: 44 day: 03/25/24 }
+  last_upgrade_date { year: 2024 month: 3 day: 25 }
   license_type: NOTICE
 
   security: {
