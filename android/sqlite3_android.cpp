@@ -33,6 +33,12 @@
 #include "PhoneNumberUtils.h"
 
 #define ENABLE_ANDROID_LOG 0
+
+#ifndef __BIONIC__
+#undef ENABLE_ANDROID_LOG
+#define ENABLE_ANDROID_LOG 0
+#endif
+
 #define SMALL_BUFFER_SIZE 10
 #define PHONE_NUMBER_BUFFER_SIZE 40
 
