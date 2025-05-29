@@ -162,9 +162,6 @@ cc_library {
             whole_static_libs: ["libsqlite3_android"],
         },
         host: {
-            static_libs: [
-                "liblog",
-            ],
             shared_libs: [
                 "libicui18n",
                 "libicuuc",
@@ -303,8 +300,6 @@ release_package_libsqlite3_library_shell_config {
             cflags: ["-DNO_ANDROID_FUNCS=1"],
             static_libs: [
                 "libsqlite",
-                // sqlite3MemsysAlarm uses LOG()
-                "liblog",
                 "libicui18n",
                 "libicuuc",
                 "libicuuc_stubdata",
