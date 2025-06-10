@@ -124,11 +124,6 @@ typedef sqlite3_uint64 u64;
 typedef unsigned char u8;
 #include <ctype.h>
 #include <stdarg.h>
-// Begin Android Add
-#ifndef NO_ANDROID_FUNCS
-#include <sqlite3_android.h>
-#endif
-// End Android Add
 
 #if !defined(_WIN32) && !defined(WIN32)
 # include <signal.h>
@@ -8032,13 +8027,14 @@ SQLITE_EXTENSION_INIT1
 #  include <dirent.h>
 #  include <utime.h>
 #  include <sys/time.h>
+#  define STRUCT_STAT struct stat
 #else
 #  include "windows.h"
 #  include <io.h>
 #  include <direct.h>
 /* #  include "test_windirent.h" */
 #  define dirent DIRENT
-#  define stat _stat
+#  define STRUCT_STAT struct _stat
 #  define chmod(path,mode) fileio_chmod(path,mode)
 #  define mkdir(path,mode) fileio_mkdir(path)
 #endif
@@ -8229,7 +8225,7 @@ LPWSTR utf8_to_utf16(const char *z){
 */
 static void statTimesToUtc(
   const char *zPath,
-  struct stat *pStatBuf
+  STRUCT_STAT *pStatBuf
 ){
   HANDLE hFindFile;
   WIN32_FIND_DATAW fd;
@@ -8257,7 +8253,7 @@ static void statTimesToUtc(
 */
 static int fileStat(
   const char *zPath,
-  struct stat *pStatBuf
+  STRUCT_STAT *pStatBuf
 ){
 #if defined(_WIN32)
   sqlite3_int64 sz = strlen(zPath);
@@ -8281,7 +8277,7 @@ static int fileStat(
 */
 static int fileLinkStat(
   const char *zPath,
-  struct stat *pStatBuf
+  STRUCT_STAT *pStatBuf
 ){
 #if defined(_WIN32)
   return fileStat(zPath, pStatBuf);
@@ -8314,7 +8310,7 @@ static int makeDirectory(
     int i = 1;
 
     while( rc==SQLITE_OK ){
-      struct stat sStat;
+      STRUCT_STAT sStat;
       int rc2;
 
       for(; zCopy[i]!='/' && i<nCopy; i++);
@@ -8364,7 +8360,7 @@ static int writeFile(
         ** be an error though - if there is already a directory at the same
         ** path and either the permissions already match or can be changed
         ** to do so using chmod(), it is not an error.  */
-        struct stat sStat;
+        STRUCT_STAT sStat;
         if( errno!=EEXIST
          || 0!=fileStat(zFile, &sStat)
          || !S_ISDIR(sStat.st_mode)
@@ -8566,7 +8562,7 @@ struct fsdir_cursor {
   const char *zBase;
   int nBase;
 
-  struct stat sStat;         /* Current lstat() results */
+  STRUCT_STAT sStat;         /* Current lstat() results */
   char *zPath;               /* Path to current entry */
   sqlite3_int64 iRowid;      /* Current rowid */
 };
@@ -26116,21 +26112,6 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_create_function(p->db, "edit", 2, SQLITE_UTF8, 0,
                             editFunc, 0, 0);
 #endif
-
-// Begin Android Add
-#ifndef NO_ANDROID_FUNCS
-    int err = register_localized_collators(p->db, "en_US", 0);
-    if (err != SQLITE_OK) {
-      fprintf(stderr, "register_localized_collators() failed\n");
-      exit(1);
-    }
-    err = register_android_functions(p->db, 0);
-    if (err != SQLITE_OK) {
-      fprintf(stderr, "register_android_functions() failed\n");
-      exit(1);
-    }
-#endif
-// End Android Add
 
     if( p->openMode==SHELL_OPEN_ZIPFILE ){
       char *zSql = sqlite3_mprintf(

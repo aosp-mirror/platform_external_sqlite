@@ -1,5 +1,5 @@
---- orig/shell.c	2025-06-03 08:51:20.928162294 -0700
-+++ shell.c	2025-06-03 08:51:20.956162426 -0700
+--- orig/shell.c	2025-06-10 10:08:12.318379357 -0700
++++ shell.c	2025-06-10 10:08:12.350379511 -0700
 @@ -124,6 +124,11 @@
  typedef unsigned char u8;
  #include <ctype.h>
@@ -12,7 +12,7 @@
  
  #if !defined(_WIN32) && !defined(WIN32)
  # include <signal.h>
-@@ -26112,6 +26117,21 @@
+@@ -26113,6 +26118,21 @@
                              editFunc, 0, 0);
  #endif
  
@@ -34,9 +34,9 @@
      if( p->openMode==SHELL_OPEN_ZIPFILE ){
        char *zSql = sqlite3_mprintf(
           "CREATE VIRTUAL TABLE zip USING zipfile(%Q);", zDbFilename);
---- orig/sqlite3.c	2025-06-03 08:51:20.936162331 -0700
-+++ sqlite3.c	2025-06-03 08:51:21.000162635 -0700
-@@ -38983,6 +38983,10 @@
+--- orig/sqlite3.c	2025-06-10 10:08:12.326379395 -0700
++++ sqlite3.c	2025-06-10 10:08:12.386379686 -0700
+@@ -38984,6 +38984,10 @@
  # include <sys/mount.h>
  #endif
  
@@ -47,7 +47,7 @@
  #ifdef HAVE_UTIME
  # include <utime.h>
  #endif
-@@ -39592,6 +39596,12 @@
+@@ -39593,6 +39597,12 @@
  #if defined(FD_CLOEXEC) && (!defined(O_CLOEXEC) || O_CLOEXEC==0)
      osFcntl(fd, F_SETFD, osFcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
  #endif
@@ -60,7 +60,7 @@
    }
    return fd;
  }
-@@ -40176,7 +40186,13 @@
+@@ -40177,7 +40187,13 @@
  ** and move on.
  */
  static void robust_close(unixFile *pFile, int h, int lineno){
@@ -74,7 +74,7 @@
      unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close",
                         pFile ? pFile->zPath : 0, lineno);
    }
-@@ -42698,7 +42714,7 @@
+@@ -42699,7 +42715,7 @@
    SimulateIOError( rc=1 );
    if( rc!=0 ){
      storeLastErrno((unixFile*)id, errno);
@@ -83,7 +83,7 @@
    }
    *pSize = buf.st_size;
  
-@@ -42734,7 +42750,7 @@
+@@ -42735,7 +42751,7 @@
      struct stat buf;              /* Used to hold return values of fstat() */
  
      if( osFstat(pFile->h, &buf) ){
@@ -92,7 +92,7 @@
      }
  
      nSize = ((nByte+pFile->szChunk-1) / pFile->szChunk) * pFile->szChunk;
-@@ -43540,7 +43556,7 @@
+@@ -43541,7 +43557,7 @@
      ** with the same permissions.
      */
      if( osFstat(pDbFd->h, &sStat) ){
@@ -101,7 +101,7 @@
        goto shm_open_err;
      }
  
-@@ -144017,7 +144033,7 @@
+@@ -144041,7 +144057,7 @@
    }
    if( pDb->pSchema->file_format>SQLITE_MAX_FILE_FORMAT ){
      sqlite3SetString(pzErrMsg, db, "unsupported file format");
@@ -110,7 +110,7 @@
      goto initone_error_out;
    }
  
-@@ -193138,7 +193154,9 @@
+@@ -193171,7 +193187,9 @@
    ** module with sqlite.
    */
    if( SQLITE_OK==rc
@@ -120,7 +120,7 @@
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "snippet", -1))
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "offsets", 1))
     && SQLITE_OK==(rc = sqlite3_overload_function(db, "matchinfo", 1))
-@@ -193149,6 +193167,20 @@
+@@ -193182,6 +193200,20 @@
      rc = sqlite3_create_module_v2(
          db, "fts3", &fts3Module, (void *)pHash, hashDestroy
      );
