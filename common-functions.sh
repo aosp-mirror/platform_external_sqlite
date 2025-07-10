@@ -66,3 +66,18 @@ function prettify_release {
   # version now contains the generation number.
   printf "%d.%d.%d" $version $major $minor
 }
+
+# This function returns the source directory that is closest but not later than
+# the target. 
+function previous_release {
+  local src_root=$1 target=$2 src_dir src_release
+  for src_dir in $src_root/sqlite-autoconf-*; do
+    # If there are no source directories, exit
+    if [[ ! -d $src_dir ]]; then return 1; fi
+    src_release=${src_dir#*sqlite-autoconf-}
+    if [[ $src_release -le $target ]]; then
+      echo $src_dir
+    fi
+  done |
+    tail -n 1
+}
