@@ -42,5 +42,4 @@ echo "# Regenerating Android.patch ..."
 (
     cd dist/$sqlite_base || die "release directory not found"
     echo_and_exec bash -c '(for x in orig/*; do diff -u -d $x ${x#orig/}; done) > Android.patch'
-    echo_and_exec cp Android.patch ${patch_dir}/
 ) 
