@@ -68,6 +68,11 @@ elif [[ $# -gt 1 ]]; then
 fi
 sqlite_release=$(normalize_release "$1") || die "invalid release"
 
+# Find the source directory that is no later than the current target.  It may be
+# the current target.  The purpose is to identify the starting patch file.
+patch_source=$(previous_release $(pwd)/dist ${sqlite_release})
+echo "# Previous release is $patch_source"
+
 sqlite_base="sqlite-autoconf-${sqlite_release}"
 sqlite_file="${sqlite_base}.tar.gz"
 if [[ -z $src_tarball_url ]]; then
@@ -88,7 +93,7 @@ fi
 
 source_tgz=$(mktemp /tmp/sqlite-${sqlite_release}.zip.XXXXXX)
 source_ext_dir="${source_tgz}.extracted"
-trap "rm -r ${source_tgz} ${source_ext_dir}" EXIT
+trap "rm -rf ${source_tgz} ${source_ext_dir}" EXIT
 wget ${src_tarball_url} -O ${source_tgz}
 
 echo
@@ -105,6 +110,9 @@ echo "# Making file sqlite3.c in $source_ext_dir ..."
     echo_and_exec make -j 4 sqlite3.c
 )
 
+echo "# Saving patches from $patch_source"
+echo_and_exec cp $patch_source/Android.patch $source_ext_dir/Android.patch
+
 export dist_dir="dist/${sqlite_base}"
 echo
 echo "# Copying the source files ..."
@@ -115,13 +123,12 @@ for to in ${dist_dir}/orig/ ${dist_dir}/ ; do
     echo_and_exec cp "$source_ext_dir/"{shell.c,sqlite3.c,sqlite3.h,sqlite3ext.h} "$to"
 done
 
-export patch_dir=${script_dir}/dist
 echo
-echo "# Applying Android.patch ..."
+echo "# Applying Android.patch from $(basename $patch_source)"
 (
     cd ${dist_dir}
     echo "PATCHING IN $dist_dir" >&2
-    echo_and_exec patch -i ${patch_dir}/Android.patch
+    echo_and_exec patch -i ${source_ext_dir}/Android.patch
 )
 
 echo
@@ -129,7 +136,6 @@ echo "# Regenerating Android.patch ..."
 (
     cd ${dist_dir}
     echo_and_exec bash -c '(for x in orig/*; do diff -u -d $x ${x#orig/}; done) > Android.patch'
-    echo_and_exec cp Android.patch ${patch_dir}/
 )
 
 echo
