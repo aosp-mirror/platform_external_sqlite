@@ -1,6 +1,6 @@
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
-** version 3.32.2.  By combining all the individual C code files into this
+** version 3.32.4.  By combining all the individual C code files into this
 ** single large file, the entire code can be compiled as a single translation
 ** unit.  This allows many compilers to do optimizations that would not be
 ** possible if the files were compiled separately.  Performance improvements
@@ -1162,9 +1162,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.32.2"
-#define SQLITE_VERSION_NUMBER 3032002
-#define SQLITE_SOURCE_ID      "2021-07-12 15:00:17 bcd014c473794b09f61fbc0f4d9488365b023f16123b278dbbd49948c27c0fee"
+#define SQLITE_VERSION        "3.32.4"
+#define SQLITE_VERSION_NUMBER 3032004
+#define SQLITE_SOURCE_ID      "2025-08-01 13:01:33 ff6b0ddf04e61de143afcd9867ee35317f92e83dfcae98bdd47dddc70d4ca44f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -29019,7 +29019,7 @@ static int sqlite3StrAccumEnlarge(StrAccum *p, int N){
   }else{
     char *zOld = isMalloced(p) ? p->zText : 0;
     i64 szNew = p->nChar;
-    szNew += N + 1;
+    szNew += (sqlite3_int64)N + 1;
     if( szNew+p->nChar<=p->mxAlloc ){
       /* Force exponential buffer size growth as long as it does not overflow,
       ** to avoid having to call this routine too often */
@@ -64554,16 +64554,18 @@ static int hasSharedCacheTableLock(
   ** table.  */
   if( isIndex ){
     HashElem *p;
+    int bSeen = 0;
     for(p=sqliteHashFirst(&pSchema->idxHash); p; p=sqliteHashNext(p)){
       Index *pIdx = (Index *)sqliteHashData(p);
       if( pIdx->tnum==(int)iRoot ){
-        if( iTab ){
+        if( bSeen ){
           /* Two or more indexes share the same root page.  There must
           ** be imposter tables.  So just return true.  The assert is not
           ** useful in that case. */
           return 1;
         }
         iTab = pIdx->pTable->tnum;
+        bSeen = 1;
       }
     }
   }else{
@@ -66105,7 +66107,7 @@ static int freeSpace(MemPage *pPage, u16 iStart, u16 iSize){
       nFrag = iFreeBlk - iEnd;
       if( iEnd>iFreeBlk ) return SQLITE_CORRUPT_PAGE(pPage);
       iEnd = iFreeBlk + get2byte(&data[iFreeBlk+2]);
-      if( NEVER(iEnd > pPage->pBt->usableSize) ){
+      if( iEnd > pPage->pBt->usableSize ){
         return SQLITE_CORRUPT_PAGE(pPage);
       }
       iSize = iEnd - iStart;
@@ -87222,7 +87224,7 @@ case OP_Ge: {             /* same as TK_GE, jump, in1, in3 */
       if( (flags1 | flags3)&MEM_Str ){
         if( (flags1 & (MEM_Int|MEM_IntReal|MEM_Real|MEM_Str))==MEM_Str ){
           applyNumericAffinity(pIn1,0);
-          assert( flags3==pIn3->flags );
+          testcase( flags3==pIn3->flags );
           flags3 = pIn3->flags;
         }
         if( (flags3 & (MEM_Int|MEM_IntReal|MEM_Real|MEM_Str))==MEM_Str ){
@@ -101560,8 +101562,10 @@ static int exprNodeIsConstant(Walker *pWalker, Expr *pExpr){
       /* Fall through */
     case TK_IF_NULL_ROW:
     case TK_REGISTER:
+    case TK_DOT:
       testcase( pExpr->op==TK_REGISTER );
       testcase( pExpr->op==TK_IF_NULL_ROW );
+      testcase( pExpr->op==TK_DOT );
       pWalker->eCode = 0;
       return WRC_Abort;
     case TK_VARIABLE:
@@ -105167,9 +105171,24 @@ SQLITE_PRIVATE int sqlite3ExprCoveredByIndex(
 */
 struct SrcCount {
   SrcList *pSrc;   /* One particular FROM clause in a nested query */
+  int iSrcInner;   /* Smallest cursor number in this context */
   int nThis;       /* Number of references to columns in pSrcList */
   int nOther;      /* Number of references to columns in other FROM clauses */
 };
+
+/*
+** xSelect callback for sqlite3FunctionUsesThisSrc(). If this is the first
+** SELECT with a FROM clause encountered during this iteration, set
+** SrcCount.iSrcInner to the cursor number of the leftmost object in
+** the FROM cause.
+*/
+static int selectSrcCount(Walker *pWalker, Select *pSel){
+  struct SrcCount *p = pWalker->u.pSrcCount;
+  if( p->iSrcInner==0x7FFFFFFF && ALWAYS(pSel->pSrc) && pSel->pSrc->nSrc ){
+    pWalker->u.pSrcCount->iSrcInner = pSel->pSrc->a[0].iCursor;
+  }
+  return WRC_Continue;
+}
 
 /*
 ** Count the number of references to columns.
@@ -105191,7 +105210,7 @@ static int exprSrcCount(Walker *pWalker, Expr *pExpr){
     }
     if( i<nSrc ){
       p->nThis++;
-    }else if( nSrc==0 || pExpr->iTable<pSrc->a[0].iCursor ){
+    }else if( pExpr->iTable<p->iSrcInner ){
       /* In a well-formed parse tree (no name resolution errors),
       ** TK_COLUMN nodes with smaller Expr.iTable values are in an
       ** outer context.  Those are the only ones to count as "other" */
@@ -105213,9 +105232,10 @@ SQLITE_PRIVATE int sqlite3FunctionUsesThisSrc(Expr *pExpr, SrcList *pSrcList){
   assert( pExpr->op==TK_AGG_FUNCTION );
   memset(&w, 0, sizeof(w));
   w.xExprCallback = exprSrcCount;
-  w.xSelectCallback = sqlite3SelectWalkNoop;
+  w.xSelectCallback = selectSrcCount;
   w.u.pSrcCount = &cnt;
   cnt.pSrc = pSrcList;
+  cnt.iSrcInner = (pSrcList&&pSrcList->nSrc)?pSrcList->a[0].iCursor:0x7FFFFFFF;
   cnt.nThis = 0;
   cnt.nOther = 0;
   sqlite3WalkExprList(&w, pExpr->x.pList);
@@ -105393,7 +105413,7 @@ static int analyzeAggregate(Walker *pWalker, Expr *pExpr){
             ExprSetVVAProperty(pExpr, EP_NoReduce);
             pExpr->pAggInfo = pAggInfo;
             pExpr->op = TK_AGG_COLUMN;
-            pExpr->iAgg = (i16)k;
+            pExpr->iAgg = (i16)(k&0x7fff);
             break;
           } /* endif pExpr->iTable==pItem->iCursor */
         } /* end loop over pSrcList */
@@ -133079,7 +133099,13 @@ static int flattenSubquery(
     if( isLeftJoin>0 ){
       sqlite3SetJoinExpr(pWhere, iNewParent);
     }
-    pParent->pWhere = sqlite3ExprAnd(pParse, pWhere, pParent->pWhere);
+    if( pWhere ){
+      if( pParent->pWhere ){
+        pParent->pWhere = sqlite3PExpr(pParse, TK_AND, pWhere, pParent->pWhere);
+      }else{
+        pParent->pWhere = pWhere;
+      }
+    }
     if( db->mallocFailed==0 ){
       SubstContext x;
       x.pParse = pParse;
@@ -133378,11 +133404,14 @@ static int pushDownWhereTerms(
 ){
   Expr *pNew;
   int nChng = 0;
+  Select *pSel;
   if( pWhere==0 ) return 0;
   if( pSubq->selFlags & SF_Recursive ) return 0;  /* restriction (2) */
 
 #ifndef SQLITE_OMIT_WINDOWFUNC
-  if( pSubq->pWin ) return 0;    /* restriction (6) */
+  for(pSel=pSubq; pSel; pSel=pSel->pPrior){
+    if( pSel->pWin ) return 0;    /* restriction (6) */
+  }
 #endif
 
 #ifdef SQLITE_DEBUG
@@ -133582,6 +133611,14 @@ static int convertCompoundSelectToSubquery(Walker *pWalker, Select *p){
   for(pX=p; pX && (pX->op==TK_ALL || pX->op==TK_SELECT); pX=pX->pPrior){}
   if( pX==0 ) return WRC_Continue;
   a = p->pOrderBy->a;
+#ifndef SQLITE_OMIT_WINDOWFUNC
+  /* If iOrderByCol is already non-zero, then it has already been matched
+  ** to a result column of the SELECT statement. This occurs when the
+  ** SELECT is rewritten for window-functions processing and then passed
+  ** to sqlite3SelectPrep() and similar a second time. The rewriting done
+  ** by this function is not required in this case. */
+  if( a[0].u.x.iOrderByCol ) return WRC_Continue;
+#endif
   for(i=p->pOrderBy->nExpr-1; i>=0; i--){
     if( a[i].pExpr->flags & EP_Collate ) break;
   }
@@ -135754,7 +135791,7 @@ SQLITE_PRIVATE int sqlite3Select(
 select_end:
   sqlite3ExprListDelete(db, pMinMaxOrderBy);
 #ifdef SQLITE_DEBUG
-  if( pAggInfo ){
+  if( pAggInfo && !db->mallocFailed ){
     for(i=0; i<pAggInfo->nColumn; i++){
       Expr *pExpr = pAggInfo->aCol[i].pExpr;
       assert( pExpr!=0 || db->mallocFailed );
@@ -168449,6 +168486,9 @@ static int fts3PoslistMerge(
       */
       fts3GetDeltaVarint(&p1, &i1);
       fts3GetDeltaVarint(&p2, &i2);
+      if( i1<2 || i2<2 ){
+        break;
+      }
       do {
         fts3PutDeltaVarint(&p, &iPrev, (i1<i2) ? i1 : i2); 
         iPrev -= 2;
@@ -168517,7 +168557,7 @@ static int fts3PoslistPhraseMerge(
   /* Never set both isSaveLeft and isExact for the same invocation. */
   assert( isSaveLeft==0 || isExact==0 );
 
-  assert( p!=0 && *p1!=0 && *p2!=0 );
+  assert_fts3_nc( p!=0 && *p1!=0 && *p2!=0 );
   if( *p1==POS_COLUMN ){ 
     p1++;
     p1 += fts3GetVarint32(p1, &iCol1);
@@ -170714,7 +170754,7 @@ SQLITE_PRIVATE void sqlite3Fts3DoclistNext(
 
   assert( nDoclist>0 );
   assert( *pbEof==0 );
-  assert( p || *piDocid==0 );
+  assert_fts3_nc( p || *piDocid==0 );
   assert( !p || (p>=aDoclist && p<=&aDoclist[nDoclist]) );
 
   if( p==0 ){
@@ -171364,7 +171404,7 @@ static void fts3EvalInvalidatePoslist(Fts3Phrase *pPhrase){
 **
 ** Parameter nNear is passed the NEAR distance of the expression (5 in
 ** the example above). When this function is called, *paPoslist points to
-** the position list, and *pnToken is the number of phrase tokens in, the
+** the position list, and *pnToken is the number of phrase tokens in the
 ** phrase on the other side of the NEAR operator to pPhrase. For example,
 ** if pPhrase refers to the "def ghi" phrase, then *paPoslist points to
 ** the position list associated with phrase "abc".
@@ -224983,7 +225023,7 @@ static void fts5SourceIdFunc(
 ){
   assert( nArg==0 );
   UNUSED_PARAM2(nArg, apUnused);
-  sqlite3_result_text(pCtx, "fts5: 2021-07-12 15:00:17 bcd014c473794b09f61fbc0f4d9488365b023f16123b278dbbd49948c27c0fee", -1, SQLITE_TRANSIENT);
+  sqlite3_result_text(pCtx, "fts5: 2025-08-01 13:01:33 ff6b0ddf04e61de143afcd9867ee35317f92e83dfcae98bdd47dddc70d4ca44f", -1, SQLITE_TRANSIENT);
 }
 
 /*
@@ -229766,9 +229806,9 @@ SQLITE_API int sqlite3_stmt_init(
 #endif /* !defined(SQLITE_CORE) || defined(SQLITE_ENABLE_STMTVTAB) */
 
 /************** End of stmt.c ************************************************/
-#if __LINE__!=229741
+#if __LINE__!=229781
 #undef SQLITE_SOURCE_ID
-#define SQLITE_SOURCE_ID      "2021-07-12 15:00:17 bcd014c473794b09f61fbc0f4d9488365b023f16123b278dbbd49948c27calt2"
+#define SQLITE_SOURCE_ID      "2025-08-01 13:01:33 ff6b0ddf04e61de143afcd9867ee35317f92e83dfcae98bdd47dddc70d4calt2"
 #endif
 /* Return the source-id for this library */
 SQLITE_API const char *sqlite3_sourceid(void){ return SQLITE_SOURCE_ID; }
