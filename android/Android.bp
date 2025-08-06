@@ -44,6 +44,11 @@ release_package_libsqlite3_android_defaults_config {
         "-Werror",
         "-Wno-unused-function",
         "-Wno-unused-variable",
+        // Disable unique internal linkage names since sqlite source file
+        // locations contains the version code, and the .uniq hash includes
+        // the source file path. Version updates would cause the whole AutoFDO
+        // profile to become outdat.
+        "-fno-unique-internal-linkage-names",
     ],
     srcs: [
         "PhoneNumberUtils.cpp",
