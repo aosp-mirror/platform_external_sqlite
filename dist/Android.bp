@@ -310,3 +310,37 @@ release_package_libsqlite3_library_shell_config {
         },
     },
 }
+
+soong_config_module_type {
+    name: "release_package_libsqlite3_noicu_library_shell_config",
+    module_type: "cc_binary",
+    config_namespace: "libsqlite3",
+    value_variables: ["release_package_libsqlite3"],
+    properties: [
+        "srcs",
+    ],
+}
+
+// The binary is supposed to be used in environments where the ICU extension
+// is not needed and the dependency to ICU is not desirable
+release_package_libsqlite3_noicu_library_shell_config {
+    name: "sqlite3_noicu",
+    soong_config_variables: {
+        release_package_libsqlite3: {
+            srcs: ["sqlite-autoconf-%s/shell.c"],
+            conditions_default: {
+                srcs: ["sqlite-default/shell.c"],
+            },
+        },
+    },
+    defaults: ["sqlite-defaults"],
+    static_libs: [
+        "libsqlite_static_noicu",
+    ],
+    cflags: [
+        "-DNO_ANDROID_FUNCS=1",
+        "-USQLITE_ENABLE_ICU",
+    ],
+    device_supported: false,
+    host_supported: true,
+}
