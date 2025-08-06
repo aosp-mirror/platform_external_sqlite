@@ -1,6 +1,6 @@
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
-** version 3.42.0.  By combining all the individual C code files into this
+** version 3.42.1.  By combining all the individual C code files into this
 ** single large file, the entire code can be compiled as a single translation
 ** unit.  This allows many compilers to do optimizations that would not be
 ** possible if the files were compiled separately.  Performance improvements
@@ -456,9 +456,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.42.0"
-#define SQLITE_VERSION_NUMBER 3042000
-#define SQLITE_SOURCE_ID      "2023-05-16 12:36:15 831d0fb2836b71c9bc51067c49fee4b8f18047814f2ff22d817d25195cf350b0"
+#define SQLITE_VERSION        "3.42.1"
+#define SQLITE_VERSION_NUMBER 3042001
+#define SQLITE_SOURCE_ID      "2025-08-06 11:05:53 4a8bf3c146c24759709eec55cdb0a9d2153c3a40e6645727c55c0404a99b5b4a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -32230,7 +32230,8 @@ SQLITE_PRIVATE void sqlite3TreeViewExpr(TreeView *pView, const Expr *pExpr, u8 m
       };
       assert( pExpr->op2==TK_IS || pExpr->op2==TK_ISNOT );
       assert( pExpr->pRight );
-      assert( sqlite3ExprSkipCollate(pExpr->pRight)->op==TK_TRUEFALSE );
+      assert( sqlite3ExprSkipCollateAndLikely(pExpr->pRight)->op
+                  == TK_TRUEFALSE );
       x = (pExpr->op2==TK_ISNOT)*2 + sqlite3ExprTruthValue(pExpr->pRight);
       zUniOp = azOp[x];
       break;
@@ -70350,7 +70351,7 @@ static int defragmentPage(MemPage *pPage, int nMaxFrag){
   iCellStart = get2byte(&data[hdr+5]);
   if( nCell>0 ){
     temp = sqlite3PagerTempSpace(pPage->pBt->pPager);
-    memcpy(&temp[iCellStart], &data[iCellStart], usableSize - iCellStart);
+    memcpy(temp, data, usableSize);
     src = temp;
     for(i=0; i<nCell; i++){
       u8 *pAddr;     /* The i-th cell pointer */
@@ -72054,7 +72055,6 @@ static int lockBtree(BtShared *pBt){
     ){
       goto page1_init_failed;
     }
-    pBt->btsFlags |= BTS_PAGESIZE_FIXED;
     assert( (pageSize & 7)==0 );
     /* EVIDENCE-OF: R-59310-51205 The "reserved space" size in the 1-byte
     ** integer at offset 20 is the number of bytes of space at the end of
@@ -72074,6 +72074,7 @@ static int lockBtree(BtShared *pBt){
       releasePageOne(pPage1);
       pBt->usableSize = usableSize;
       pBt->pageSize = pageSize;
+      pBt->btsFlags |= BTS_PAGESIZE_FIXED;
       freeTempSpace(pBt);
       rc = sqlite3PagerSetPagesize(pBt->pPager, &pBt->pageSize,
                                    pageSize-usableSize);
@@ -72093,6 +72094,7 @@ static int lockBtree(BtShared *pBt){
     if( usableSize<480 ){
       goto page1_init_failed;
     }
+    pBt->btsFlags |= BTS_PAGESIZE_FIXED;
     pBt->pageSize = pageSize;
     pBt->usableSize = usableSize;
 #ifndef SQLITE_OMIT_AUTOVACUUM
@@ -79378,7 +79380,7 @@ static int checkTreePage(
   if( iPage==0 ) return 0;
   if( checkRef(pCheck, iPage) ) return 0;
   pCheck->zPfx = "Tree %u page %u: ";
-  pCheck->v0 = pCheck->v1 = iPage;
+  pCheck->v1 = iPage;
   if( (rc = btreeGetPage(pBt, iPage, &pPage, 0))!=0 ){
     checkAppendMsg(pCheck,
        "unable to get the page. error code=%d", rc);
@@ -79715,6 +79717,7 @@ SQLITE_PRIVATE int sqlite3BtreeIntegrityCheck(
       checkPtrmap(&sCheck, aRoot[i], PTRMAP_ROOTPAGE, 0);
     }
 #endif
+    sCheck.v0 = aRoot[i];
     checkTreePage(&sCheck, aRoot[i], &notUsed, LARGEST_INT64);
   }
   pBt->db->flags = savedDbFlags;
@@ -82258,6 +82261,7 @@ static sqlite3_value *valueNew(sqlite3 *db, struct ValueNewStat4Ctx *p){
     }
 
     pRec->nField = p->iVal+1;
+    sqlite3VdbeMemSetNull(&pRec->aMem[p->iVal]);
     return &pRec->aMem[p->iVal];
   }
 #else
@@ -87059,6 +87063,15 @@ static int vdbeRecordCompareDebug(
     if( d1+(u64)serial_type1+2>(u64)nKey1
      && d1+(u64)sqlite3VdbeSerialTypeLen(serial_type1)>(u64)nKey1
     ){
+      if( serial_type1>=1
+       && serial_type1<=7
+       && d1+(u64)sqlite3VdbeSerialTypeLen(serial_type1)<=(u64)nKey1+8
+       && CORRUPT_DB
+      ){
+        return 1;  /* corrupt record not detected by
+                   ** sqlite3VdbeRecordCompareWithSkip().  Return true
+                   ** to avoid firing the assert() */
+      }
       break;
     }
 
@@ -108430,7 +108443,7 @@ SQLITE_PRIVATE int sqlite3ExprIdToTrueFalse(Expr *pExpr){
 ** and 0 if it is FALSE.
 */
 SQLITE_PRIVATE int sqlite3ExprTruthValue(const Expr *pExpr){
-  pExpr = sqlite3ExprSkipCollate((Expr*)pExpr);
+  pExpr = sqlite3ExprSkipCollateAndLikely((Expr*)pExpr);
   assert( pExpr->op==TK_TRUEFALSE );
   assert( !ExprHasProperty(pExpr, EP_IntValue) );
   assert( sqlite3StrICmp(pExpr->u.zToken,"true")==0
@@ -112652,6 +112665,7 @@ static void findOrCreateAggInfoColumn(
   assert( pAggInfo->iFirstReg==0 );
   pCol = pAggInfo->aCol;
   for(k=0; k<pAggInfo->nColumn; k++, pCol++){
+    if( pCol->pCExpr==pExpr ) return;
     if( pCol->iTable==pExpr->iTable
      && pCol->iColumn==pExpr->iColumn
      && pExpr->op!=TK_IF_NULL_ROW
@@ -112698,7 +112712,7 @@ fix_up_expr:
   if( pExpr->op==TK_COLUMN ){
     pExpr->op = TK_AGG_COLUMN;
   }
-  pExpr->iAgg = (i16)k;
+  pExpr->iAgg = (i16)(k&0x7fff);
 }
 
 /*
@@ -117143,14 +117157,15 @@ static int loadStatTbl(
     decodeIntArray((char*)sqlite3_column_text(pStmt,2),nCol,pSample->anLt,0,0);
     decodeIntArray((char*)sqlite3_column_text(pStmt,3),nCol,pSample->anDLt,0,0);
 
-    /* Take a copy of the sample. Add two 0x00 bytes the end of the buffer.
+    /* Take a copy of the sample. Add 8 extra 0x00 bytes the end of the buffer.
     ** This is in case the sample record is corrupted. In that case, the
     ** sqlite3VdbeRecordCompare() may read up to two varints past the
     ** end of the allocated buffer before it realizes it is dealing with
-    ** a corrupt record. Adding the two 0x00 bytes prevents this from causing
+    ** a corrupt record.  Or it might try to read a large integer from the
+    ** buffer.  In any case, eight 0x00 bytes prevents this from causing
     ** a buffer overread.  */
     pSample->n = sqlite3_column_bytes(pStmt, 4);
-    pSample->p = sqlite3DbMallocZero(db, pSample->n + 2);
+    pSample->p = sqlite3DbMallocZero(db, pSample->n + 8);
     if( pSample->p==0 ){
       sqlite3_finalize(pStmt);
       return SQLITE_NOMEM_BKPT;
@@ -124448,6 +124463,7 @@ SQLITE_PRIVATE Table *sqlite3SrcListLookup(Parse *pParse, SrcList *pSrc){
   pTab = sqlite3LocateTableItem(pParse, 0, pItem);
   sqlite3DeleteTable(pParse->db, pItem->pTab);
   pItem->pTab = pTab;
+  pItem->fg.notCte = 1;
   if( pTab ){
     pTab->nTabRef++;
     if( pItem->fg.isIndexedBy && sqlite3IndexedByLookup(pParse, pItem) ){
@@ -145529,7 +145545,7 @@ static int aggregateIdxEprRefToColCallback(Walker *pWalker, Expr *pExpr){
   pExpr->op = TK_AGG_COLUMN;
   pExpr->iTable = pCol->iTable;
   pExpr->iColumn = pCol->iColumn;
-  ExprClearProperty(pExpr, EP_Skip|EP_Collate);
+  ExprClearProperty(pExpr, EP_Skip|EP_Collate|EP_Unlikely);
   return WRC_Prune;
 }
 
@@ -149246,7 +149262,7 @@ static void updateFromSelect(
 
   assert( pTabList->nSrc>1 );
   if( pSrc ){
-    pSrc->a[0].fg.notCte = 1;
+    assert( pSrc->a[0].fg.notCte );
     pSrc->a[0].iCursor = -1;
     pSrc->a[0].pTab->nTabRef--;
     pSrc->a[0].pTab = 0;
@@ -220989,15 +221005,19 @@ static int sessionReadRecord(
         }
       }
       if( eType==SQLITE_INTEGER || eType==SQLITE_FLOAT ){
-        sqlite3_int64 v = sessionGetI64(aVal);
-        if( eType==SQLITE_INTEGER ){
-          sqlite3VdbeMemSetInt64(apOut[i], v);
+        if( (pIn->nData-pIn->iNext)<8 ){
+          rc = SQLITE_CORRUPT_BKPT;
         }else{
-          double d;
-          memcpy(&d, &v, 8);
-          sqlite3VdbeMemSetDouble(apOut[i], d);
+          sqlite3_int64 v = sessionGetI64(aVal);
+          if( eType==SQLITE_INTEGER ){
+            sqlite3VdbeMemSetInt64(apOut[i], v);
+          }else{
+            double d;
+            memcpy(&d, &v, 8);
+            sqlite3VdbeMemSetDouble(apOut[i], d);
+          }
+          pIn->iNext += 8;
         }
-        pIn->iNext += 8;
       }
     }
   }
@@ -233888,9 +233908,9 @@ static int fts5DlidxLvlNext(Fts5DlidxLvl *pLvl){
     }
 
     if( iOff<pData->nn ){
-      i64 iVal;
+      u64 iVal;
       pLvl->iLeafPgno += (iOff - pLvl->iOff) + 1;
-      iOff += fts5GetVarint(&pData->p[iOff], (u64*)&iVal);
+      iOff += fts5GetVarint(&pData->p[iOff], &iVal);
       pLvl->iRowid += iVal;
       pLvl->iOff = iOff;
     }else{
@@ -235230,7 +235250,6 @@ static int fts5MultiIterDoCompare(Fts5Iter *pIter, int iOut){
       assert_nc( i2!=0 );
       pRes->bTermEq = 1;
       if( p1->iRowid==p2->iRowid ){
-        p1->bDel = p2->bDel;
         return i2;
       }
       res = ((p1->iRowid > p2->iRowid)==pIter->bRev) ? -1 : +1;
@@ -236450,7 +236469,7 @@ static void fts5WriteDlidxAppend(
     }
 
     if( pDlidx->bPrevValid ){
-      iVal = iRowid - pDlidx->iPrev;
+      iVal = (u64)iRowid - (u64)pDlidx->iPrev;
     }else{
       i64 iPgno = (i==0 ? pWriter->writer.pgno : pDlidx[-1].pgno);
       assert( pDlidx->buf.n==0 );
@@ -237250,7 +237269,6 @@ static void fts5DoSecureDelete(
   int iIdx = 0;
   int iStart = 0;
   int iKeyOff = 0;
-  int iPrevKeyOff = 0;
   int iDelKeyOff = 0;       /* Offset of deleted key, if any */
 
   nIdx = nPg-iPgIdx;
@@ -237314,28 +237332,33 @@ static void fts5DoSecureDelete(
   }
 
   iOff = iStart;
-  if( iNextOff>=iPgIdx ){
-    int pgno = pSeg->iLeafPgno+1;
-    fts5SecureDeleteOverflow(p, pSeg->pSeg, pgno, &bLastInDoclist);
-    iNextOff = iPgIdx;
-  }else{
-    /* Set bLastInDoclist to true if the entry being removed is the last
-    ** in its doclist.  */
-    for(iIdx=0, iKeyOff=0; iIdx<nIdx; /* no-op */){
-      u32 iVal = 0;
-      iIdx += fts5GetVarint32(&aIdx[iIdx], iVal);
-      iKeyOff += iVal;
-      if( iKeyOff==iNextOff ){
-        bLastInDoclist = 1;
+  if( pSeg->bDel==0 ){
+    if( iNextOff>=iPgIdx ){
+      int pgno = pSeg->iLeafPgno+1;
+      fts5SecureDeleteOverflow(p, pSeg->pSeg, pgno, &bLastInDoclist);
+      iNextOff = iPgIdx;
+    }else{
+      /* Set bLastInDoclist to true if the entry being removed is the last
+      ** in its doclist.  */
+      for(iIdx=0, iKeyOff=0; iIdx<nIdx; /* no-op */){
+        u32 iVal = 0;
+        iIdx += fts5GetVarint32(&aIdx[iIdx], iVal);
+        iKeyOff += iVal;
+        if( iKeyOff==iNextOff ){
+          bLastInDoclist = 1;
+        }
       }
+    }
+
+    if( fts5GetU16(&aPg[0])==iStart && (bLastInDoclist||iNextOff==iPgIdx) ){
+      fts5PutU16(&aPg[0], 0);
     }
   }
 
-  if( fts5GetU16(&aPg[0])==iStart && (bLastInDoclist||iNextOff==iPgIdx) ){
-    fts5PutU16(&aPg[0], 0);
-  }
-
-  if( bLastInDoclist==0 ){
+  if( pSeg->bDel ){
+    iOff += sqlite3Fts5PutVarint(&aPg[iOff], iDelta);
+    aPg[iOff++] = 0x01;
+  }else if( bLastInDoclist==0 ){
     if( iNextOff!=iPgIdx ){
       iNextOff += fts5GetVarint(&aPg[iNextOff], &iNextDelta);
       iOff += sqlite3Fts5PutVarint(&aPg[iOff], iDelta + iNextDelta);
@@ -237379,7 +237402,9 @@ static void fts5DoSecureDelete(
           iOff += sqlite3Fts5PutVarint(&aPg[iOff], nPrefix);
         }
         iOff += sqlite3Fts5PutVarint(&aPg[iOff], nSuffix);
-        if( nPrefix2>nPrefix ){
+        if( nPrefix2>pSeg->term.n ){
+          p->rc = FTS5_CORRUPT;
+        }else if( nPrefix2>nPrefix ){
           memcpy(&aPg[iOff], &pSeg->term.p[nPrefix], nPrefix2-nPrefix);
           iOff += (nPrefix2-nPrefix);
         }
@@ -237432,26 +237457,24 @@ static void fts5DoSecureDelete(
     }
 
     if( p->rc==SQLITE_OK ){
-      const int nMove = nPg - iNextOff;
-      int nShift = 0;
+      const int nMove = nPg - iNextOff;     /* Number of bytes to move */
+      int nShift = iNextOff - iOff;         /* Distance to move them */
+      int iPrevKeyOut = 0;
+      int iKeyIn = 0;
 
       memmove(&aPg[iOff], &aPg[iNextOff], nMove);
-      iPgIdx -= (iNextOff - iOff);
+      iPgIdx -= nShift;
       nPg = iPgIdx;
       fts5PutU16(&aPg[2], iPgIdx);
 
-      nShift = iNextOff - iOff;
-      for(iIdx=0, iKeyOff=0, iPrevKeyOff=0; iIdx<nIdx; /* no-op */){
+      for(iIdx=0; iIdx<nIdx; /* no-op */){
         u32 iVal = 0;
         iIdx += fts5GetVarint32(&aIdx[iIdx], iVal);
-        iKeyOff += iVal;
-        if( iKeyOff!=iDelKeyOff ){
-          if( iKeyOff>iOff ){
-            iKeyOff -= nShift;
-            nShift = 0;
-          }
-          nPg += sqlite3Fts5PutVarint(&aPg[nPg], iKeyOff - iPrevKeyOff);
-          iPrevKeyOff = iKeyOff;
+        iKeyIn += iVal;
+        if( iKeyIn!=iDelKeyOff ){
+          int iKeyOut = (iKeyIn - (iKeyIn>iOff ? nShift : 0));
+          nPg += sqlite3Fts5PutVarint(&aPg[nPg], iKeyOut - iPrevKeyOut);
+          iPrevKeyOut = iKeyOut;
         }
       }
 
@@ -237630,10 +237653,16 @@ static void fts5FlushOneHash(Fts5Index *p){
               fts5WriteFlushLeaf(p, &writer);
             }
           }else{
-            int bDummy;
-            int nPos;
-            int nCopy = fts5GetPoslistSize(&pDoclist[iOff], &nPos, &bDummy);
-            nCopy += nPos;
+            int bDel = 0;
+            int nPos = 0;
+            int nCopy = fts5GetPoslistSize(&pDoclist[iOff], &nPos, &bDel);
+            if( bDel && bSecureDelete ){
+              fts5BufferAppendVarint(&p->rc, pBuf, nPos*2);
+              iOff += nCopy;
+              nCopy = nPos;
+            }else{
+              nCopy += nPos;
+            }
             if( (pBuf->n + pPgidx->n + nCopy) <= pgsz ){
               /* The entire poslist will fit on the current leaf. So copy
               ** it in one go. */
@@ -242635,7 +242664,7 @@ static void fts5SourceIdFunc(
 ){
   assert( nArg==0 );
   UNUSED_PARAM2(nArg, apUnused);
-  sqlite3_result_text(pCtx, "fts5: 2023-05-16 12:36:15 831d0fb2836b71c9bc51067c49fee4b8f18047814f2ff22d817d25195cf350b0", -1, SQLITE_TRANSIENT);
+  sqlite3_result_text(pCtx, "fts5: 2025-08-06 11:05:53 4a8bf3c146c24759709eec55cdb0a9d2153c3a40e6645727c55c0404a99b5b4a", -1, SQLITE_TRANSIENT);
 }
 
 /*
