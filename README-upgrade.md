@@ -1,55 +1,133 @@
 ## Upgrading SQLite
 
 This document lists the steps needed to upgrade the sources in this repository
-with the latest revision from upstream.
+with a new revision from upstream.  There are three scenarios for an
+upgrade, with slightly different details:
+
+* SQLite is upgraded in the next Android release.  The upgrade takes place on
+  `main`.  This is called a flagged upgrade.
+  
+* SQLite is upgraded in an earlier Android release, starting with 24Q3.  These
+  releases use trunk-stable flags.  This is called a flagged backport.
+
+* SQLite is upgraded in an earlier Android release that does not use trunk-stable flags.
+  This is called a legacy upgrade.
+
+A word on SQLite versioning.  SQLite releases are identified by a public version
+`M.mm.p`, where
+* `M` is the major version ("3" since 2004, and unlikely to ever change).
+* `mm` is the minor version.
+* `p` is the patch level.  In practice, the patch level is a single digit but
+  the naming scheme allows for two digits.
+  
+There is also a version *key*: `Mmmppxx`.  This uses the same fields
+as the public version string except that the patch level is always two digits
+(zero padded) and `xx` is a two-digit local patch revision.  (`xx` is almost
+always "00".)
 
 ## Source Directory
 
-The upgrade takes place on `aosp-main`. The primary directory is below.
+The source directory for the sqlite library is `external/sqlite/`.
 
-```text
-external/sqlite
-```
+The source code for a legacy upgrade is placed in the single directory
+`external/sqlite/dist`.  Upgrading to a new sqlite version overwrites the
+previous sqlite source code.
 
-The upgrade steps are:
+The source code for a flagged upgrade or backport is stored in a directory that
+is named after the version.  Multiple sqlite source code directories coexist.  A
+trunk-stable build flag determines which version is active.  The source code
+directories are named
+`external/sqlite/dist/sqlite-autoconf-<key>/`.
 
-*   Select a version for the upgrade.  Note the year it was released by sqlite.org.
-*   Find the autoconf amalgamation tarball. For release 3.42.0, the URL is
-    [sqlite-autoconf-3420000.tar.gz](https://sqlite.org/2023/sqlite-autoconf-3420000.tar.gz).
-*   Change to the directory `external/sqlite` in the workspace.
-*   Run the script `UPDATE-SOURCE.bash`. This script is executable. The
-    arguments are the sqlite release year and the version. Invoke the script without
-    arguments for an example.
+## Upgrading
 
-`UPDATE-SOURCE.bash` may fail if the Android patch cannot be applied cleanly. If
-this happens, correct the patch failures by hand and rebuild the Android patch
-file. Use the script `REBUILD-ANDROID-PATCH.bash` to rebuild the patch file.
-This script takes a single argument which is the same version number that was
-given to `UPDATE-SOURCE.bash`.  Then rerun `UPDATE-SOURCE.bash`. It is important
-that `UPDATE-SOURCE.bash` run without errors.
+Begin the upgrade by changing to this directory: `external/sqlite`.  Then run
+`UPDATE-SOURCE.bash`.  The details depend on the Android release and whether or
+not the SQLite release has been published.
+
+### Android before 24Q3
+
+Download the SQLite autoconf amalgamation tarball for the desired version.  This
+seems to be the "tarball" link in the SQLite version history.  However, if the
+SQLite release has been published, the tarball can also be found directly at 
+`https://www.sqlite.org/<year>/sqlite-autoconf-<key>.tar.gz`.
+
+1. Run `UPDATE-SOURCE.bash <path-to-tarball>`.
+2. Manually correct compilation errors and rebuild the patch file.  See the
+   commands inside `UPDATE-SOURCE.bash`.
+3. Run `UPDATE-SOURCE.bash <path-to-tarball>`.  This uses the corrected patch
+   file and must complete without warnings or errors.
+
+The process overwrites the original files.
+
+### Android 24Q3 or later
+
+In Android 24Q3 and later, `UPDATE-SOURCE.bash` requires the SQLite version (not
+the version key) as its argument.  Other options are controlled by
+switches. 
+
+1. Update the source
+
+* If the SQLite release was published in the current year, the script will
+  construct the well-known URL for you, using the current year.
+
+  `UPDATE-SOURCE.bash <version>`
+
+* If the SQLite release was published in a prior year, the script will
+  construct the well-known URL for you:
+
+  `UPDATE-SOURCE.bash -y <year> <version>`
+
+* If the SQLite release has not been formally published, you need the direct URL:
+
+  `UPDATE-SOURCE.bash -u <url> <version>`
+
+2. Run `REBUILD-ANDROID-PATCH.bash <version>` to rebuild the patch file.
+3. Re-run `UPDATE-SOURCE.bash` with the same parameters as before.  This must
+   complete without warnings or errors.
 
 Once the scripts have completed, there will be a directory containing the new
-source files.  The directory is named after the sqlite release and exists in
-parallel with other sqlite release directories.  For release 3.42.0, the
-directory name is `external/sqlite/dist/sqlite-autoconf-3420000`.
+source files.  The directory is named after the sqlite release (using the
+compacted version) and exists in parallel with other sqlite release directories:
+`external/sqlite/dist/sqlite-autoconf-<key>`.
 
 ## Flagging
 
-The release of sqlite can be controlled by trunk-stable build flags.  The flag
-is `RELEASE_PACKAGE_LIBSQLITE3`.  The value of that flag is the 7-digit sqlite
-release number (e.g., 3420000).  Any target that respects trunk-stable flags
-will use the source in `external/sqlite/dist/sqlite-autoconf-FLAG`.  Not all
-targets respect the trunk-stable flags, however.  Such targets use the directory
-`external/sqlite/dist/sqlite-default`.
+As of Android 24Q3, the release of sqlite is controlled by a trunk-stable
+build flag.  The flag is `RELEASE_PACKAGE_LIBSQLITE3`.  The value of that flag
+is the sqlite key (e.g., "3420000").  Any target that
+respects trunk-stable flags will use the source in
+`external/sqlite/dist/sqlite-autoconf-<flag-value>`.
 
-A new release of sqlite can be promoted to `trunk` by setting the flag to the
-proper release string.  Once a new release of sqlite has been promoted to
-`next`, it is best practice to change the symbolic link `sqlite-default` to
-point to the new release.  This ensures that any target that does not honor
-build flags will use the newly promoted release.
+Not all targets respect the trunk-stable flags.  (The SDK, documentation, and
+kernel builds are examples). Such targets use the directory
+`external/sqlite/dist/sqlite-default`, which is a symlink to a real source
+directory.  Maintenance of this symlink is described below.
+
+If upgrading on main, then use gantry to advance the flag
+through the necessary stages.
+
+If upgrading an older Android branch, then the new SQLite release must move to `next`
+immediately.  The procedure is not well documented, but the current process is:
+1. Identify the internal release code.  Examples are "ap3a" and "bp2a".  
+2. Find the flag directory, which should be
+   `build/release/flag_values/<code>`.
+3. In the release directory, create or edit
+   `RELEASE_PACKAGE_LIBSQLITE3.textproto` to reflect the new release.  Look
+   around for examples.
+
+Once a release has reached the `next` stage, change the symbolic link
+`sqlite-default` to point to the new release.  This ensures that any target that
+does not honor build flags will use the newly promoted release.  On newer
+Android releases, the script `PUBLISH-VERSION.bash` will do this for you.  On
+older releases it must be done manually.
+
+Note: there is the possibility that the flag will have to be rolled back.  If that
+happens, be sure to update the symlink.
 
 Finally, after the new sqlite release has been delivered in an Android update,
 old sqlite release directories can be deleted.
+
 
 ## LICENSE
 
