@@ -82,6 +82,11 @@ switches.
 
   `UPDATE-SOURCE.bash -u <url> <version>`
 
+  NOTE: The sqlite URL might not download without an interactive anti-robot
+  check.  If that is true, then download the release manually and update the
+  software with the URL and the downloaded file.  The URL is still important
+  because it is the true location on the internet for the source files.
+
 2. Run `REBUILD-ANDROID-PATCH.bash <version>` to rebuild the patch file.
 3. Re-run `UPDATE-SOURCE.bash` with the same parameters as before.  This must
    complete without warnings or errors.
@@ -126,8 +131,9 @@ Note: there is the possibility that the flag will have to be rolled back.  If th
 happens, be sure to update the symlink.
 
 Finally, after the new sqlite release has been delivered in an Android update,
-old sqlite release directories can be deleted.
-
+old sqlite release directories can be deleted.  Be aware that the previous
+sqlite release may be in use on AOSP branches for some time after the new
+release is published.
 
 ## LICENSE
 
