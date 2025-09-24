@@ -37,6 +37,7 @@ usage() {
   echo "          the patch level defaults to 0"
   echo "  -n      dry-run: evaluate arguments but d not change anything"
   echo "  -u url  download the tarball from the specified url"
+  echo "  -p file a tarball that has already been downloaded"
   echo "  -y year the 4-digit year the sqlite version was released - required"
   echo "          if a full url is not specified and the year is not this year"
   echo "  -F      force execution even if not in external/sqlite"
@@ -48,12 +49,14 @@ usage() {
 dry_run=
 force=
 src_tarball_url=
+src_file=
 year=$(date +%Y)
-while getopts "hnFu:y:" option; do
+while getopts "hnFu:p:y:" option; do
   case $option in
     h) usage; exit 0;;
     n) dry_run=y;;
     u) src_tarball_url=$OPTARG;;
+    p) src_file=$OPTARG;;
     y) year=$OPTARG;;
     F) force=y;;
     *) usage "unknown switch"; exit 1;;
@@ -94,7 +97,11 @@ fi
 source_tgz=$(mktemp /tmp/sqlite-${sqlite_release}.zip.XXXXXX)
 source_ext_dir="${source_tgz}.extracted"
 trap "rm -rf ${source_tgz} ${source_ext_dir}" EXIT
-wget ${src_tarball_url} -O ${source_tgz}
+if [[ -n ${src_file} ]]; then
+  cp ${src_file} ${source_tgz}
+else
+  wget ${src_tarball_url} -O ${source_tgz}
+fi
 
 echo
 echo "# Extracting the source tgz..."
